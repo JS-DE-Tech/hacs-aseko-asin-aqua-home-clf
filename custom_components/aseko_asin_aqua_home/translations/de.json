@@ -3,13 +3,16 @@
     "step": {
       "user": {
         "title": "ASEKO ASIN AQUA Home",
-        "description": "Lokalen TCP-Listener und optionale transparente ASEKO-Cloud-Weiterleitung konfigurieren.",
+        "description": "Lokalen TCP-Listener und optionale einseitige ASEKO-Cloud-Weiterleitung konfigurieren.",
         "data": {
-          "listen_host": "Listen host",
-          "listen_port": "Listen port",
-          "forward_enabled": "Enable cloud forwarding",
-          "forward_host": "Cloud forwarding host",
-          "forward_port": "Cloud forwarding port"
+          "listen_host": "Listener-Host",
+          "listen_port": "Listener-Port",
+          "forward_enabled": "Cloud-Weiterleitung aktivieren",
+          "forward_host": "Host für Cloud-Weiterleitung",
+          "forward_port": "Port für Cloud-Weiterleitung",
+          "protocol_debug": "Protokoll-Debug-Logging aktivieren",
+          "capture_enabled": "Temporäre Protokolldiagnose erfassen",
+          "max_chlorine": "Maximal plausibler Chlorwert"
         }
       }
     }
@@ -19,11 +22,14 @@
       "init": {
         "title": "ASEKO ASIN AQUA Home options",
         "data": {
-          "listen_host": "Listen host",
-          "listen_port": "Listen port",
-          "forward_enabled": "Enable cloud forwarding",
-          "forward_host": "Cloud forwarding host",
-          "forward_port": "Cloud forwarding port"
+          "listen_host": "Listener-Host",
+          "listen_port": "Listener-Port",
+          "forward_enabled": "Cloud-Weiterleitung aktivieren",
+          "forward_host": "Host für Cloud-Weiterleitung",
+          "forward_port": "Port für Cloud-Weiterleitung",
+          "protocol_debug": "Protokoll-Debug-Logging aktivieren",
+          "capture_enabled": "Temporäre Protokolldiagnose erfassen",
+          "max_chlorine": "Maximal plausibler Chlorwert"
         }
       }
     }

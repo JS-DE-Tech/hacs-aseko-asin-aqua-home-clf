@@ -4,21 +4,28 @@ from __future__ import annotations
 import voluptuous as vol
 from homeassistant import config_entries
 from .const import (
+    CONF_CAPTURE_ENABLED,
     CONF_FORWARD_ENABLED,
     CONF_FORWARD_HOST,
     CONF_FORWARD_PORT,
     CONF_LISTEN_HOST,
     CONF_LISTEN_PORT,
+    CONF_MAX_CHLORINE,
+    CONF_PROTOCOL_DEBUG,
+    DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
     DEFAULT_FORWARD_HOST,
     DEFAULT_FORWARD_PORT,
     DEFAULT_LISTEN_HOST,
     DEFAULT_LISTEN_PORT,
+    DEFAULT_MAX_CHLORINE,
+    DEFAULT_PROTOCOL_DEBUG,
     DOMAIN,
 )
 
 
 def schema(values: dict | None = None):
+    """Build the setup and options schema with each option declared exactly once."""
     values = values or {}
     return vol.Schema(
         {
@@ -42,6 +49,18 @@ def schema(values: dict | None = None):
                 CONF_FORWARD_PORT,
                 default=values.get(CONF_FORWARD_PORT, DEFAULT_FORWARD_PORT),
             ): vol.All(vol.Coerce(int), vol.Range(min=1, max=65535)),
+            vol.Required(
+                CONF_PROTOCOL_DEBUG,
+                default=values.get(CONF_PROTOCOL_DEBUG, DEFAULT_PROTOCOL_DEBUG),
+            ): bool,
+            vol.Required(
+                CONF_CAPTURE_ENABLED,
+                default=values.get(CONF_CAPTURE_ENABLED, DEFAULT_CAPTURE_ENABLED),
+            ): bool,
+            vol.Required(
+                CONF_MAX_CHLORINE,
+                default=values.get(CONF_MAX_CHLORINE, DEFAULT_MAX_CHLORINE),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=100.0)),
         }
     )
 

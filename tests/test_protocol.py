@@ -1,7 +1,9 @@
 from datetime import datetime
 import importlib.util
-import sys
 from pathlib import Path
+import sys
+
+import pytest
 
 spec = importlib.util.spec_from_file_location(
     "aseko_protocol", Path("custom_components/aseko_asin_aqua_home/protocol.py")
@@ -9,11 +11,10 @@ spec = importlib.util.spec_from_file_location(
 module = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = module
 spec.loader.exec_module(module)
-AsekoProtocolDecoder, FrameBuffer, FRAME_LENGTH = (
-    module.AsekoProtocolDecoder,
-    module.FrameBuffer,
-    module.FRAME_LENGTH,
-)
+AsekoProtocolDecoder = module.AsekoProtocolDecoder
+FrameBuffer = module.FrameBuffer
+FRAME_LENGTH = module.FRAME_LENGTH
+InvalidFrameError = module.InvalidFrameError
 
 
 def frame(**values):
@@ -29,13 +30,67 @@ def frame(**values):
     return bytes(data)
 
 
-def test_fragmented_and_multiple_frames():
-    a = frame()
-    b = frame(**{"13": 1})
+def test_fragmented_valid_payload():
+    payload = frame()
     buf = FrameBuffer()
-    assert buf.feed(a[:30]) == []
-    assert buf.feed(a[30:] + b) == [a, b]
+    assert buf.feed(payload[:30]) == []
+    updates = buf.feed(payload[30:])
+    assert [update.sensors["ph"] for update in updates] == [0.45]
     assert buf.pending_bytes == 0
+
+
+def test_multiple_payloads_in_one_read():
+    updates = FrameBuffer().feed(frame() + frame(**{"13": 1}))
+    assert len(updates) == 2
+    assert not updates[0].errors["hour_dosing_exceeded"]
+    assert updates[1].errors["hour_dosing_exceeded"]
+
+
+def test_leading_garbage_bytes_are_discarded():
+    buf = FrameBuffer()
+    updates = buf.feed(b"garbage" + frame())
+    assert len(updates) == 1
+    assert any("leading unsynchronized" in event.reason for event in buf.events)
+
+
+def test_recovers_after_invalid_candidate():
+    buf = FrameBuffer()
+    updates = buf.feed(frame(**{"57": 145}) + frame(**{"29": 8}))
+    assert len(updates) == 1
+    assert updates[0].relays["filtration"]
+    assert any(not event.accepted for event in buf.events)
+
+
+def test_invalid_schedule_minute_rejected():
+    with pytest.raises(InvalidFrameError, match="filter 1 start minute"):
+        AsekoProtocolDecoder().decode(frame(**{"57": 145}))
+
+
+@pytest.mark.parametrize(
+    ("index", "value", "expected"),
+    [
+        (7, 13, "month"),
+        (8, 0, "day"),
+        (9, 24, "hour"),
+        (10, 60, "minute"),
+        (11, 60, "second"),
+    ],
+)
+def test_invalid_date_and_time_values_rejected(index, value, expected):
+    with pytest.raises(InvalidFrameError, match=expected):
+        AsekoProtocolDecoder().decode(frame(**{str(index): value}))
+
+
+def test_impossible_calendar_date_rejected():
+    with pytest.raises(InvalidFrameError, match="invalid controller datetime"):
+        AsekoProtocolDecoder().decode(frame(**{"7": 2, "8": 31}))
+
+
+def test_invalid_ph_and_chlorine_rejected():
+    with pytest.raises(InvalidFrameError, match="pH"):
+        AsekoProtocolDecoder().decode(frame(**{"14": 6, "15": 0}))
+    with pytest.raises(InvalidFrameError, match="chlorine"):
+        AsekoProtocolDecoder().decode(frame(**{"16": 8, "17": 0}))
 
 
 def test_negative_air_temperature():
@@ -48,9 +103,9 @@ def test_negative_air_temperature():
 
 
 def test_implausible_temperature_falls_back():
-    d = AsekoProtocolDecoder()
-    d.decode(frame())
-    result = d.decode(frame(**{"23": 2, "24": 0, "25": 2, "26": 0}))
+    decoder = AsekoProtocolDecoder()
+    decoder.decode(frame())
+    result = decoder.decode(frame(**{"23": 2, "24": 0, "25": 2, "26": 0}))
     assert result.sensors["air_temperature"] == 20
     assert result.sensors["water_temperature"] == 25
 
@@ -72,18 +127,16 @@ def test_error_and_relay_bits():
 
 
 def test_stateful_status_handling():
-    d = AsekoProtocolDecoder()
-    assert d.decode(frame(**{"78": 130})).status.heating
-    opened = d.decode(frame(**{"78": 40})).status
+    decoder = AsekoProtocolDecoder()
+    assert decoder.decode(frame(**{"78": 130})).status.heating
+    opened = decoder.decode(frame(**{"78": 40})).status
     assert opened.open_menu and opened.heating
-    retained = d.decode(frame(**{"78": 0})).status
+    retained = decoder.decode(frame(**{"78": 0})).status
     assert retained.open_menu and retained.heating
-    stopped = d.decode(frame(**{"78": 226})).status
+    stopped = decoder.decode(frame(**{"78": 226})).status
     assert not stopped.filtration and not stopped.heating and not stopped.open_menu
 
 
 def test_short_frame_rejected():
-    import pytest
-
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidFrameError):
         AsekoProtocolDecoder().decode(b"short")
