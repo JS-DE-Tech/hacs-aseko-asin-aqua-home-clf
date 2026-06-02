@@ -1,4 +1,4 @@
-"""Decode the tested extended ASIN AQUA Home LAN payload."""
+"""Decode and synchronize the observed extended ASIN AQUA Home LAN payload."""
 
 from __future__ import annotations
 
@@ -6,7 +6,14 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Any
 
-FRAME_LENGTH = 116  # Tested flow indexes 0..115. Confirm framing with more captures.
+# The Node-RED flow reads offsets through data[115]. This is the minimum bytes needed
+# to decode one payload, not a verified TCP wire-frame length. Packet captures are
+# still needed to document whether any firmware adds trailing bytes or delimiters.
+MIN_PAYLOAD_LENGTH = 116
+FRAME_LENGTH = MIN_PAYLOAD_LENGTH  # Backward-compatible alias; not a wire-frame claim.
+DEFAULT_MAX_CHLORINE = 20.0
+MAX_BUFFER_SIZE = 16_384
+HEX_DUMP_BYTES = 48
 
 ERROR_NAMES = (
     "hour_dosing_exceeded",
@@ -28,6 +35,10 @@ RELAY_NAMES = (
     "chlorine",
     "ph_minus",
 )
+
+
+class InvalidFrameError(ValueError):
+    """Raised when a candidate payload is structurally or semantically invalid."""
 
 
 @dataclass(slots=True)
@@ -52,39 +63,139 @@ class DecodedData:
     raw_fields: dict[str, Any] = field(default_factory=dict)
 
 
-class FrameBuffer:
-    """Split TCP stream input into tested fixed-size extended frames."""
+@dataclass(slots=True)
+class CandidateEvent:
+    """Compact parser event suitable for opt-in debug capture diagnostics."""
 
-    def __init__(self, frame_length: int = FRAME_LENGTH) -> None:
-        self._frame_length = frame_length
+    accepted: bool
+    offset: int
+    reason: str
+    candidate_hex: str
+
+
+class FrameBuffer:
+    """Synchronize TCP bytes by scanning for semantically valid payload starts.
+
+    The Node-RED export has no verified delimiter, checksum, or complete wire-frame
+    length. This scanner therefore consumes the minimum decodable payload only after
+    semantic validation. Any trailing bytes are treated as unsynchronized input and
+    scanned until a subsequent plausible payload start is found.
+    """
+
+    def __init__(
+        self,
+        decoder: AsekoProtocolDecoder | None = None,
+        *,
+        max_chlorine: float = DEFAULT_MAX_CHLORINE,
+    ) -> None:
+        self._decoder = decoder or AsekoProtocolDecoder(max_chlorine=max_chlorine)
         self._buffer = bytearray()
+        self.events: list[CandidateEvent] = []
 
     @property
     def pending_bytes(self) -> int:
         return len(self._buffer)
 
-    def feed(self, chunk: bytes) -> list[bytes]:
+    def feed(self, chunk: bytes) -> list[DecodedData]:
+        """Append a TCP chunk and return only synchronized, validated updates."""
+        self.events = []
         self._buffer.extend(chunk)
-        frames: list[bytes] = []
-        while len(self._buffer) >= self._frame_length:
-            frames.append(bytes(self._buffer[: self._frame_length]))
-            del self._buffer[: self._frame_length]
-        return frames
+        updates: list[DecodedData] = []
+        while len(self._buffer) >= MIN_PAYLOAD_LENGTH:
+            start = self._find_valid_start()
+            if start is None:
+                self._discard_unusable_prefix()
+                break
+            if start:
+                self.events.append(
+                    CandidateEvent(
+                        False,
+                        0,
+                        f"discarded {start} leading unsynchronized byte(s)",
+                        compact_hex(self._buffer[:start]),
+                    )
+                )
+                del self._buffer[:start]
+            candidate = bytes(self._buffer[:MIN_PAYLOAD_LENGTH])
+            decoded = self._decoder.decode(candidate)
+            self.events.append(
+                CandidateEvent(True, 0, "validated payload", compact_hex(candidate))
+            )
+            updates.append(decoded)
+            del self._buffer[:MIN_PAYLOAD_LENGTH]
+        return updates
+
+    def _find_valid_start(self) -> int | None:
+        last_start = len(self._buffer) - MIN_PAYLOAD_LENGTH
+        for offset in range(last_start + 1):
+            candidate = bytes(self._buffer[offset : offset + MIN_PAYLOAD_LENGTH])
+            try:
+                self._decoder.validate(candidate)
+            except InvalidFrameError as err:
+                if offset == 0:
+                    self.events.append(
+                        CandidateEvent(False, offset, str(err), compact_hex(candidate))
+                    )
+            else:
+                return offset
+        return None
+
+    def _discard_unusable_prefix(self) -> None:
+        keep = MIN_PAYLOAD_LENGTH - 1
+        discard = max(0, len(self._buffer) - keep)
+        if discard:
+            self.events.append(
+                CandidateEvent(
+                    False,
+                    0,
+                    f"discarded {discard} byte(s) without a validated payload start",
+                    compact_hex(self._buffer[:discard]),
+                )
+            )
+            del self._buffer[:discard]
+        if len(self._buffer) > MAX_BUFFER_SIZE:
+            del self._buffer[:-keep]
 
 
 class AsekoProtocolDecoder:
     """Stateful decoder ported from the tested Node-RED function nodes."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, max_chlorine: float = DEFAULT_MAX_CHLORINE) -> None:
+        self._max_chlorine = max_chlorine
         self._air_temperature: float | None = None
         self._water_temperature: float | None = None
         self._status = StatusState()
 
-    def decode(self, frame: bytes) -> DecodedData:
-        if len(frame) < FRAME_LENGTH:
-            raise ValueError(
-                f"ASIN AQUA Home frame is too short: {len(frame)} < {FRAME_LENGTH}"
+    def validate(self, frame: bytes) -> None:
+        """Reject shifted or implausible candidates before publishing entities."""
+        if len(frame) < MIN_PAYLOAD_LENGTH:
+            raise InvalidFrameError(
+                f"payload is too short: {len(frame)} < {MIN_PAYLOAD_LENGTH}"
             )
+        self._validate_range("month", frame[7], 1, 12)
+        self._validate_range("day", frame[8], 1, 31)
+        self._validate_range("hour", frame[9], 0, 23)
+        self._validate_range("minute", frame[10], 0, 59)
+        self._validate_range("second", frame[11], 0, 59)
+        # datetime catches impossible combinations such as 31 February.
+        self._device_datetime(frame)
+        self._validate_range("pH", self._word(frame, 14) / 100, 0, 14)
+        self._validate_range(
+            "chlorine", self._word(frame, 16) / 100, 0, self._max_chlorine
+        )
+        for name, hour_index, minute_index in (
+            ("filter 1 start", 56, 57),
+            ("filter 1 end", 58, 59),
+            ("filter 2 start", 60, 61),
+            ("filter 2 end", 62, 63),
+            ("backwash start", 69, 70),
+        ):
+            self._validate_range(f"{name} hour", frame[hour_index], 0, 23)
+            self._validate_range(f"{name} minute", frame[minute_index], 0, 59)
+
+    def decode(self, frame: bytes) -> DecodedData:
+        """Decode a validated candidate and update retained status state."""
+        self.validate(frame)
         data = frame
         air_raw = self._decode_air_temperature(data[23], data[24])
         water_raw = self._word(data, 25) / 10
@@ -101,14 +212,10 @@ class AsekoProtocolDecoder:
         }
         self._update_status(data[78])
         device_datetime = self._device_datetime(data)
-        deviation_seconds = (
-            abs(
-                (
-                    datetime.now().astimezone().replace(tzinfo=None) - device_datetime
-                ).total_seconds()
-            )
-            if device_datetime
-            else None
+        deviation_seconds = abs(
+            (
+                datetime.now().astimezone().replace(tzinfo=None) - device_datetime
+            ).total_seconds()
         )
         sensors: dict[str, Any] = {
             "ph": self._word(data, 14) / 100,
@@ -117,15 +224,10 @@ class AsekoProtocolDecoder:
             "water_temperature": self._water_temperature,
             "water_level": data[27] + 33,
             "water_level_probe": data[27],
-            "system_date": device_datetime.strftime("%d.%m.%Y")
-            if device_datetime
-            else None,
-            "system_time": device_datetime.strftime("%H:%M:%S")
-            if device_datetime
-            else None,
+            "system_date": device_datetime.strftime("%d.%m.%Y"),
+            "system_time": device_datetime.strftime("%H:%M:%S"),
             "time_deviation": self._duration(deviation_seconds),
-            "set_time_recommended": deviation_seconds is not None
-            and deviation_seconds > 300,
+            "set_time_recommended": deviation_seconds > 300,
             "ph_target": data[52] / 10,
             "chlorine_target": data[53] / 10,
             "flocculation_dose": data[54],
@@ -157,16 +259,14 @@ class AsekoProtocolDecoder:
             "byte24_binary": f"{byte24:08b}",
             "raw_status": data[78],
         }
-        # byte24 overlaps the tested water-temperature high byte. Its deeper meaning is
-        # not verified; retain it unchanged for diagnostics until captures clarify it.
         return DecodedData(
             sensors,
             errors,
             relays,
             replace(self._status),
             {
-                "frame_length": len(frame),
-                "frame_hex": frame.hex(),
+                "minimum_payload_length": MIN_PAYLOAD_LENGTH,
+                "payload_hex": frame[:MIN_PAYLOAD_LENGTH].hex(),
                 "error_byte": error_byte,
                 "relay_byte": relay_byte,
                 "byte24": byte24,
@@ -194,6 +294,11 @@ class AsekoProtocolDecoder:
         status.raw = current
 
     @staticmethod
+    def _validate_range(name: str, value: float, low: float, high: float) -> None:
+        if not low <= value <= high:
+            raise InvalidFrameError(f"{name} {value} outside {low}..{high}")
+
+    @staticmethod
     def _word(data: bytes, index: int) -> int:
         return data[index] * 256 + data[index + 1]
 
@@ -212,17 +317,24 @@ class AsekoProtocolDecoder:
         return f"{hour:02d}:{minute:02d}"
 
     @staticmethod
-    def _duration(seconds: float | None) -> str | None:
-        if seconds is None:
-            return None
+    def _duration(seconds: float) -> str:
         seconds = int(seconds)
         return f"{seconds // 3600:02d}:{seconds % 3600 // 60:02d}:{seconds % 60:02d}"
 
     @staticmethod
-    def _device_datetime(data: bytes) -> datetime | None:
+    def _device_datetime(data: bytes) -> datetime:
         try:
             return datetime(
                 data[6] + 2000, data[7], data[8], data[9], data[10], data[11]
             )
-        except ValueError:
-            return None
+        except ValueError as err:
+            raise InvalidFrameError(f"invalid controller datetime: {err}") from err
+
+
+def compact_hex(data: bytes | bytearray) -> str:
+    """Return a bounded head/tail hex dump for debug logs and diagnostics."""
+    raw = bytes(data)
+    if len(raw) <= HEX_DUMP_BYTES:
+        return raw.hex()
+    half = HEX_DUMP_BYTES // 2
+    return f"{raw[:half].hex()}...{raw[-half:].hex()}"

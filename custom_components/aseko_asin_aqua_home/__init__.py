@@ -3,11 +3,14 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import (
+    DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
     DEFAULT_FORWARD_HOST,
     DEFAULT_FORWARD_PORT,
     DEFAULT_LISTEN_HOST,
     DEFAULT_LISTEN_PORT,
+    DEFAULT_MAX_CHLORINE,
+    DEFAULT_PROTOCOL_DEBUG,
     DOMAIN,
     PLATFORMS,
 )
@@ -22,6 +25,9 @@ def _options(entry: ConfigEntry) -> dict:
         "forward_enabled": values.get("forward_enabled", DEFAULT_FORWARD_ENABLED),
         "forward_host": values.get("forward_host", DEFAULT_FORWARD_HOST),
         "forward_port": values.get("forward_port", DEFAULT_FORWARD_PORT),
+        "protocol_debug": values.get("protocol_debug", DEFAULT_PROTOCOL_DEBUG),
+        "capture_enabled": values.get("capture_enabled", DEFAULT_CAPTURE_ENABLED),
+        "max_chlorine": values.get("max_chlorine", DEFAULT_MAX_CHLORINE),
     }
 
 
