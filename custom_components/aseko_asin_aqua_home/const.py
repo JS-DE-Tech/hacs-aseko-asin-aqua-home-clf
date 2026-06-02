@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 DOMAIN = "aseko_asin_aqua_home"
-PLATFORMS = ["sensor", "binary_sensor", "number"]
+PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "button"]
 DEFAULT_LISTEN_HOST = "0.0.0.0"
 DEFAULT_LISTEN_PORT = 47524
 DEFAULT_FORWARD_ENABLED = True
@@ -13,6 +13,14 @@ DEFAULT_PROTOCOL_DEBUG = False
 DEFAULT_CAPTURE_ENABLED = False
 DEFAULT_MAX_CHLORINE = 20.0
 DEFAULT_WATER_LEVEL_OFFSET = 33
+
+DEFAULT_DOSING_CONTAINER_SIZES = {
+    "chlorine": 20.0,
+    "ph_minus": 20.0,
+    "flocculation": 6.0,
+    "algicide": 6.0,
+}
+DEFAULT_DOSING_FLOW_RATE = 0.0
 CONF_LISTEN_HOST = "listen_host"
 CONF_LISTEN_PORT = "listen_port"
 CONF_FORWARD_ENABLED = "forward_enabled"

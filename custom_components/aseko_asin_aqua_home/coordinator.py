@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import UNAVAILABLE_AFTER
+from .dosing_tracker import DosingTracker
 from .protocol import CandidateEvent, DecodedData, FrameBuffer
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,7 +20,9 @@ _CAPTURE_LIMIT = 200
 class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
     """Receive local frames and push decoded updates to entities."""
 
-    def __init__(self, hass: HomeAssistant, options: dict[str, Any]) -> None:
+    def __init__(
+        self, hass: HomeAssistant, entry_id: str, options: dict[str, Any]
+    ) -> None:
         super().__init__(hass, _LOGGER, name="ASEKO ASIN AQUA Home")
         self.options = options
         self.server: asyncio.AbstractServer | None = None
@@ -27,8 +30,10 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         self.clients = 0
         self.capture_records: deque[dict[str, Any]] = deque(maxlen=_CAPTURE_LIMIT)
         self._availability_cancel = None
+        self.dosing_tracker = DosingTracker(hass, entry_id)
 
     async def async_start(self) -> None:
+        await self.dosing_tracker.async_load()
         self.server = await asyncio.start_server(
             self._handle_client,
             self.options["listen_host"],
@@ -47,6 +52,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         if self._availability_cancel:
             self._availability_cancel()
             self._availability_cancel = None
+        await self.dosing_tracker.async_save()
         if self.server:
             self.server.close()
             await self.server.wait_closed()
@@ -91,8 +97,16 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
                     cloud_writer.write(chunk)
                     await cloud_writer.drain()  # controller -> cloud, unchanged
                 for decoded in parser.feed(chunk):
-                    self.last_valid_frame = datetime.now(timezone.utc)
+                    now = datetime.now(timezone.utc)
+                    self.last_valid_frame = now
+                    relay_transition = self.dosing_tracker.observe_relays(
+                        decoded.relays, now
+                    )
                     self.async_set_updated_data(decoded)
+                    if relay_transition:
+                        await self.dosing_tracker.async_save()
+                    else:
+                        await self.dosing_tracker.async_maybe_save(now)
                 self._record_parser_events(parser)
                 if self.options["protocol_debug"]:
                     _LOGGER.debug("ASEKO pending buffer=%d", parser.pending_bytes)

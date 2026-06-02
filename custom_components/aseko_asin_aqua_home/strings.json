@@ -157,6 +157,78 @@
       },
       "raw_status": {
         "name": "Raw Status"
+      },
+      "chlorine_runtime_since_replacement": {
+        "name": "Chlorine Pump Runtime"
+      },
+      "chlorine_consumed_liters": {
+        "name": "Chlorine Consumed"
+      },
+      "chlorine_remaining_liters": {
+        "name": "Chlorine Remaining Volume"
+      },
+      "chlorine_remaining_percent": {
+        "name": "Chlorine Remaining Percent"
+      },
+      "chlorine_suggested_flow_rate": {
+        "name": "Chlorine Suggested Pump Flow Rate"
+      },
+      "chlorine_last_container_replacement": {
+        "name": "Chlorine Last Container Replacement"
+      },
+      "ph_minus_runtime_since_replacement": {
+        "name": "pH-Minus Pump Runtime"
+      },
+      "ph_minus_consumed_liters": {
+        "name": "pH-Minus Consumed"
+      },
+      "ph_minus_remaining_liters": {
+        "name": "pH-Minus Remaining Volume"
+      },
+      "ph_minus_remaining_percent": {
+        "name": "pH-Minus Remaining Percent"
+      },
+      "ph_minus_suggested_flow_rate": {
+        "name": "pH-Minus Suggested Pump Flow Rate"
+      },
+      "ph_minus_last_container_replacement": {
+        "name": "pH-Minus Last Container Replacement"
+      },
+      "flocculation_runtime_since_replacement": {
+        "name": "Flocculation Pump Runtime"
+      },
+      "flocculation_consumed_liters": {
+        "name": "Flocculation Consumed"
+      },
+      "flocculation_remaining_liters": {
+        "name": "Flocculation Remaining Volume"
+      },
+      "flocculation_remaining_percent": {
+        "name": "Flocculation Remaining Percent"
+      },
+      "flocculation_suggested_flow_rate": {
+        "name": "Flocculation Suggested Pump Flow Rate"
+      },
+      "flocculation_last_container_replacement": {
+        "name": "Flocculation Last Container Replacement"
+      },
+      "algicide_runtime_since_replacement": {
+        "name": "Algicide Pump Runtime"
+      },
+      "algicide_consumed_liters": {
+        "name": "Algicide Consumed"
+      },
+      "algicide_remaining_liters": {
+        "name": "Algicide Remaining Volume"
+      },
+      "algicide_remaining_percent": {
+        "name": "Algicide Remaining Percent"
+      },
+      "algicide_suggested_flow_rate": {
+        "name": "Algicide Suggested Pump Flow Rate"
+      },
+      "algicide_last_container_replacement": {
+        "name": "Algicide Last Container Replacement"
       }
     },
     "binary_sensor": {
@@ -224,6 +296,49 @@
     "number": {
       "water_level_offset": {
         "name": "Water Level Offset"
+      },
+      "chlorine_container_size": {
+        "name": "Chlorine Container Size"
+      },
+      "chlorine_flow_rate": {
+        "name": "Chlorine Pump Flow Rate"
+      },
+      "ph_minus_container_size": {
+        "name": "pH-Minus Container Size"
+      },
+      "ph_minus_flow_rate": {
+        "name": "pH-Minus Pump Flow Rate"
+      },
+      "flocculation_container_size": {
+        "name": "Flocculation Container Size"
+      },
+      "flocculation_flow_rate": {
+        "name": "Flocculation Pump Flow Rate"
+      },
+      "algicide_container_size": {
+        "name": "Algicide Container Size"
+      },
+      "algicide_flow_rate": {
+        "name": "Algicide Pump Flow Rate"
+      }
+    },
+    "switch": {
+      "cloud_forwarding": {
+        "name": "Cloud Forwarding"
+      }
+    },
+    "button": {
+      "chlorine_container_replaced": {
+        "name": "Chlorine Container Replaced"
+      },
+      "ph_minus_container_replaced": {
+        "name": "pH-Minus Container Replaced"
+      },
+      "flocculation_container_replaced": {
+        "name": "Flocculation Container Replaced"
+      },
+      "algicide_container_replaced": {
+        "name": "Algicide Container Replaced"
       }
     }
   }

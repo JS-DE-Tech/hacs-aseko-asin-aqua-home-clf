@@ -157,6 +157,78 @@
       },
       "raw_status": {
         "name": "Status Rohwert"
+      },
+      "chlorine_runtime_since_replacement": {
+        "name": "Chlor Pumpenlaufzeit"
+      },
+      "chlorine_consumed_liters": {
+        "name": "Chlor Verbrauch"
+      },
+      "chlorine_remaining_liters": {
+        "name": "Chlor Restmenge"
+      },
+      "chlorine_remaining_percent": {
+        "name": "Chlor Restbestand"
+      },
+      "chlorine_suggested_flow_rate": {
+        "name": "Chlor empfohlene Förderleistung"
+      },
+      "chlorine_last_container_replacement": {
+        "name": "Chlor letzter Kanisterwechsel"
+      },
+      "ph_minus_runtime_since_replacement": {
+        "name": "pH-Minus Pumpenlaufzeit"
+      },
+      "ph_minus_consumed_liters": {
+        "name": "pH-Minus Verbrauch"
+      },
+      "ph_minus_remaining_liters": {
+        "name": "pH-Minus Restmenge"
+      },
+      "ph_minus_remaining_percent": {
+        "name": "pH-Minus Restbestand"
+      },
+      "ph_minus_suggested_flow_rate": {
+        "name": "pH-Minus empfohlene Förderleistung"
+      },
+      "ph_minus_last_container_replacement": {
+        "name": "pH-Minus letzter Kanisterwechsel"
+      },
+      "flocculation_runtime_since_replacement": {
+        "name": "Flockungsmittel Pumpenlaufzeit"
+      },
+      "flocculation_consumed_liters": {
+        "name": "Flockungsmittel Verbrauch"
+      },
+      "flocculation_remaining_liters": {
+        "name": "Flockungsmittel Restmenge"
+      },
+      "flocculation_remaining_percent": {
+        "name": "Flockungsmittel Restbestand"
+      },
+      "flocculation_suggested_flow_rate": {
+        "name": "Flockungsmittel empfohlene Förderleistung"
+      },
+      "flocculation_last_container_replacement": {
+        "name": "Flockungsmittel letzter Kanisterwechsel"
+      },
+      "algicide_runtime_since_replacement": {
+        "name": "Algizid Pumpenlaufzeit"
+      },
+      "algicide_consumed_liters": {
+        "name": "Algizid Verbrauch"
+      },
+      "algicide_remaining_liters": {
+        "name": "Algizid Restmenge"
+      },
+      "algicide_remaining_percent": {
+        "name": "Algizid Restbestand"
+      },
+      "algicide_suggested_flow_rate": {
+        "name": "Algizid empfohlene Förderleistung"
+      },
+      "algicide_last_container_replacement": {
+        "name": "Algizid letzter Kanisterwechsel"
       }
     },
     "binary_sensor": {
@@ -224,6 +296,49 @@
     "number": {
       "water_level_offset": {
         "name": "Wasserstand Offset"
+      },
+      "chlorine_container_size": {
+        "name": "Chlor Kanistergröße"
+      },
+      "chlorine_flow_rate": {
+        "name": "Chlor Förderleistung"
+      },
+      "ph_minus_container_size": {
+        "name": "pH-Minus Kanistergröße"
+      },
+      "ph_minus_flow_rate": {
+        "name": "pH-Minus Förderleistung"
+      },
+      "flocculation_container_size": {
+        "name": "Flockungsmittel Kanistergröße"
+      },
+      "flocculation_flow_rate": {
+        "name": "Flockungsmittel Förderleistung"
+      },
+      "algicide_container_size": {
+        "name": "Algizid Kanistergröße"
+      },
+      "algicide_flow_rate": {
+        "name": "Algizid Förderleistung"
+      }
+    },
+    "switch": {
+      "cloud_forwarding": {
+        "name": "Cloud-Weiterleitung"
+      }
+    },
+    "button": {
+      "chlorine_container_replaced": {
+        "name": "Chlor Kanister ausgetauscht"
+      },
+      "ph_minus_container_replaced": {
+        "name": "pH-Minus Kanister ausgetauscht"
+      },
+      "flocculation_container_replaced": {
+        "name": "Flockungsmittel-Kanister ausgetauscht"
+      },
+      "algicide_container_replaced": {
+        "name": "Algizid-Kanister ausgetauscht"
       }
     }
   }
