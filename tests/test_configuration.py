@@ -10,6 +10,7 @@ CONFIG_KEYS = {
     "CONF_PROTOCOL_DEBUG",
     "CONF_CAPTURE_ENABLED",
     "CONF_MAX_CHLORINE",
+    "CONF_WATER_LEVEL_OFFSET",
 }
 
 
@@ -104,4 +105,11 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         "protocol_debug",
         "capture_enabled",
         "max_chlorine",
+        "water_level_offset",
     }
+
+
+def test_config_entry_update_listener_reloads_integration():
+    init_source = Path("custom_components/aseko_asin_aqua_home/__init__.py").read_text()
+    assert "entry.add_update_listener(_reload)" in init_source
+    assert "async_reload(entry.entry_id)" in init_source

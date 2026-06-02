@@ -12,7 +12,8 @@
           "forward_port": "Cloud forwarding port",
           "protocol_debug": "Enable protocol debug logging",
           "capture_enabled": "Capture temporary protocol diagnostics",
-          "max_chlorine": "Maximum plausible chlorine value"
+          "max_chlorine": "Maximum plausible chlorine value",
+          "water_level_offset": "Water Level Offset"
         }
       }
     }
@@ -29,7 +30,8 @@
           "forward_port": "Cloud forwarding port",
           "protocol_debug": "Enable protocol debug logging",
           "capture_enabled": "Capture temporary protocol diagnostics",
-          "max_chlorine": "Maximum plausible chlorine value"
+          "max_chlorine": "Maximum plausible chlorine value",
+          "water_level_offset": "Water Level Offset"
         }
       }
     }
@@ -217,6 +219,16 @@
       },
       "status_open_menu": {
         "name": "Status: Open Menu"
+      }
+    },
+    "number": {
+      "water_level_offset": {
+        "name": "Water Level Offset"
+      }
+    },
+    "switch": {
+      "cloud_forwarding": {
+        "name": "Cloud Forwarding"
       }
     }
   }

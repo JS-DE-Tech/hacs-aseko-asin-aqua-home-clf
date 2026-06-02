@@ -12,6 +12,7 @@ from typing import Any
 MIN_PAYLOAD_LENGTH = 116
 FRAME_LENGTH = MIN_PAYLOAD_LENGTH  # Backward-compatible alias; not a wire-frame claim.
 DEFAULT_MAX_CHLORINE = 20.0
+DEFAULT_WATER_LEVEL_OFFSET = 33
 MAX_BUFFER_SIZE = 16_384
 HEX_DUMP_BYTES = 48
 
@@ -87,8 +88,12 @@ class FrameBuffer:
         decoder: AsekoProtocolDecoder | None = None,
         *,
         max_chlorine: float = DEFAULT_MAX_CHLORINE,
+        water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
     ) -> None:
-        self._decoder = decoder or AsekoProtocolDecoder(max_chlorine=max_chlorine)
+        self._decoder = decoder or AsekoProtocolDecoder(
+            max_chlorine=max_chlorine,
+            water_level_offset=water_level_offset,
+        )
         self._buffer = bytearray()
         self.events: list[CandidateEvent] = []
 
@@ -160,8 +165,14 @@ class FrameBuffer:
 class AsekoProtocolDecoder:
     """Stateful decoder ported from the tested Node-RED function nodes."""
 
-    def __init__(self, *, max_chlorine: float = DEFAULT_MAX_CHLORINE) -> None:
+    def __init__(
+        self,
+        *,
+        max_chlorine: float = DEFAULT_MAX_CHLORINE,
+        water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
+    ) -> None:
         self._max_chlorine = max_chlorine
+        self._water_level_offset = water_level_offset
         self._air_temperature: float | None = None
         self._water_temperature: float | None = None
         self._status = StatusState()
@@ -222,7 +233,7 @@ class AsekoProtocolDecoder:
             "chlorine": self._word(data, 16) / 100,
             "air_temperature": self._air_temperature,
             "water_temperature": self._water_temperature,
-            "water_level": data[27] + 33,
+            "water_level": data[27] + self._water_level_offset,
             "water_level_probe": data[27],
             "system_date": device_datetime.strftime("%d.%m.%Y"),
             "system_time": device_datetime.strftime("%H:%M:%S"),

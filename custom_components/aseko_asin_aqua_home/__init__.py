@@ -3,6 +3,7 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import (
+    CONF_WATER_LEVEL_OFFSET,
     DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
     DEFAULT_FORWARD_HOST,
@@ -11,6 +12,7 @@ from .const import (
     DEFAULT_LISTEN_PORT,
     DEFAULT_MAX_CHLORINE,
     DEFAULT_PROTOCOL_DEBUG,
+    DEFAULT_WATER_LEVEL_OFFSET,
     DOMAIN,
     PLATFORMS,
 )
@@ -28,6 +30,10 @@ def _options(entry: ConfigEntry) -> dict:
         "protocol_debug": values.get("protocol_debug", DEFAULT_PROTOCOL_DEBUG),
         "capture_enabled": values.get("capture_enabled", DEFAULT_CAPTURE_ENABLED),
         "max_chlorine": values.get("max_chlorine", DEFAULT_MAX_CHLORINE),
+        "water_level_offset": values.get(
+            CONF_WATER_LEVEL_OFFSET,
+            DEFAULT_WATER_LEVEL_OFFSET,
+        ),
     }
 
 
