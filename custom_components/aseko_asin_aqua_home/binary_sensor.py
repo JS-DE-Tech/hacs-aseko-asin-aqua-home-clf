@@ -25,6 +25,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class AsekoBinarySensor(CoordinatorEntity, BinarySensorEntity):
+    _attr_has_entity_name = True
+
     def __init__(self, coordinator, key, source, item):
         super().__init__(coordinator)
         self.entity_description = BinarySensorEntityDescription(

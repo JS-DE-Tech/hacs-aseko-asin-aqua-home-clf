@@ -37,186 +37,186 @@
   "entity": {
     "sensor": {
       "ph": {
-        "name": "pH"
+        "name": "pH-Wert"
       },
       "chlorine": {
-        "name": "Chlorine"
+        "name": "Chlorwert"
       },
       "air_temperature": {
-        "name": "Air Temperature"
+        "name": "Außentemperatur"
       },
       "water_temperature": {
-        "name": "Water Temperature"
+        "name": "Wassertemperatur"
       },
       "water_level": {
-        "name": "Water Level"
+        "name": "Wasserstand"
       },
       "water_level_probe": {
-        "name": "Water Level Probe"
+        "name": "Wasserstand Sonde"
       },
       "system_date": {
-        "name": "System Date"
+        "name": "Systemdatum"
       },
       "system_time": {
-        "name": "System Time"
+        "name": "Systemzeit"
       },
       "time_deviation": {
-        "name": "Time Deviation"
+        "name": "Zeitabweichung"
       },
       "set_time_recommended": {
-        "name": "Set Time Recommended"
+        "name": "Uhrzeitkorrektur empfohlen"
       },
       "ph_target": {
-        "name": "pH Target"
+        "name": "pH-Sollwert"
       },
       "chlorine_target": {
-        "name": "Chlorine Target"
+        "name": "Chlor-Sollwert"
       },
       "flocculation_dose": {
-        "name": "Flocculation Dose"
+        "name": "Flockungsmittel-Dosierung"
       },
       "water_temperature_target": {
-        "name": "Water Temperature Target"
+        "name": "Wassertemperatur Sollwert"
       },
       "filter_1_start": {
-        "name": "Filter 1 Start"
+        "name": "Filterzeit 1 Start"
       },
       "filter_1_end": {
-        "name": "Filter 1 End"
+        "name": "Filterzeit 1 Ende"
       },
       "filter_2_start": {
-        "name": "Filter 2 Start"
+        "name": "Filterzeit 2 Start"
       },
       "filter_2_end": {
-        "name": "Filter 2 End"
+        "name": "Filterzeit 2 Ende"
       },
       "backwash_interval_days": {
-        "name": "Backwash Interval Days"
+        "name": "Rückspülintervall"
       },
       "backwash_start": {
-        "name": "Backwash Start"
+        "name": "Rückspülung Start"
       },
       "algicide_dose": {
-        "name": "Algicide Dose"
+        "name": "Algizid-Dosierung"
       },
       "filling_time_limit": {
-        "name": "Filling Time Limit"
+        "name": "Maximale Nachfüllzeit"
       },
       "pool_volume": {
-        "name": "Pool Volume"
+        "name": "Poolvolumen"
       },
       "water_level_low": {
-        "name": "Water Level Low"
+        "name": "Wasserstand niedrig"
       },
       "refill_on": {
-        "name": "Refill On"
+        "name": "Nachfüllung einschalten"
       },
       "refill_off": {
-        "name": "Refill Off"
+        "name": "Nachfüllung ausschalten"
       },
       "water_level_high": {
-        "name": "Water Level High"
+        "name": "Wasserstand hoch"
       },
       "dosing_delay": {
-        "name": "Dosing Delay"
+        "name": "Dosierverzögerung"
       },
       "startup_delay": {
-        "name": "Startup Delay"
+        "name": "Startverzögerung"
       },
       "concentration": {
-        "name": "Concentration"
+        "name": "Konzentration"
       },
       "ph_minus_concentration": {
-        "name": "pH Minus Concentration"
+        "name": "Konzentration pH-Minus"
       },
       "max_chlorine_doses": {
-        "name": "Max Chlorine Doses"
+        "name": "Maximale Anzahl Chlordosierungen"
       },
       "max_ph_doses": {
-        "name": "Max pH Doses"
+        "name": "Maximale Anzahl pH-Dosierungen"
       },
       "error_byte": {
-        "name": "Error Byte"
+        "name": "Fehlerbyte"
       },
       "error_byte_binary": {
-        "name": "Error Byte Binary"
+        "name": "Fehlerbyte binär"
       },
       "relay_byte": {
-        "name": "Relay Byte"
+        "name": "Relaisbyte"
       },
       "relay_byte_binary": {
-        "name": "Relay Byte Binary"
+        "name": "Relaisbyte binär"
       },
       "byte24": {
-        "name": "Byte24"
+        "name": "Byte 24 Rohwert"
       },
       "byte24_binary": {
-        "name": "Byte24 Binary"
+        "name": "Byte 24 binär"
       },
       "raw_status": {
-        "name": "Raw Status"
+        "name": "Status Rohwert"
       }
     },
     "binary_sensor": {
       "error_hour_dosing_exceeded": {
-        "name": "Störung: Hour Dosing Exceeded"
+        "name": "Störung: Stundendosierung überschritten"
       },
       "error_time_correction": {
-        "name": "Störung: Time Correction"
+        "name": "Störung: Zeitkorrektur"
       },
       "error_no_probe_flow": {
-        "name": "Störung: No Probe Flow"
+        "name": "Störung: Kein Durchfluss an den Sonden"
       },
       "error_buffer_tank_empty": {
-        "name": "Störung: Buffer Tank Empty"
+        "name": "Störung: Pufferbehälter leer"
       },
       "error_buffer_tank_overflow": {
-        "name": "Störung: Buffer Tank Overflow"
+        "name": "Störung: Pufferbehälter übergelaufen"
       },
       "error_low_filling_speed": {
-        "name": "Störung: Low Filling Speed"
+        "name": "Störung: Nachfüllgeschwindigkeit zu gering"
       },
       "error_ph_doses_without_change": {
-        "name": "Störung: pH Doses Without Change"
+        "name": "Störung: pH-Dosierungen ohne Änderung"
       },
       "error_chlorine_doses_without_change": {
-        "name": "Störung: Chlorine Doses Without Change"
+        "name": "Störung: Chlordosierungen ohne Änderung"
       },
       "relay_backwash": {
-        "name": "Relais: Backwash"
+        "name": "Relais: Rückspülung"
       },
       "relay_filling": {
-        "name": "Relais: Filling"
+        "name": "Relais: Nachfüllung"
       },
       "relay_heating": {
-        "name": "Relais: Heating"
+        "name": "Relais: Heizung"
       },
       "relay_filtration": {
         "name": "Relais: Filtration"
       },
       "relay_algicide": {
-        "name": "Relais: Algicide"
+        "name": "Relais: Algizid"
       },
       "relay_flocculation": {
-        "name": "Relais: Flocculation"
+        "name": "Relais: Flockungsmittel"
       },
       "relay_chlorine": {
-        "name": "Relais: Chlorine"
+        "name": "Relais: Chlor"
       },
       "relay_ph_minus": {
-        "name": "Relais: pH Minus"
+        "name": "Relais: pH-Minus"
       },
       "status_filtration": {
         "name": "Status: Filtration"
       },
       "status_standby": {
-        "name": "Status: Standby"
+        "name": "Status: Bereitschaft"
       },
       "status_heating": {
-        "name": "Status: Heating"
+        "name": "Status: Heizung"
       },
       "status_open_menu": {
-        "name": "Status: Open Menu"
+        "name": "Status: Menü geöffnet"
       }
     }
   }
