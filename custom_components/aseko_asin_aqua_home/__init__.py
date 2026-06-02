@@ -3,6 +3,7 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import (
+    CONF_FORWARD_ENABLED,
     CONF_WATER_LEVEL_OFFSET,
     DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
@@ -18,6 +19,15 @@ from .const import (
 )
 from .coordinator import AsekoCoordinator
 from .dosing_tracker import DOSING_CHANNELS
+
+_RELOAD_OPTION_KEYS = {
+    "listen_host",
+    "listen_port",
+    "forward_host",
+    "forward_port",
+    "max_chlorine",
+    CONF_WATER_LEVEL_OFFSET,
+}
 
 
 def _options(entry: ConfigEntry) -> dict:
@@ -62,4 +72,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def _reload(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    await hass.config_entries.async_reload(entry.entry_id)
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    new_options = _options(entry)
+    changed_options = {
+        key
+        for key, value in new_options.items()
+        if coordinator.options.get(key) != value
+    }
+    if changed_options & _RELOAD_OPTION_KEYS:
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
+    coordinator.options.update(new_options)
+    if CONF_FORWARD_ENABLED in changed_options:
+        await coordinator.async_set_forwarding_enabled(
+            new_options[CONF_FORWARD_ENABLED]
+        )

@@ -65,8 +65,10 @@ class AsekoCloudForwardingSwitch(SwitchEntity):
         await self._set_enabled(False)
 
     async def _set_enabled(self, enabled: bool) -> None:
+        coordinator = self.hass.data[DOMAIN][self.entry.entry_id]
+        await coordinator.async_set_forwarding_enabled(enabled)
         self.hass.config_entries.async_update_entry(
             self.entry,
             options={**self.entry.options, CONF_FORWARD_ENABLED: enabled},
         )
-        await self.hass.config_entries.async_reload(self.entry.entry_id)
+        self.async_write_ha_state()

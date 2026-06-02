@@ -56,7 +56,8 @@ def install_homeassistant_stubs(monkeypatch):
         CONFIG = "config"
 
     class Entity:
-        pass
+        def async_write_ha_state(self):
+            self._ha_state_written = True
 
     class CoordinatorEntity:
         def __init__(self, coordinator):
@@ -232,17 +233,36 @@ def test_cloud_forwarding_switch_updates_option_and_icons(integration_modules):
         async def async_reload(self, entry_id):
             calls.append(("reload", entry_id))
 
+    class Coordinator:
+        def __init__(self):
+            self.forwarding_updates = []
+
+        async def async_set_forwarding_enabled(self, enabled):
+            self.forwarding_updates.append(enabled)
+
     entry = types.SimpleNamespace(data={}, options={"water_level_offset": 33}, entry_id="entry-1")
-    entity = switch.AsekoCloudForwardingSwitch(types.SimpleNamespace(config_entries=ConfigEntries()), entry)
+    coordinator = Coordinator()
+    hass = types.SimpleNamespace(
+        config_entries=ConfigEntries(),
+        data={switch.DOMAIN: {entry.entry_id: coordinator}},
+    )
+    entity = switch.AsekoCloudForwardingSwitch(hass, entry)
     assert entity._attr_unique_id == "asin_aqua_home_cloud_forwarding"
     assert entity._attr_has_entity_name is True
     assert entity.is_on is True
     assert entity.icon == "mdi:cloud-sync"
     asyncio.run(entity.async_turn_off())
+    assert coordinator.forwarding_updates == [False]
     assert entry.options == {"water_level_offset": 33, "forward_enabled": False}
     assert entity.icon == "mdi:cloud-off-outline"
+    assert entity._ha_state_written is True
     asyncio.run(entity.async_turn_on())
+    assert coordinator.forwarding_updates == [False, True]
     assert entry.options == {"water_level_offset": 33, "forward_enabled": True}
+    assert calls == [
+        ("update", {"water_level_offset": 33, "forward_enabled": False}),
+        ("update", {"water_level_offset": 33, "forward_enabled": True}),
+    ]
 
 
 def test_button_descriptions_have_stable_unique_ids(integration_modules):

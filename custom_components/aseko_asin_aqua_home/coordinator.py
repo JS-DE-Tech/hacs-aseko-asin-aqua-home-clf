@@ -3,6 +3,7 @@
 from __future__ import annotations
 import asyncio
 from collections import deque
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import logging
 from typing import Any
@@ -15,6 +16,15 @@ from .protocol import CandidateEvent, DecodedData, FrameBuffer
 
 _LOGGER = logging.getLogger(__name__)
 _CAPTURE_LIMIT = 200
+
+
+@dataclass
+class GatewaySession:
+    """Active gateway connection and its optional one-way cloud forwarding."""
+
+    gateway_writer: asyncio.StreamWriter
+    cloud_writer: asyncio.StreamWriter | None = None
+    cloud_discard_task: asyncio.Task[None] | None = None
 
 
 class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
@@ -30,6 +40,8 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         self.clients = 0
         self.capture_records: deque[dict[str, Any]] = deque(maxlen=_CAPTURE_LIMIT)
         self._availability_cancel = None
+        self._sessions: dict[asyncio.StreamWriter, GatewaySession] = {}
+        self._forwarding_lock = asyncio.Lock()
         self.dosing_tracker = DosingTracker(hass, entry_id)
 
     async def async_start(self) -> None:
@@ -53,6 +65,8 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
             self._availability_cancel()
             self._availability_cancel = None
         await self.dosing_tracker.async_save()
+        for session in list(self._sessions.values()):
+            await self._close_cloud_forwarding(session)
         if self.server:
             self.server.close()
             await self.server.wait_closed()
@@ -69,33 +83,83 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
     def _refresh_availability(self, _now: datetime) -> None:
         self.async_update_listeners()
 
+    async def async_set_forwarding_enabled(self, enabled: bool) -> None:
+        """Enable or disable one-way cloud forwarding for active sessions."""
+        async with self._forwarding_lock:
+            self.options["forward_enabled"] = enabled
+            sessions = list(self._sessions.values())
+            if enabled:
+                for session in sessions:
+                    if session.cloud_writer is None:
+                        await self._open_cloud_forwarding(session)
+            else:
+                for session in sessions:
+                    await self._close_cloud_forwarding(session)
+
+    async def _open_cloud_forwarding(self, session: GatewaySession) -> None:
+        """Open one-way cloud forwarding for a gateway session if possible."""
+        if session.cloud_writer is not None:
+            return
+        try:
+            cloud_reader, cloud_writer = await asyncio.open_connection(
+                self.options["forward_host"], self.options["forward_port"]
+            )
+        except OSError as err:
+            _LOGGER.warning("Cloud forwarding connection failed: %s", err)
+            return
+        session.cloud_writer = cloud_writer
+        session.cloud_discard_task = asyncio.create_task(
+            self._discard_cloud_responses(cloud_reader)
+        )
+
+    async def _close_cloud_forwarding(self, session: GatewaySession) -> None:
+        """Close one-way cloud forwarding without touching the gateway writer."""
+        if session.cloud_discard_task:
+            session.cloud_discard_task.cancel()
+            try:
+                await session.cloud_discard_task
+            except asyncio.CancelledError:
+                pass
+            session.cloud_discard_task = None
+        if session.cloud_writer:
+            session.cloud_writer.close()
+            try:
+                await session.cloud_writer.wait_closed()
+            except ConnectionError as err:
+                _LOGGER.debug("Cloud forwarding close failed: %s", err)
+            session.cloud_writer = None
+
+    async def _forward_chunk_to_cloud(
+        self, session: GatewaySession, chunk: bytes
+    ) -> None:
+        """Forward a gateway chunk to the cloud without interrupting local handling."""
+        cloud_writer = session.cloud_writer
+        if cloud_writer is None:
+            return
+        try:
+            cloud_writer.write(chunk)
+            await cloud_writer.drain()  # controller -> cloud, unchanged
+        except (ConnectionError, OSError) as err:
+            _LOGGER.warning("Cloud forwarding write failed: %s", err)
+            await self._close_cloud_forwarding(session)
+
     async def _handle_client(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
         self.clients += 1
+        session = GatewaySession(gateway_writer=writer)
+        self._sessions[writer] = session
         _LOGGER.debug("Gateway connected from %s", writer.get_extra_info("peername"))
-        cloud_writer: asyncio.StreamWriter | None = None
-        cloud_discard_task: asyncio.Task[None] | None = None
         try:
             if self.options["forward_enabled"]:
-                try:
-                    cloud_reader, cloud_writer = await asyncio.open_connection(
-                        self.options["forward_host"], self.options["forward_port"]
-                    )
-                    cloud_discard_task = asyncio.create_task(
-                        self._discard_cloud_responses(cloud_reader)
-                    )
-                except OSError as err:
-                    _LOGGER.warning("Cloud forwarding connection failed: %s", err)
+                await self._open_cloud_forwarding(session)
             parser = FrameBuffer(
                 max_chlorine=self.options["max_chlorine"],
                 water_level_offset=self.options["water_level_offset"],
             )
             while chunk := await reader.read(4096):
                 self._record_chunk(chunk, parser.pending_bytes)
-                if cloud_writer:
-                    cloud_writer.write(chunk)
-                    await cloud_writer.drain()  # controller -> cloud, unchanged
+                await self._forward_chunk_to_cloud(session, chunk)
                 for decoded in parser.feed(chunk):
                     now = datetime.now(timezone.utc)
                     self.last_valid_frame = now
@@ -114,11 +178,8 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
             _LOGGER.debug("Gateway disconnected: %s", err)
         finally:
             self.clients -= 1
-            if cloud_discard_task:
-                cloud_discard_task.cancel()
-            if cloud_writer:
-                cloud_writer.close()
-                await cloud_writer.wait_closed()
+            self._sessions.pop(writer, None)
+            await self._close_cloud_forwarding(session)
             writer.close()
             await writer.wait_closed()
 
