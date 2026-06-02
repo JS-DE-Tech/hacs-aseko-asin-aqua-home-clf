@@ -17,3 +17,39 @@ The tested extended payload accesses bytes `0..115`, which establishes a minimum
 
 ## Maintainer note: external HACS metadata
 HACS validates metadata that is managed outside this repository. Add repository topics such as `hacs`, `home-assistant`, `aseko`, and `pool-controller` under **GitHub → About → Settings**. Integration brand assets belong in the separate [`home-assistant/brands`](https://github.com/home-assistant/brands) repository. The workflow temporarily ignores the `topics` and `brands` checks so this source repository remains text-only. Remove each ignore after its external metadata has been configured.
+
+## Dosing container tracking and calibration
+
+The integration can estimate the remaining volume for the chlorine, pH-minus,
+flocculation, and algicide containers from the ASEKO dosing relay runtimes. These
+values are estimates: the controller only reports whether each dosing pump relay is
+active, so Home Assistant multiplies the accumulated runtime by the pump flow rate
+you configure manually.
+
+Each channel has two configuration number entities:
+
+- container size in liters
+- pump flow rate in liters per hour
+
+The default pump flow rate is `0.0 l/h`, which means the channel is not calibrated
+yet. While a channel is uncalibrated, runtime tracking continues, but consumed
+liters, remaining liters, and remaining percent stay unavailable. The suggested flow
+rate sensor becomes available after runtime has been recorded.
+
+Recommended calibration workflow:
+
+1. Leave the pump flow rate at `0.0 l/h`.
+2. Install a full chemical container.
+3. Press the matching `... Container Replaced` / `... Kanister ausgetauscht` button.
+4. Let the integration accumulate runtime while the ASEKO controller doses normally.
+5. When the container is actually empty, read the channel's suggested pump flow rate.
+6. Enter that value manually into the channel's pump flow-rate number entity.
+7. Install a new full container.
+8. Press the matching replacement button again.
+9. The integration can now estimate consumed volume, remaining liters, and remaining
+   percent for the new container.
+
+Runtime is persisted in Home Assistant storage and survives restarts, reloads,
+integration updates, option changes, and Home Assistant updates. To avoid
+unbounded overcounting after downtime, a single interval between valid payloads is
+only counted when it is no longer than 60 seconds.

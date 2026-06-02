@@ -17,11 +17,12 @@ from .const import (
     PLATFORMS,
 )
 from .coordinator import AsekoCoordinator
+from .dosing_tracker import DOSING_CHANNELS
 
 
 def _options(entry: ConfigEntry) -> dict:
     values = {**entry.data, **entry.options}
-    return {
+    options = {
         "listen_host": values.get("listen_host", DEFAULT_LISTEN_HOST),
         "listen_port": values.get("listen_port", DEFAULT_LISTEN_PORT),
         "forward_enabled": values.get("forward_enabled", DEFAULT_FORWARD_ENABLED),
@@ -35,10 +36,18 @@ def _options(entry: ConfigEntry) -> dict:
             DEFAULT_WATER_LEVEL_OFFSET,
         ),
     }
+    for channel in DOSING_CHANNELS:
+        options[f"{channel.key}_container_size"] = values.get(
+            f"{channel.key}_container_size", channel.container_size_default
+        )
+        options[f"{channel.key}_flow_rate"] = values.get(
+            f"{channel.key}_flow_rate", 0.0
+        )
+    return options
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    coordinator = AsekoCoordinator(hass, _options(entry))
+    coordinator = AsekoCoordinator(hass, entry.entry_id, _options(entry))
     await coordinator.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     entry.async_on_unload(entry.add_update_listener(_reload))
