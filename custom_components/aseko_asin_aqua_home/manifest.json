@@ -1,0 +1,11 @@
+{
+  "domain": "aseko_asin_aqua_home",
+  "name": "ASEKO ASIN AQUA Home",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "version": "0.1.0",
+  "issue_tracker": "https://github.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/issues"
+}
