@@ -81,7 +81,10 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
                     )
                 except OSError as err:
                     _LOGGER.warning("Cloud forwarding connection failed: %s", err)
-            parser = FrameBuffer(max_chlorine=self.options["max_chlorine"])
+            parser = FrameBuffer(
+                max_chlorine=self.options["max_chlorine"],
+                water_level_offset=self.options["water_level_offset"],
+            )
             while chunk := await reader.read(4096):
                 self._record_chunk(chunk, parser.pending_bytes)
                 if cloud_writer:

@@ -19,33 +19,81 @@ class AsekoSensorDescription(SensorEntityDescription):
     unit: str | None = None
 
 
+SENSOR_ICONS = {
+    "ph": "mdi:ph",
+    "chlorine": "mdi:water-opacity",
+    "air_temperature": "mdi:thermometer",
+    "water_temperature": "mdi:thermometer-water",
+    "water_level": "mdi:waves-arrow-up",
+    "water_level_probe": "mdi:ruler",
+    "system_date": "mdi:calendar",
+    "system_time": "mdi:clock-outline",
+    "time_deviation": "mdi:timer-outline",
+    "set_time_recommended": "mdi:clock-alert-outline",
+    "ph_target": "mdi:target",
+    "chlorine_target": "mdi:target",
+    "flocculation_dose": "mdi:flask-outline",
+    "water_temperature_target": "mdi:thermometer-check",
+    "filter_1_start": "mdi:clock-start",
+    "filter_1_end": "mdi:clock-end",
+    "filter_2_start": "mdi:clock-start",
+    "filter_2_end": "mdi:clock-end",
+    "backwash_interval_days": "mdi:calendar-sync",
+    "backwash_start": "mdi:backup-restore",
+    "algicide_dose": "mdi:flask-outline",
+    "filling_time_limit": "mdi:timer-outline",
+    "pool_volume": "mdi:pool",
+    "water_level_low": "mdi:arrow-collapse-down",
+    "refill_on": "mdi:water-plus",
+    "refill_off": "mdi:water-minus",
+    "water_level_high": "mdi:arrow-collapse-up",
+    "dosing_delay": "mdi:timer-outline",
+    "startup_delay": "mdi:timer-outline",
+    "concentration": "mdi:percent",
+    "ph_minus_concentration": "mdi:percent",
+    "max_chlorine_doses": "mdi:counter",
+    "max_ph_doses": "mdi:counter",
+    "error_byte": "mdi:alert-circle-outline",
+    "error_byte_binary": "mdi:code-braces",
+    "relay_byte": "mdi:numeric",
+    "relay_byte_binary": "mdi:code-braces",
+    "byte24": "mdi:numeric",
+    "byte24_binary": "mdi:code-braces",
+    "raw_status": "mdi:state-machine",
+}
+
+
+def sensor_description(key: str, **kwargs) -> AsekoSensorDescription:
+    return AsekoSensorDescription(
+        key=key,
+        translation_key=key,
+        icon=SENSOR_ICONS[key],
+        **kwargs,
+    )
+
+
 DESCRIPTIONS = [
-    AsekoSensorDescription(key="ph", translation_key="ph"),
-    AsekoSensorDescription(
-        key="chlorine",
-        translation_key="chlorine",
+    sensor_description("ph"),
+    sensor_description(
+        "chlorine",
         native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
     ),
-    AsekoSensorDescription(
-        key="air_temperature",
-        translation_key="air_temperature",
+    sensor_description(
+        "air_temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
-    AsekoSensorDescription(
-        key="water_temperature",
-        translation_key="water_temperature",
+    sensor_description(
+        "water_temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
-    AsekoSensorDescription(
-        key="water_level",
-        translation_key="water_level",
+    sensor_description(
+        "water_level",
         native_unit_of_measurement="cm",
     ),
-    AsekoSensorDescription(
-        key="water_level_probe",
-        translation_key="water_level_probe",
+    sensor_description(
+        "water_level_probe",
         native_unit_of_measurement="cm",
     ),
 ]
@@ -85,7 +133,7 @@ for key in (
     "byte24_binary",
     "raw_status",
 ):
-    DESCRIPTIONS.append(AsekoSensorDescription(key=key, translation_key=key))
+    DESCRIPTIONS.append(sensor_description(key))
 
 
 async def async_setup_entry(hass, entry, async_add_entities):

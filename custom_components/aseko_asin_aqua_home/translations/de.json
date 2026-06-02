@@ -12,7 +12,8 @@
           "forward_port": "Port für Cloud-Weiterleitung",
           "protocol_debug": "Protokoll-Debug-Logging aktivieren",
           "capture_enabled": "Temporäre Protokolldiagnose erfassen",
-          "max_chlorine": "Maximal plausibler Chlorwert"
+          "max_chlorine": "Maximal plausibler Chlorwert",
+          "water_level_offset": "Wasserstand Offset"
         }
       }
     }
@@ -29,7 +30,8 @@
           "forward_port": "Port für Cloud-Weiterleitung",
           "protocol_debug": "Protokoll-Debug-Logging aktivieren",
           "capture_enabled": "Temporäre Protokolldiagnose erfassen",
-          "max_chlorine": "Maximal plausibler Chlorwert"
+          "max_chlorine": "Maximal plausibler Chlorwert",
+          "water_level_offset": "Wasserstand Offset"
         }
       }
     }
@@ -217,6 +219,11 @@
       },
       "status_open_menu": {
         "name": "Status: Menü geöffnet"
+      }
+    },
+    "number": {
+      "water_level_offset": {
+        "name": "Wasserstand Offset"
       }
     }
   }

@@ -137,6 +137,29 @@ def test_stateful_status_handling():
     assert not stopped.filtration and not stopped.heating and not stopped.open_menu
 
 
+def test_default_water_level_offset():
+    result = AsekoProtocolDecoder().decode(frame(**{"27": 110}))
+    assert result.sensors["water_level_probe"] == 110
+    assert result.sensors["water_level"] == 143
+
+
+def test_positive_custom_water_level_offset():
+    result = AsekoProtocolDecoder(water_level_offset=20).decode(frame(**{"27": 110}))
+    assert result.sensors["water_level_probe"] == 110
+    assert result.sensors["water_level"] == 130
+
+
+def test_negative_custom_water_level_offset():
+    result = AsekoProtocolDecoder(water_level_offset=-20).decode(frame(**{"27": 110}))
+    assert result.sensors["water_level_probe"] == 110
+    assert result.sensors["water_level"] == 90
+
+
+def test_frame_buffer_passes_water_level_offset():
+    updates = FrameBuffer(water_level_offset=20).feed(frame(**{"27": 110}))
+    assert updates[0].sensors["water_level"] == 130
+
+
 def test_short_frame_rejected():
     with pytest.raises(InvalidFrameError):
         AsekoProtocolDecoder().decode(b"short")

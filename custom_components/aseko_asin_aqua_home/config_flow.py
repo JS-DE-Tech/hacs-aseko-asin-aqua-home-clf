@@ -12,6 +12,7 @@ from .const import (
     CONF_LISTEN_PORT,
     CONF_MAX_CHLORINE,
     CONF_PROTOCOL_DEBUG,
+    CONF_WATER_LEVEL_OFFSET,
     DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
     DEFAULT_FORWARD_HOST,
@@ -20,6 +21,7 @@ from .const import (
     DEFAULT_LISTEN_PORT,
     DEFAULT_MAX_CHLORINE,
     DEFAULT_PROTOCOL_DEBUG,
+    DEFAULT_WATER_LEVEL_OFFSET,
     DOMAIN,
 )
 
@@ -61,6 +63,12 @@ def schema(values: dict | None = None):
                 CONF_MAX_CHLORINE,
                 default=values.get(CONF_MAX_CHLORINE, DEFAULT_MAX_CHLORINE),
             ): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=100.0)),
+            vol.Required(
+                CONF_WATER_LEVEL_OFFSET,
+                default=values.get(
+                    CONF_WATER_LEVEL_OFFSET, DEFAULT_WATER_LEVEL_OFFSET
+                ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=-100, max=100)),
         }
     )
 
