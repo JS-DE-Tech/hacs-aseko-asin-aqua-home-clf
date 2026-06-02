@@ -10,6 +10,7 @@ CONFIG_KEYS = {
     "CONF_PROTOCOL_DEBUG",
     "CONF_CAPTURE_ENABLED",
     "CONF_MAX_CHLORINE",
+    "CONF_WATER_LEVEL_OFFSET",
 }
 
 
@@ -104,4 +105,5 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         "protocol_debug",
         "capture_enabled",
         "max_chlorine",
+        "water_level_offset",
     }
