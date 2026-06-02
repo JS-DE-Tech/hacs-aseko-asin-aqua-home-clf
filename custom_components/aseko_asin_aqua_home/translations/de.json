@@ -1,0 +1,223 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ASEKO ASIN AQUA Home",
+        "description": "Lokalen TCP-Listener und optionale transparente ASEKO-Cloud-Weiterleitung konfigurieren.",
+        "data": {
+          "listen_host": "Listen host",
+          "listen_port": "Listen port",
+          "forward_enabled": "Enable cloud forwarding",
+          "forward_host": "Cloud forwarding host",
+          "forward_port": "Cloud forwarding port",
+          "max_chlorine": "Maximal plausibler Chlorwert (ppm)",
+          "protocol_debug": "Protokoll-Debug-Logging aktivieren",
+          "capture_enabled": "Temporäre Rohdaten-Erfassung aktivieren"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "ASEKO ASIN AQUA Home options",
+        "data": {
+          "listen_host": "Listen host",
+          "listen_port": "Listen port",
+          "forward_enabled": "Enable cloud forwarding",
+          "forward_host": "Cloud forwarding host",
+          "forward_port": "Cloud forwarding port",
+          "max_chlorine": "Maximal plausibler Chlorwert (ppm)",
+          "protocol_debug": "Protokoll-Debug-Logging aktivieren",
+          "capture_enabled": "Temporäre Rohdaten-Erfassung aktivieren"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ph": {
+        "name": "pH"
+      },
+      "chlorine": {
+        "name": "Chlorine"
+      },
+      "air_temperature": {
+        "name": "Air Temperature"
+      },
+      "water_temperature": {
+        "name": "Water Temperature"
+      },
+      "water_level": {
+        "name": "Water Level"
+      },
+      "water_level_probe": {
+        "name": "Water Level Probe"
+      },
+      "system_date": {
+        "name": "System Date"
+      },
+      "system_time": {
+        "name": "System Time"
+      },
+      "time_deviation": {
+        "name": "Time Deviation"
+      },
+      "set_time_recommended": {
+        "name": "Set Time Recommended"
+      },
+      "ph_target": {
+        "name": "pH Target"
+      },
+      "chlorine_target": {
+        "name": "Chlorine Target"
+      },
+      "flocculation_dose": {
+        "name": "Flocculation Dose"
+      },
+      "water_temperature_target": {
+        "name": "Water Temperature Target"
+      },
+      "filter_1_start": {
+        "name": "Filter 1 Start"
+      },
+      "filter_1_end": {
+        "name": "Filter 1 End"
+      },
+      "filter_2_start": {
+        "name": "Filter 2 Start"
+      },
+      "filter_2_end": {
+        "name": "Filter 2 End"
+      },
+      "backwash_interval_days": {
+        "name": "Backwash Interval Days"
+      },
+      "backwash_start": {
+        "name": "Backwash Start"
+      },
+      "algicide_dose": {
+        "name": "Algicide Dose"
+      },
+      "filling_time_limit": {
+        "name": "Filling Time Limit"
+      },
+      "pool_volume": {
+        "name": "Pool Volume"
+      },
+      "water_level_low": {
+        "name": "Water Level Low"
+      },
+      "refill_on": {
+        "name": "Refill On"
+      },
+      "refill_off": {
+        "name": "Refill Off"
+      },
+      "water_level_high": {
+        "name": "Water Level High"
+      },
+      "dosing_delay": {
+        "name": "Dosing Delay"
+      },
+      "startup_delay": {
+        "name": "Startup Delay"
+      },
+      "concentration": {
+        "name": "Concentration"
+      },
+      "ph_minus_concentration": {
+        "name": "pH Minus Concentration"
+      },
+      "max_chlorine_doses": {
+        "name": "Max Chlorine Doses"
+      },
+      "max_ph_doses": {
+        "name": "Max pH Doses"
+      },
+      "error_byte": {
+        "name": "Error Byte"
+      },
+      "error_byte_binary": {
+        "name": "Error Byte Binary"
+      },
+      "relay_byte": {
+        "name": "Relay Byte"
+      },
+      "relay_byte_binary": {
+        "name": "Relay Byte Binary"
+      },
+      "byte24": {
+        "name": "Byte24"
+      },
+      "byte24_binary": {
+        "name": "Byte24 Binary"
+      },
+      "raw_status": {
+        "name": "Raw Status"
+      }
+    },
+    "binary_sensor": {
+      "error_hour_dosing_exceeded": {
+        "name": "Störung: Hour Dosing Exceeded"
+      },
+      "error_time_correction": {
+        "name": "Störung: Time Correction"
+      },
+      "error_no_probe_flow": {
+        "name": "Störung: No Probe Flow"
+      },
+      "error_buffer_tank_empty": {
+        "name": "Störung: Buffer Tank Empty"
+      },
+      "error_buffer_tank_overflow": {
+        "name": "Störung: Buffer Tank Overflow"
+      },
+      "error_low_filling_speed": {
+        "name": "Störung: Low Filling Speed"
+      },
+      "error_ph_doses_without_change": {
+        "name": "Störung: pH Doses Without Change"
+      },
+      "error_chlorine_doses_without_change": {
+        "name": "Störung: Chlorine Doses Without Change"
+      },
+      "relay_backwash": {
+        "name": "Relais: Backwash"
+      },
+      "relay_filling": {
+        "name": "Relais: Filling"
+      },
+      "relay_heating": {
+        "name": "Relais: Heating"
+      },
+      "relay_filtration": {
+        "name": "Relais: Filtration"
+      },
+      "relay_algicide": {
+        "name": "Relais: Algicide"
+      },
+      "relay_flocculation": {
+        "name": "Relais: Flocculation"
+      },
+      "relay_chlorine": {
+        "name": "Relais: Chlorine"
+      },
+      "relay_ph_minus": {
+        "name": "Relais: pH Minus"
+      },
+      "status_filtration": {
+        "name": "Status: Filtration"
+      },
+      "status_standby": {
+        "name": "Status: Standby"
+      },
+      "status_heating": {
+        "name": "Status: Heating"
+      },
+      "status_open_menu": {
+        "name": "Status: Open Menu"
+      }
+    }
+  }
+}

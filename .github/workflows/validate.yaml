@@ -17,3 +17,6 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: "integration"
+          # Topics are configured in the GitHub UI. Integration brands belong in
+          # home-assistant/brands. Remove these ignores after both external steps.
+          ignore: "brands topics"
