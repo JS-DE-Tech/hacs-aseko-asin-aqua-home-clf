@@ -115,30 +115,32 @@ class BackwashTracker:
         )
 
         if relay_active:
-            if not self.state.last_relay_state or active_since is None:
-                active_since = now
-                self.state.active_since_timestamp = now_iso
-                self.state.event_recorded_for_current_cycle = False
-                save_needed = True
-            elif observation_gap_broken:
-                # Do not count unobserved time as continuous relay activity.
-                active_since = now
-                self.state.active_since_timestamp = now_iso
-                self.state.event_recorded_for_current_cycle = False
-                save_needed = True
-
             if (
-                active_since is not None
-                and not self.state.event_recorded_for_current_cycle
-                and (now - active_since).total_seconds()
-                >= BACKWASH_CONFIRMATION_SECONDS
+                observation_gap_broken
+                or active_since is None
+                or not self.state.last_relay_state
             ):
-                self.state.last_backwash_timestamp = active_since.isoformat()
-                self.state.event_recorded_for_current_cycle = True
+                # Start tracking from the first observed active payload, even when
+                # there was no previously observed inactive state. If continuity was
+                # broken, restart from this known-good observation instead of
+                # inferring activity through an unobserved gap.
+                active_since = now
+                self.state.active_since_timestamp = now_iso
+                self.state.event_recorded_for_current_cycle = False
                 save_needed = True
-                event_confirmed = True
         else:
-            if self.state.last_relay_state or self.state.active_since_timestamp:
+            if self.state.last_relay_state:
+                if active_since is not None and not observation_gap_broken:
+                    duration_seconds = (now - active_since).total_seconds()
+                    if duration_seconds > BACKWASH_CONFIRMATION_SECONDS:
+                        self.state.last_backwash_timestamp = active_since.isoformat()
+                        save_needed = True
+                        event_confirmed = True
+
+                self.state.active_since_timestamp = None
+                self.state.event_recorded_for_current_cycle = False
+                save_needed = True
+            elif self.state.active_since_timestamp:
                 self.state.active_since_timestamp = None
                 self.state.event_recorded_for_current_cycle = False
                 save_needed = True
