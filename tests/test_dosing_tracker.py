@@ -21,10 +21,15 @@ def load_tracker(monkeypatch, store_payload=None):
             self.major_version = major_version
 
         async def async_load(self):
+            if isinstance(store_payload, dict) and any(
+                key.startswith("aseko_asin_aqua_home_dosing_tracker")
+                for key in store_payload
+            ):
+                return store_payload.get(self.key)
             return store_payload
 
         async def async_save(self, data):
-            saved.append(data)
+            saved.append((self.key, data))
 
     core.HomeAssistant = object
     storage.Store = Store
@@ -98,11 +103,11 @@ def test_storage_reload_schema_and_clean_save(monkeypatch):
     module, saved = load_tracker(monkeypatch, payload)
     tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
     asyncio.run(tracker.async_load())
-    assert tracker.store_key == "aseko_asin_aqua_home_dosing_tracker_entry-1"
+    assert tracker.store_key == "aseko_asin_aqua_home_dosing_tracker"
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 123
     assert tracker.as_dict()["version"] == module.STORAGE_VERSION
     asyncio.run(tracker.async_save())
-    assert saved[-1]["version"] == 1
+    assert saved[-1][1]["version"] == 1
 
 
 def test_container_reset_affects_only_selected_channel_and_persists(monkeypatch):
@@ -114,15 +119,39 @@ def test_container_reset_affects_only_selected_channel_and_persists(monkeypatch)
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 0
     assert tracker.states["ph_minus"].accumulated_runtime_seconds == 200
     assert saved
-    assert saved[-1]["channels"]["chlorine"]["last_container_replacement_timestamp"]
+    assert saved[-1][1]["channels"]["chlorine"]["last_container_replacement_timestamp"]
 
 
 def test_channel_defaults(monkeypatch):
     module, _ = load_tracker(monkeypatch)
-    defaults = {channel.key: channel.container_size_default for channel in module.DOSING_CHANNELS}
+    defaults = {
+        channel.key: channel.container_size_default
+        for channel in module.DOSING_CHANNELS
+    }
     assert defaults == {
         "chlorine": 20.0,
         "ph_minus": 20.0,
         "flocculation": 6.0,
         "algicide": 6.0,
     }
+
+
+def test_legacy_entry_id_dosing_storage_migrates_to_stable_key(monkeypatch):
+    legacy_payload = {
+        "version": 1,
+        "channels": {
+            "chlorine": {"accumulated_runtime_seconds": 456},
+        },
+    }
+    module, saved = load_tracker(
+        monkeypatch,
+        {"aseko_asin_aqua_home_dosing_tracker_entry-1": legacy_payload},
+    )
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+
+    asyncio.run(tracker.async_load())
+
+    assert tracker.store_key == "aseko_asin_aqua_home_dosing_tracker"
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 456
+    assert saved[-1][0] == "aseko_asin_aqua_home_dosing_tracker"
+    assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 456

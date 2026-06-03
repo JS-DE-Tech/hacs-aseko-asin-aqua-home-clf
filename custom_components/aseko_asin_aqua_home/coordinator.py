@@ -17,6 +17,7 @@ from .protocol import CandidateEvent, DecodedData, FrameBuffer
 
 _LOGGER = logging.getLogger(__name__)
 _CAPTURE_LIMIT = 200
+_CLOSE_TIMEOUT = 3.0
 
 
 @dataclass
@@ -26,6 +27,7 @@ class GatewaySession:
     gateway_writer: asyncio.StreamWriter
     cloud_writer: asyncio.StreamWriter | None = None
     cloud_discard_task: asyncio.Task[None] | None = None
+    session_task: asyncio.Task[None] | None = None
 
 
 class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
@@ -64,17 +66,44 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         )
 
     async def async_stop(self) -> None:
+        """Stop listeners, persist state, and close all active TCP sessions."""
         if self._availability_cancel:
             self._availability_cancel()
             self._availability_cancel = None
+
         await self.dosing_tracker.async_save()
         await self.backwash_tracker.async_save_if_dirty()
-        for session in list(self._sessions.values()):
-            await self._close_cloud_forwarding(session)
+
         if self.server:
             self.server.close()
             await self.server.wait_closed()
             self.server = None
+
+        sessions = list(self._sessions.values())
+        for session in sessions:
+            await self._close_cloud_forwarding(session)
+            await _close_writer_safely(session.gateway_writer)
+
+        current_task = asyncio.current_task()
+        session_tasks = {
+            session.session_task
+            for session in sessions
+            if session.session_task is not None
+            and session.session_task is not current_task
+        }
+        for task in session_tasks:
+            task.cancel()
+        if session_tasks:
+            try:
+                await asyncio.wait_for(
+                    asyncio.gather(*session_tasks, return_exceptions=True),
+                    timeout=_CLOSE_TIMEOUT,
+                )
+            except asyncio.TimeoutError:
+                pass
+
+        self.clients = 0
+        self._sessions.clear()
 
     @property
     def data_available(self) -> bool:
@@ -121,17 +150,16 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         if session.cloud_discard_task:
             session.cloud_discard_task.cancel()
             try:
-                await session.cloud_discard_task
+                await asyncio.wait_for(
+                    session.cloud_discard_task, timeout=_CLOSE_TIMEOUT
+                )
+            except (ConnectionError, OSError, asyncio.TimeoutError):
+                pass
             except asyncio.CancelledError:
                 pass
             session.cloud_discard_task = None
-        if session.cloud_writer:
-            session.cloud_writer.close()
-            try:
-                await session.cloud_writer.wait_closed()
-            except ConnectionError as err:
-                _LOGGER.debug("Cloud forwarding close failed: %s", err)
-            session.cloud_writer = None
+        await _close_writer_safely(session.cloud_writer)
+        session.cloud_writer = None
 
     async def _forward_chunk_to_cloud(
         self, session: GatewaySession, chunk: bytes
@@ -152,6 +180,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
     ) -> None:
         self.clients += 1
         session = GatewaySession(gateway_writer=writer)
+        session.session_task = asyncio.current_task()
         self._sessions[writer] = session
         _LOGGER.debug("Gateway connected from %s", writer.get_extra_info("peername"))
         try:
@@ -189,11 +218,10 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         except (ConnectionError, asyncio.CancelledError) as err:
             _LOGGER.debug("Gateway disconnected: %s", err)
         finally:
-            self.clients -= 1
+            self.clients = max(0, self.clients - 1)
             self._sessions.pop(writer, None)
             await self._close_cloud_forwarding(session)
-            writer.close()
-            await writer.wait_closed()
+            await _close_writer_safely(writer)
 
     def _record_chunk(self, chunk: bytes, pending_before: int) -> None:
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -250,5 +278,21 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         try:
             while chunk := await reader.read(4096):
                 _LOGGER.debug("Discarded %d byte ASEKO cloud response", len(chunk))
-        except (ConnectionError, asyncio.CancelledError):
+        except (ConnectionError, OSError, asyncio.CancelledError):
             pass
+
+
+async def _close_writer_safely(
+    writer: asyncio.StreamWriter | None,
+    timeout: float | None = None,
+) -> None:
+    """Close a stream writer without allowing shutdown to hang indefinitely."""
+    if writer is None:
+        return
+    try:
+        writer.close()
+        await asyncio.wait_for(
+            writer.wait_closed(), timeout=_CLOSE_TIMEOUT if timeout is None else timeout
+        )
+    except (ConnectionError, OSError, asyncio.TimeoutError) as err:
+        _LOGGER.debug("TCP writer close failed or timed out: %s", err)

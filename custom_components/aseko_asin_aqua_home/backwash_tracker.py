@@ -16,6 +16,7 @@ STORAGE_VERSION = 1
 STORAGE_MAJOR_VERSION = 1
 BACKWASH_CONFIRMATION_SECONDS = 60
 MAX_BACKWASH_OBSERVATION_GAP_SECONDS = 60
+STABLE_STORAGE_KEY = "aseko_asin_aqua_home_backwash_tracker"
 
 
 @dataclass(slots=True)
@@ -63,8 +64,11 @@ class BackwashTracker:
     """
 
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
-        self.store_key = f"aseko_asin_aqua_home_backwash_tracker_{entry_id}"
+        self.store_key = STABLE_STORAGE_KEY
         self._store = Store(hass, STORAGE_MAJOR_VERSION, self.store_key)
+        self._legacy_store = Store(
+            hass, STORAGE_MAJOR_VERSION, f"{STABLE_STORAGE_KEY}_{entry_id}"
+        )
         self.state = BackwashTrackerState()
         self._dirty = False
 
@@ -75,12 +79,18 @@ class BackwashTracker:
 
     async def async_load(self) -> None:
         data = await self._store.async_load()
+        migrated = False
+        if not data:
+            data = await self._legacy_store.async_load()
+            migrated = data is not None
         if not data:
             return
         if data.get("version", STORAGE_VERSION) > STORAGE_VERSION:
             _LOGGER.warning("Ignoring newer backwash tracker storage version")
             return
         self.state = BackwashTrackerState.from_dict(data.get("state", data))
+        if migrated:
+            await self.async_save()
 
     def observe_relay(self, relay_active: bool, now: datetime | None = None) -> bool:
         """Observe one validated decoded backwash relay value.
@@ -100,9 +110,8 @@ class BackwashTracker:
             if previous_observed is not None
             else None
         )
-        observation_gap_broken = (
-            gap_seconds is not None
-            and (gap_seconds <= 0 or gap_seconds > MAX_BACKWASH_OBSERVATION_GAP_SECONDS)
+        observation_gap_broken = gap_seconds is not None and (
+            gap_seconds <= 0 or gap_seconds > MAX_BACKWASH_OBSERVATION_GAP_SECONDS
         )
 
         if relay_active:

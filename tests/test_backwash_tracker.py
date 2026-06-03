@@ -88,7 +88,10 @@ def test_long_observation_gap_restarts_active_candidate(backwash_module):
     assert tracker.observe_relay(True, start) is False
     assert tracker.observe_relay(True, start + timedelta(seconds=61)) is False
     assert tracker.last_backwash is None
-    assert tracker.state.active_since_timestamp == (start + timedelta(seconds=61)).isoformat()
+    assert (
+        tracker.state.active_since_timestamp
+        == (start + timedelta(seconds=61)).isoformat()
+    )
     assert tracker.observe_relay(True, start + timedelta(seconds=121)) is True
     assert tracker.last_backwash == start + timedelta(seconds=61)
 
@@ -96,7 +99,7 @@ def test_long_observation_gap_restarts_active_candidate(backwash_module):
 def test_backwash_storage_survives_reload(backwash_module):
     tracker = backwash_module.BackwashTracker(types.SimpleNamespace(), "entry-1")
     start = datetime(2026, 1, 1, 6, 20, tzinfo=timezone.utc)
-    assert tracker.store_key == "aseko_asin_aqua_home_backwash_tracker_entry-1"
+    assert tracker.store_key == "aseko_asin_aqua_home_backwash_tracker"
     assert backwash_module.STORAGE_VERSION == 1
     tracker.observe_relay(True, start)
     assert tracker.observe_relay(True, start + timedelta(seconds=60)) is True
@@ -107,3 +110,23 @@ def test_backwash_storage_survives_reload(backwash_module):
     assert reloaded.last_backwash == start
     assert reloaded.last_backwash.tzinfo is not None
     assert reloaded.state.event_recorded_for_current_cycle is True
+
+
+def test_legacy_entry_id_backwash_storage_migrates_to_stable_key(backwash_module):
+    legacy_key = "aseko_asin_aqua_home_backwash_tracker_entry-1"
+    stable_key = "aseko_asin_aqua_home_backwash_tracker"
+    timestamp = "2026-01-01T06:20:00+00:00"
+    FakeStore.saved_by_key[legacy_key] = {
+        "version": 1,
+        "state": {"last_backwash_timestamp": timestamp},
+    }
+
+    tracker = backwash_module.BackwashTracker(types.SimpleNamespace(), "entry-1")
+    asyncio.run(tracker.async_load())
+
+    assert tracker.store_key == stable_key
+    assert tracker.state.last_backwash_timestamp == timestamp
+    assert (
+        FakeStore.saved_by_key[stable_key]["state"]["last_backwash_timestamp"]
+        == timestamp
+    )
