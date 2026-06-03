@@ -49,6 +49,7 @@ class DosingChannelState:
     last_relay_state: bool = False
     last_observed_timestamp: str | None = None
     last_container_replacement_timestamp: str | None = None
+    last_calculated_flow_rate: float | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> DosingChannelState:
@@ -63,6 +64,11 @@ class DosingChannelState:
             last_container_replacement_timestamp=data.get(
                 "last_container_replacement_timestamp"
             ),
+            last_calculated_flow_rate=(
+                float(data["last_calculated_flow_rate"])
+                if data.get("last_calculated_flow_rate") is not None
+                else None
+            ),
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -71,6 +77,7 @@ class DosingChannelState:
             "last_relay_state": self.last_relay_state,
             "last_observed_timestamp": self.last_observed_timestamp,
             "last_container_replacement_timestamp": self.last_container_replacement_timestamp,
+            "last_calculated_flow_rate": self.last_calculated_flow_rate,
         }
 
 
@@ -163,6 +170,14 @@ class DosingTracker:
         await self._store.async_save(self.as_dict())
         self._dirty = False
         self._last_save_timestamp = datetime.now(timezone.utc)
+
+    async def async_store_calculated_flow_rate(
+        self, channel_key: str, flow_rate: float
+    ) -> None:
+        """Persist the last accepted calculated pump flow rate."""
+        self.states[channel_key].last_calculated_flow_rate = flow_rate
+        self._dirty = True
+        await self.async_save()
 
     async def async_reset_container(self, channel_key: str) -> None:
         state = self.states[channel_key]

@@ -342,6 +342,18 @@
       },
       "algicide_container_replaced": {
         "name": "Algicide Container Replaced"
+      },
+      "chlorine_calculate_flow_rate": {
+        "name": "Chlorine container empty – calculate flow rate"
+      },
+      "ph_minus_calculate_flow_rate": {
+        "name": "pH-Minus container empty – calculate flow rate"
+      },
+      "flocculation_calculate_flow_rate": {
+        "name": "Flocculation container empty – calculate flow rate"
+      },
+      "algicide_calculate_flow_rate": {
+        "name": "Algicide container empty – calculate flow rate"
       }
     }
   }

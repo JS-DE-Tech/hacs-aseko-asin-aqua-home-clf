@@ -99,6 +99,7 @@ def test_storage_reload_schema_and_clean_save(monkeypatch):
                 "last_relay_state": True,
                 "last_observed_timestamp": "2026-01-01T00:00:00+00:00",
                 "last_container_replacement_timestamp": "2026-01-01T00:00:00+00:00",
+                "last_calculated_flow_rate": 2.5,
             }
         },
     }
@@ -107,9 +108,11 @@ def test_storage_reload_schema_and_clean_save(monkeypatch):
     asyncio.run(tracker.async_load())
     assert tracker.store_key == "aseko_asin_aqua_home_dosing_tracker"
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 123
+    assert tracker.states["chlorine"].last_calculated_flow_rate == 2.5
     assert tracker.as_dict()["version"] == module.STORAGE_VERSION
     asyncio.run(tracker.async_save())
     assert saved[-1][1]["version"] == 1
+    assert saved[-1][1]["channels"]["chlorine"]["last_calculated_flow_rate"] == 2.5
 
 
 def test_container_reset_affects_only_selected_channel_and_persists(monkeypatch):
@@ -195,3 +198,16 @@ def test_container_reset_discards_pre_reset_active_interval(monkeypatch):
     tracker.observe_relays({"chlorine": True}, reset_timestamp + timedelta(seconds=10))
 
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 10
+
+
+def test_calculated_flow_rate_is_persisted_without_resetting_runtime(monkeypatch):
+    module, saved = load_tracker(monkeypatch)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    tracker.states["chlorine"].accumulated_runtime_seconds = 10 * 3600
+
+    asyncio.run(tracker.async_store_calculated_flow_rate("chlorine", 2.0))
+
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 10 * 3600
+    assert tracker.states["chlorine"].last_calculated_flow_rate == 2.0
+    assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 10 * 3600
+    assert saved[-1][1]["channels"]["chlorine"]["last_calculated_flow_rate"] == 2.0

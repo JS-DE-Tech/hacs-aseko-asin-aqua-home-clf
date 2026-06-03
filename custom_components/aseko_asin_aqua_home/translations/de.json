@@ -342,6 +342,18 @@
       },
       "algicide_container_replaced": {
         "name": "Algizid-Kanister ausgetauscht"
+      },
+      "chlorine_calculate_flow_rate": {
+        "name": "Chlor-Kanister leer – Förderleistung berechnen"
+      },
+      "ph_minus_calculate_flow_rate": {
+        "name": "pH-Minus-Kanister leer – Förderleistung berechnen"
+      },
+      "flocculation_calculate_flow_rate": {
+        "name": "Flockungsmittel-Kanister leer – Förderleistung berechnen"
+      },
+      "algicide_calculate_flow_rate": {
+        "name": "Algizid-Kanister leer – Förderleistung berechnen"
       }
     }
   }
