@@ -18,21 +18,21 @@ class AsekoBinarySensorDescription(BinarySensorEntityDescription):
 
 
 RELAY_ICONS = {
-    "backwash": "mdi:backup-restore",
-    "filling": "mdi:water-plus",
-    "heating": "mdi:radiator",
-    "filtration": "mdi:water-pump",
-    "algicide": "mdi:flask-outline",
-    "flocculation": "mdi:flask-outline",
-    "chlorine": "mdi:water-opacity",
-    "ph_minus": "mdi:ph",
+    "backwash": "mdi:waves-arrow-down",
+    "filling": "mdi:waves-arrow-up",
+    "heating": "mdi:heat-wave",
+    "filtration": "mdi:pump",
+    "algicide": "mdi:bottle-tonic",
+    "flocculation": "mdi:bottle-tonic-outline",
+    "chlorine": "mdi:flask-outline",
+    "ph_minus": "mdi:flask-outline",
 }
 
 STATUS_ICONS = {
-    "filtration": "mdi:water-pump",
-    "standby": "mdi:power-standby",
-    "heating": "mdi:radiator",
-    "open_menu": "mdi:menu-open",
+    "filtration": "mdi:pump",
+    "standby": "mdi:pump-off",
+    "heating": "mdi:heat-wave",
+    "open_menu": "mdi:menu",
 }
 
 DESCRIPTIONS = (
@@ -83,6 +83,7 @@ class AsekoBinarySensor(CoordinatorEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{DEVICE_IDENTIFIER}_{description.key}"
+        self._attr_suggested_object_id = f"{DEVICE_IDENTIFIER}_{description.key}"
 
     @property
     def device_info(self):
