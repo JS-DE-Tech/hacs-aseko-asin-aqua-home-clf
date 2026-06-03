@@ -11,7 +11,7 @@ Home Assistant integration for the ASEKO ASIN AQUA Home pool controller using a 
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 [![Protocol](https://img.shields.io/badge/protocol-local%20TCP-success)](#scope-and-protocol-notes)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf)](LICENSE)
 [![Support via PayPal](https://img.shields.io/badge/Support%20via-PayPal-0070BA?logo=paypal&logoColor=white)](https://paypal.me/JensSaffrich)
 
 Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home**
