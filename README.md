@@ -39,6 +39,16 @@ This first version is intentionally **read-only**. It does not send pool-control
 
 The tested extended payload accesses bytes `0..115`, which establishes a minimum decodable payload length of 116 bytes but does not prove the complete TCP wire-frame length. The TCP parser retains incomplete chunks, scans for semantically plausible payload starts, rejects shifted or malformed candidates, and recovers synchronization before publishing updates. More packet captures are needed to document delimiters or trailing bytes across firmware variants and to fully explain the inferred raw `byte24` field. Optional temporary capture diagnostics include raw TCP chunks and bounded candidate summaries while redacting configured network hosts.
 
+## Reference
+
+A byte-level protocol reference for the currently implemented ASEKO ASIN AQUA
+Home LAN payload is available here:
+
+[`reference/aseko_asin_aqua_home_protocol_analysis.md`](reference/aseko_asin_aqua_home_protocol_analysis.md)
+
+The document distinguishes between implemented mappings, derived Home Assistant
+values and protocol fields that still require additional packet captures.
+
 ## Maintainer note: external HACS metadata
 HACS validates metadata that is managed outside this repository. Add repository topics such as `hacs`, `home-assistant`, `aseko`, and `pool-controller` under **GitHub → About → Settings**. Integration brand assets belong in the separate [`home-assistant/brands`](https://github.com/home-assistant/brands) repository. The workflow temporarily ignores the `topics` and `brands` checks so this source repository remains text-only. Remove each ignore after its external metadata has been configured.
 
