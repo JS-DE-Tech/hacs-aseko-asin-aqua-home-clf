@@ -28,6 +28,7 @@ def install_homeassistant_stubs(monkeypatch):
     dt = types.ModuleType("homeassistant.util.dt")
     update_coordinator = types.ModuleType("homeassistant.helpers.update_coordinator")
     entity = types.ModuleType("homeassistant.helpers.entity")
+    exceptions = types.ModuleType("homeassistant.exceptions")
     storage = types.ModuleType("homeassistant.helpers.storage")
     config_entries = types.ModuleType("homeassistant.config_entries")
     core = types.ModuleType("homeassistant.core")
@@ -61,6 +62,9 @@ def install_homeassistant_stubs(monkeypatch):
     class EntityCategory:
         CONFIG = "config"
 
+    class HomeAssistantError(Exception):
+        pass
+
     class Entity:
         def async_write_ha_state(self):
             self._ha_state_written = True
@@ -92,6 +96,7 @@ def install_homeassistant_stubs(monkeypatch):
     const.UnitOfVolume = types.SimpleNamespace(CUBIC_METERS="m³")
     const.CONCENTRATION_PARTS_PER_MILLION = "ppm"
     entity.EntityCategory = EntityCategory
+    exceptions.HomeAssistantError = HomeAssistantError
     dt.as_local = lambda value: value.astimezone()
     update_coordinator.CoordinatorEntity = CoordinatorEntity
 
@@ -121,6 +126,7 @@ def install_homeassistant_stubs(monkeypatch):
         "homeassistant.util.dt": dt,
         "homeassistant.helpers.update_coordinator": update_coordinator,
         "homeassistant.helpers.entity": entity,
+        "homeassistant.exceptions": exceptions,
         "homeassistant.helpers.storage": storage,
         "homeassistant.config_entries": config_entries,
         "homeassistant.core": core,
@@ -283,7 +289,14 @@ def test_button_descriptions_have_stable_unique_ids(integration_modules):
     assert entity._attr_unique_id == "asin_aqua_home_chlorine_container_replaced"
     assert entity.suggested_object_id == "chlorine_container_replaced"
     assert entity._attr_has_entity_name is True
-    assert all(description.icon == "mdi:refresh" for description in button.BUTTON_DESCRIPTIONS)
+    assert all(
+        description.icon == "mdi:refresh"
+        for description in button.CONTAINER_REPLACED_BUTTON_DESCRIPTIONS
+    )
+    assert all(
+        description.icon == "mdi:calculator-variant-outline"
+        for description in button.CALCULATE_FLOW_RATE_BUTTON_DESCRIPTIONS
+    )
 
 
 def test_dosing_sensor_descriptions_are_present(integration_modules):
@@ -300,6 +313,7 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     state = types.SimpleNamespace(
         accumulated_runtime_seconds=3600,
         last_container_replacement_timestamp="2026-01-01T00:00:00+00:00",
+        last_calculated_flow_rate=None,
     )
     tracker = types.SimpleNamespace(states={"chlorine": state})
     coordinator = types.SimpleNamespace(
@@ -318,6 +332,10 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     assert consumed.native_value == 2.0
     assert remaining.native_value == 18.0
     assert percent.native_value == 90.0
+    assert suggested.available is False
+    assert suggested.native_value is None
+    state.last_calculated_flow_rate = 20.0
+    assert suggested.available is True
     assert suggested.native_value == 20.0
 
     coordinator.options["chlorine_flow_rate"] = 0.0
@@ -326,7 +344,7 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     assert percent.available is False
     assert suggested.available is True
     state.accumulated_runtime_seconds = 0
-    assert suggested.available is False
+    assert suggested.available is True
 
 
 def test_remaining_volume_is_clamped(integration_modules):
@@ -387,7 +405,11 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
         switch.AsekoCloudForwardingSwitch(hass, entry),
         *(
             button.AsekoContainerReplacedButton(coordinator, description)
-            for description in button.BUTTON_DESCRIPTIONS
+            for description in button.CONTAINER_REPLACED_BUTTON_DESCRIPTIONS
+        ),
+        *(
+            button.AsekoCalculateFlowRateButton(hass, entry, coordinator, description)
+            for description in button.CALCULATE_FLOW_RATE_BUTTON_DESCRIPTIONS
         ),
     ]
 
@@ -409,6 +431,7 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
         "cloud_forwarding",
         "water_level_offset",
         "chlorine_container_replaced",
+        "chlorine_calculate_flow_rate",
     }
     assert expected_suggestions <= semantic_ids
 
@@ -427,6 +450,7 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
     assert "asin_aqua_home_cloud_forwarding" in unique_ids
     assert "asin_aqua_home_water_level_offset" in unique_ids
     assert "asin_aqua_home_chlorine_container_replaced" in unique_ids
+    assert "asin_aqua_home_chlorine_calculate_flow_rate" in unique_ids
 
 
 def test_chemistry_and_relay_icons_are_consistent(integration_modules):
@@ -608,3 +632,112 @@ def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, c
     assert consumed.native_value == 3.0
     assert remaining.native_value == max(0, container_size - 3.0)
     assert percent.native_value == round(max(0, min(100, (container_size - 3.0) / container_size * 100)), 1)
+
+
+def test_short_runtime_does_not_expose_unrealistic_suggested_flow_rate(integration_modules):
+    sensor = integration_modules["sensor"]
+    state = types.SimpleNamespace(
+        accumulated_runtime_seconds=9,
+        last_container_replacement_timestamp=None,
+        last_calculated_flow_rate=None,
+    )
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=types.SimpleNamespace(states={"ph_minus": state}),
+        options={"ph_minus_container_size": 20.0, "ph_minus_flow_rate": 0.0},
+        data=None,
+        data_available=True,
+    )
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+    suggested = sensor.AsekoSensor(coordinator, descriptions["ph_minus_suggested_flow_rate"])
+
+    assert suggested.available is False
+    assert suggested.native_value is None
+
+
+def test_calculate_flow_rate_button_rejects_zero_runtime(integration_modules):
+    button = integration_modules["button"]
+    state = types.SimpleNamespace(accumulated_runtime_seconds=0)
+    tracker = types.SimpleNamespace(states={"chlorine": state})
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=tracker,
+        options={"chlorine_container_size": 20.0},
+        async_update_listeners=lambda: None,
+    )
+    entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+    hass = types.SimpleNamespace(config_entries=types.SimpleNamespace(async_update_entry=lambda *args, **kwargs: None))
+    descriptions = {description.key: description for description in button.BUTTON_DESCRIPTIONS}
+    entity = button.AsekoCalculateFlowRateButton(
+        hass, entry, coordinator, descriptions["chlorine_calculate_flow_rate"]
+    )
+
+    with pytest.raises(button.HomeAssistantError, match="zero runtime"):
+        asyncio.run(entity.async_press())
+
+    assert entry.options == {}
+
+
+def test_calculate_flow_rate_button_persists_option_and_refreshes(integration_modules):
+    button = integration_modules["button"]
+    saved = []
+    updates = []
+
+    class Tracker:
+        def __init__(self):
+            self.states = {
+                "chlorine": types.SimpleNamespace(
+                    accumulated_runtime_seconds=10 * 3600,
+                    last_calculated_flow_rate=None,
+                )
+            }
+
+        async def async_store_calculated_flow_rate(self, channel_key, flow_rate):
+            self.states[channel_key].last_calculated_flow_rate = flow_rate
+            saved.append((channel_key, flow_rate))
+
+    class ConfigEntries:
+        def async_update_entry(self, entry, *, options):
+            entry.options = options
+            updates.append(options)
+
+    tracker = Tracker()
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=tracker,
+        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 0.0},
+        async_update_listeners=lambda: updates.append("listeners"),
+    )
+    entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+    hass = types.SimpleNamespace(config_entries=ConfigEntries())
+    descriptions = {description.key: description for description in button.BUTTON_DESCRIPTIONS}
+    entity = button.AsekoCalculateFlowRateButton(
+        hass, entry, coordinator, descriptions["chlorine_calculate_flow_rate"]
+    )
+
+    asyncio.run(entity.async_press())
+
+    assert saved == [("chlorine", 2.0)]
+    assert tracker.states["chlorine"].last_calculated_flow_rate == 2.0
+    assert entry.options["chlorine_flow_rate"] == 2.0
+    assert coordinator.options["chlorine_flow_rate"] == 2.0
+    assert updates == [{"chlorine_flow_rate": 2.0}, "listeners"]
+
+
+def test_calculate_flow_rate_button_rejects_implausible_values(integration_modules):
+    button = integration_modules["button"]
+    state = types.SimpleNamespace(accumulated_runtime_seconds=9)
+    tracker = types.SimpleNamespace(states={"ph_minus": state})
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=tracker,
+        options={"ph_minus_container_size": 20.0},
+        async_update_listeners=lambda: None,
+    )
+    entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+    hass = types.SimpleNamespace(config_entries=types.SimpleNamespace(async_update_entry=lambda *args, **kwargs: None))
+    descriptions = {description.key: description for description in button.BUTTON_DESCRIPTIONS}
+    entity = button.AsekoCalculateFlowRateButton(
+        hass, entry, coordinator, descriptions["ph_minus_calculate_flow_rate"]
+    )
+
+    with pytest.raises(button.HomeAssistantError, match="outside the allowed range"):
+        asyncio.run(entity.async_press())
+
+    assert entry.options == {}

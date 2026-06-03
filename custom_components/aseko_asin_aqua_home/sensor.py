@@ -277,7 +277,7 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
             ):
                 return self._runtime_seconds() == 0 or self._flow_rate() > 0
             if self.entity_description.metric == "suggested_flow_rate":
-                return self._runtime_seconds() > 0
+                return self._last_calculated_flow_rate() is not None
             return True
         return super().available and self.coordinator.data_available
 
@@ -336,6 +336,11 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
         key = f"{self.entity_description.channel_key}_flow_rate"
         return float(self.coordinator.options.get(key, DEFAULT_DOSING_FLOW_RATE))
 
+    def _last_calculated_flow_rate(self) -> float | None:
+        return self.coordinator.dosing_tracker.states[
+            self.entity_description.channel_key
+        ].last_calculated_flow_rate
+
     def _dosing_native_value(self):
         runtime_seconds = self._runtime_seconds()
         runtime_hours = runtime_seconds / 3600
@@ -350,11 +355,7 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
             ].last_container_replacement_timestamp
             return datetime.fromisoformat(value) if value else None
         if metric == "suggested_flow_rate":
-            return (
-                round(container_size / runtime_hours, 2)
-                if runtime_hours > 0
-                else None
-            )
+            return self._last_calculated_flow_rate()
         if runtime_seconds == 0:
             if metric == "consumed_liters":
                 return 0.0
