@@ -1,5 +1,9 @@
 # ASEKO ASIN AQUA Home for Home Assistant
 
+<p align="center">
+  <img src="docs/images/aseko_asin_aqua_home.png" alt="ASEKO ASIN AQUA Home pool controller" width="460">
+</p>
+
 Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home** pool controller. It receives controller data locally over the LAN without MQTT or Node-RED and exposes push-updated sensors and binary sensors.
 
 ## Installation
@@ -9,6 +13,10 @@ Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home*
 4. Configure the USR-K5 serial gateway target to the IP address of your Home Assistant host and TCP port `47524`.
 
 The listener defaults to `0.0.0.0:47524`. One-way forwarding of the original received TCP bytes to `pool.aseko.com:47524` is enabled by default so the existing ASEKO cloud connection can be preserved. Cloud responses are drained but are not relayed back to the local gateway. Forwarding can be disabled or changed from the integration options.
+
+## USR-K5 gateway configuration
+
+![USR-K5 Serial Port configuration](docs/images/usr-k5-serial-port-configuration.png)
 
 ## Scope and protocol notes
 This first version is intentionally **read-only**. It does not send pool-control commands. The decoder ports the tested offsets from `reference/node-red-flow.json`, including chemistry, temperatures, water level, schedules, delays, concentrations, error bits, relay bits, and stateful status handling.
