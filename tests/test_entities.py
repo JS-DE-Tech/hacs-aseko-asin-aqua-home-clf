@@ -24,6 +24,8 @@ def install_homeassistant_stubs(monkeypatch):
     button = types.ModuleType("homeassistant.components.button")
     const = types.ModuleType("homeassistant.const")
     helpers = types.ModuleType("homeassistant.helpers")
+    util = types.ModuleType("homeassistant.util")
+    dt = types.ModuleType("homeassistant.util.dt")
     update_coordinator = types.ModuleType("homeassistant.helpers.update_coordinator")
     entity = types.ModuleType("homeassistant.helpers.entity")
     storage = types.ModuleType("homeassistant.helpers.storage")
@@ -37,6 +39,7 @@ def install_homeassistant_stubs(monkeypatch):
         icon: str | None = None
         device_class: str | None = None
         native_unit_of_measurement: str | None = None
+        suggested_display_precision: int | None = None
         native_min_value: int | None = None
         native_max_value: int | None = None
         native_step: float | None = None
@@ -47,6 +50,7 @@ def install_homeassistant_stubs(monkeypatch):
         TEMPERATURE = "temperature"
         DURATION = "duration"
         TIMESTAMP = "timestamp"
+        VOLUME = "volume"
 
     class BinarySensorDeviceClass:
         PROBLEM = "problem"
@@ -82,9 +86,13 @@ def install_homeassistant_stubs(monkeypatch):
     switch.SwitchEntityDescription = EntityDescription
     button.ButtonEntity = Entity
     button.ButtonEntityDescription = EntityDescription
+    const.UnitOfLength = types.SimpleNamespace(CENTIMETERS="cm")
     const.UnitOfTemperature = types.SimpleNamespace(CELSIUS="°C")
+    const.UnitOfTime = types.SimpleNamespace(DAYS="d", MINUTES="min")
+    const.UnitOfVolume = types.SimpleNamespace(CUBIC_METERS="m³")
     const.CONCENTRATION_PARTS_PER_MILLION = "ppm"
     entity.EntityCategory = EntityCategory
+    dt.as_local = lambda value: value.astimezone()
     update_coordinator.CoordinatorEntity = CoordinatorEntity
 
     class Store:
@@ -109,6 +117,8 @@ def install_homeassistant_stubs(monkeypatch):
         "homeassistant.components.button": button,
         "homeassistant.const": const,
         "homeassistant.helpers": helpers,
+        "homeassistant.util": util,
+        "homeassistant.util.dt": dt,
         "homeassistant.helpers.update_coordinator": update_coordinator,
         "homeassistant.helpers.entity": entity,
         "homeassistant.helpers.storage": storage,
@@ -248,7 +258,7 @@ def test_cloud_forwarding_switch_updates_option_and_icons(integration_modules):
     )
     entity = switch.AsekoCloudForwardingSwitch(hass, entry)
     assert entity._attr_unique_id == "asin_aqua_home_cloud_forwarding"
-    assert entity.suggested_object_id == "asin_aqua_home_cloud_forwarding"
+    assert entity.suggested_object_id == "cloud_forwarding"
     assert entity._attr_has_entity_name is True
     assert entity.is_on is True
     assert entity.icon == "mdi:cloud-sync"
@@ -271,7 +281,7 @@ def test_button_descriptions_have_stable_unique_ids(integration_modules):
     coordinator = types.SimpleNamespace()
     entity = button.AsekoContainerReplacedButton(coordinator, button.BUTTON_DESCRIPTIONS[0])
     assert entity._attr_unique_id == "asin_aqua_home_chlorine_container_replaced"
-    assert entity.suggested_object_id == "asin_aqua_home_chlorine_container_replaced"
+    assert entity.suggested_object_id == "chlorine_container_replaced"
     assert entity._attr_has_entity_name is True
     assert all(description.icon == "mdi:refresh" for description in button.BUTTON_DESCRIPTIONS)
 
@@ -383,24 +393,28 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
 
     semantic_ids = {entity.suggested_object_id for entity in entities}
     assert all(hasattr(type(entity), "suggested_object_id") for entity in entities)
-    assert all(value.startswith("asin_aqua_home_") for value in semantic_ids)
+    assert not any(value.startswith("asin_aqua_home_") for value in semantic_ids)
     assert all(re.fullmatch(r"[a-z0-9_]+", value) for value in semantic_ids)
     assert not any(re.search(r"_\d+$", value) for value in semantic_ids)
     assert len(semantic_ids) == len(entities)
 
     expected_suggestions = {
-        "asin_aqua_home_air_temperature",
-        "asin_aqua_home_chlorine",
-        "asin_aqua_home_last_backwash",
-        "asin_aqua_home_error_no_probe_flow",
-        "asin_aqua_home_relay_backwash",
-        "asin_aqua_home_relay_filling",
-        "asin_aqua_home_relay_chlorine",
-        "asin_aqua_home_cloud_forwarding",
-        "asin_aqua_home_water_level_offset",
-        "asin_aqua_home_chlorine_container_replaced",
+        "air_temperature",
+        "chlorine",
+        "last_backwash",
+        "error_no_probe_flow",
+        "relay_backwash",
+        "relay_filling",
+        "relay_chlorine",
+        "cloud_forwarding",
+        "water_level_offset",
+        "chlorine_container_replaced",
     }
     assert expected_suggestions <= semantic_ids
+
+    generated_entity_ids = {f"asin_aqua_home_{value}" for value in semantic_ids}
+    assert "asin_aqua_home_asin_aqua_home_last_backwash" not in generated_entity_ids
+    assert "asin_aqua_home_last_backwash" in generated_entity_ids
 
     unique_ids = {entity._attr_unique_id for entity in entities}
     assert "asin_aqua_home_air_temperature" in unique_ids
@@ -447,6 +461,26 @@ def test_chemistry_and_relay_icons_are_consistent(integration_modules):
             assert description.icon == "mdi:alert-circle-outline"
 
 
+def test_german_translations_keep_required_visible_names():
+    german = (BASE / "translations" / "de.json").read_text()
+    for expected in (
+        "Chlor-Sollwert",
+        "Wassertemperatur Sollwert",
+        "Wasserstand niedrig",
+        "Wasserstand hoch",
+        "Nachfüllung einschalten",
+        "Nachfüllung ausschalten",
+        "Rückspülintervall in Tagen",
+        "Poolvolumen",
+        "Maximale Nachfüllzeit",
+        "Dosierverzögerung",
+        "Startverzögerung",
+        "Letzte Rückspülung",
+    ):
+        assert expected in german
+    assert "Rückspühlung" not in german
+
+
 def test_no_image_files_or_frontend_resources_added():
     added_files = subprocess.run(
         ["git", "diff", "--name-only", "--diff-filter=A", "HEAD"],
@@ -472,10 +506,107 @@ def test_protocol_behavior_files_are_unchanged_in_this_patch():
         "custom_components/aseko_asin_aqua_home/protocol.py",
         "custom_components/aseko_asin_aqua_home/coordinator.py",
         "custom_components/aseko_asin_aqua_home/backwash_tracker.py",
-        "custom_components/aseko_asin_aqua_home/dosing_tracker.py",
         "custom_components/aseko_asin_aqua_home/config_flow.py",
-        "custom_components/aseko_asin_aqua_home/__init__.py",
-        "custom_components/aseko_asin_aqua_home/strings.json",
     }
 
     assert not restricted_behavior_files.intersection(changed_files)
+
+
+def test_last_backwash_sensor_formats_local_time_and_attributes(integration_modules, monkeypatch):
+    sensor = integration_modules["sensor"]
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+    timestamp = __import__("datetime").datetime(2026, 6, 3, 19, 24, tzinfo=__import__("datetime").timezone.utc)
+    local_timestamp = timestamp.astimezone(__import__("datetime").timezone(__import__("datetime").timedelta(hours=2)))
+    sys.modules["homeassistant.util.dt"].as_local = lambda value: local_timestamp
+    coordinator = types.SimpleNamespace(
+        backwash_tracker=types.SimpleNamespace(last_backwash=timestamp),
+        data=None,
+        data_available=False,
+    )
+
+    entity = sensor.AsekoSensor(coordinator, descriptions["last_backwash"])
+
+    assert descriptions["last_backwash"].device_class is None
+    assert entity.native_value == "03.06.2026 21:24 Uhr"
+    assert entity.extra_state_attributes == {
+        "timestamp_iso": "2026-06-03T19:24:00+00:00",
+        "confirmation_seconds": 60,
+    }
+
+
+def test_protocol_sensor_units_and_minute_display_metadata(integration_modules):
+    sensor = integration_modules["sensor"]
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+
+    assert descriptions["chlorine_target"].native_unit_of_measurement == "ppm"
+    assert descriptions["water_temperature_target"].native_unit_of_measurement == "°C"
+    assert descriptions["water_temperature_target"].device_class == "temperature"
+    for key in ("water_level_low", "water_level_high", "refill_on", "refill_off"):
+        assert descriptions[key].native_unit_of_measurement == "cm"
+    assert descriptions["backwash_interval_days"].native_unit_of_measurement == "d"
+    assert descriptions["pool_volume"].native_unit_of_measurement == "m³"
+    assert descriptions["pool_volume"].device_class == "volume"
+    for key in ("filling_time_limit", "dosing_delay", "startup_delay"):
+        assert descriptions[key].native_unit_of_measurement == "min"
+        assert descriptions[key].suggested_display_precision == 0
+
+    coordinator = types.SimpleNamespace(
+        data=types.SimpleNamespace(sensors={"filling_time_limit": 15.0, "dosing_delay": 5.0, "startup_delay": 2.5}),
+        data_available=True,
+    )
+    assert sensor.AsekoSensor(coordinator, descriptions["filling_time_limit"]).native_value == 15
+    assert sensor.AsekoSensor(coordinator, descriptions["dosing_delay"]).native_value == 5
+    assert sensor.AsekoSensor(coordinator, descriptions["startup_delay"]).native_value == 2.5
+
+
+@pytest.mark.parametrize(
+    ("channel_key", "container_size"),
+    [
+        ("chlorine", 20.0),
+        ("ph_minus", 20.0),
+        ("flocculation", 6.0),
+        ("algicide", 6.0),
+    ],
+)
+def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, channel_key, container_size):
+    sensor = integration_modules["sensor"]
+    state = types.SimpleNamespace(
+        accumulated_runtime_seconds=0,
+        last_container_replacement_timestamp="2026-01-01T00:00:00+00:00",
+    )
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=types.SimpleNamespace(states={channel_key: state}),
+        options={f"{channel_key}_container_size": container_size, f"{channel_key}_flow_rate": 0.0},
+        data=None,
+        data_available=True,
+    )
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+    consumed = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_consumed_liters"])
+    remaining = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_remaining_liters"])
+    percent = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_remaining_percent"])
+    runtime = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_runtime_since_replacement"])
+    replacement = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_last_container_replacement"])
+
+    assert runtime.native_value == 0
+    assert consumed.available is True
+    assert consumed.native_value == 0.0
+    assert remaining.available is True
+    assert remaining.native_value == container_size
+    assert percent.available is True
+    assert percent.native_value == 100.0
+    assert replacement.native_value.isoformat() == "2026-01-01T00:00:00+00:00"
+
+    state.accumulated_runtime_seconds = 60
+    assert consumed.available is False
+    assert consumed.native_value is None
+    assert remaining.available is False
+    assert remaining.native_value is None
+    assert percent.available is False
+    assert percent.native_value is None
+
+    coordinator.options[f"{channel_key}_flow_rate"] = 6.0
+    state.accumulated_runtime_seconds = 1800
+    assert consumed.available is True
+    assert consumed.native_value == 3.0
+    assert remaining.native_value == max(0, container_size - 3.0)
+    assert percent.native_value == round(max(0, min(100, (container_size - 3.0) / container_size * 100)), 1)

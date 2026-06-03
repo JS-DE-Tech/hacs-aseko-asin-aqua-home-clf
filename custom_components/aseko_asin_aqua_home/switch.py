@@ -40,7 +40,7 @@ class AsekoCloudForwardingSwitch(SwitchEntity):
 
     @property
     def suggested_object_id(self) -> str:
-        return "asin_aqua_home_cloud_forwarding"
+        return "cloud_forwarding"
 
     @property
     def device_info(self):

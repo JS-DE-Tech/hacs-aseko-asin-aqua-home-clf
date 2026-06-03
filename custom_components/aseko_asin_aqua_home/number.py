@@ -117,7 +117,7 @@ class AsekoConfigNumber(NumberEntity):
 
     @property
     def suggested_object_id(self) -> str:
-        return f"asin_aqua_home_{self.entity_description.key}"
+        return self.entity_description.key
 
     @property
     def device_info(self):

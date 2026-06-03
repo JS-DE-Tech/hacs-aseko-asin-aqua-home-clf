@@ -93,7 +93,7 @@
         "name": "Filterzeit 2 Ende"
       },
       "backwash_interval_days": {
-        "name": "Rückspülintervall"
+        "name": "Rückspülintervall in Tagen"
       },
       "backwash_start": {
         "name": "Rückspülung Start"

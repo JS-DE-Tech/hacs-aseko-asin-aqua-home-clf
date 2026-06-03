@@ -48,6 +48,7 @@ def install_homeassistant_stubs(monkeypatch):
     event = types.ModuleType("homeassistant.helpers.event")
     update_coordinator = types.ModuleType("homeassistant.helpers.update_coordinator")
     storage = types.ModuleType("homeassistant.helpers.storage")
+    entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
 
     def callback(func):
         return func
@@ -68,6 +69,16 @@ def install_homeassistant_stubs(monkeypatch):
     update_coordinator.DataUpdateCoordinator = FakeDataUpdateCoordinator
     storage.Store = FakeStore
 
+    class Registry:
+        def async_get(self, entity_id):
+            return None
+
+        def async_update_entity(self, entity_id, **kwargs):
+            return None
+
+    entity_registry.async_get = lambda hass: Registry()
+    helpers.entity_registry = entity_registry
+
     for name, module in {
         "homeassistant": homeassistant,
         "homeassistant.config_entries": config_entries,
@@ -76,6 +87,7 @@ def install_homeassistant_stubs(monkeypatch):
         "homeassistant.helpers.event": event,
         "homeassistant.helpers.update_coordinator": update_coordinator,
         "homeassistant.helpers.storage": storage,
+        "homeassistant.helpers.entity_registry": entity_registry,
     }.items():
         monkeypatch.setitem(sys.modules, name, module)
 

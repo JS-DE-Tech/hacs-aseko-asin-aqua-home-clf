@@ -86,7 +86,7 @@ class AsekoBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def suggested_object_id(self) -> str:
-        return f"{DEVICE_IDENTIFIER}_{self.entity_description.key}"
+        return self.entity_description.key
 
     @property
     def device_info(self):
