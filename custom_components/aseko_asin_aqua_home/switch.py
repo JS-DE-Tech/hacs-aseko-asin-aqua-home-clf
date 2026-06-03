@@ -32,12 +32,15 @@ class AsekoCloudForwardingSwitch(SwitchEntity):
 
     _attr_has_entity_name = True
     _attr_unique_id = "asin_aqua_home_cloud_forwarding"
-    _attr_suggested_object_id = "asin_aqua_home_cloud_forwarding"
     entity_description = CLOUD_FORWARDING_DESCRIPTION
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
         self.entry = entry
+
+    @property
+    def suggested_object_id(self) -> str:
+        return "asin_aqua_home_cloud_forwarding"
 
     @property
     def device_info(self):

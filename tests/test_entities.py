@@ -5,6 +5,8 @@ import types
 from dataclasses import dataclass
 
 import asyncio
+import re
+import subprocess
 
 import pytest
 
@@ -246,7 +248,7 @@ def test_cloud_forwarding_switch_updates_option_and_icons(integration_modules):
     )
     entity = switch.AsekoCloudForwardingSwitch(hass, entry)
     assert entity._attr_unique_id == "asin_aqua_home_cloud_forwarding"
-    assert entity._attr_suggested_object_id == "asin_aqua_home_cloud_forwarding"
+    assert entity.suggested_object_id == "asin_aqua_home_cloud_forwarding"
     assert entity._attr_has_entity_name is True
     assert entity.is_on is True
     assert entity.icon == "mdi:cloud-sync"
@@ -269,7 +271,7 @@ def test_button_descriptions_have_stable_unique_ids(integration_modules):
     coordinator = types.SimpleNamespace()
     entity = button.AsekoContainerReplacedButton(coordinator, button.BUTTON_DESCRIPTIONS[0])
     assert entity._attr_unique_id == "asin_aqua_home_chlorine_container_replaced"
-    assert entity._attr_suggested_object_id == "asin_aqua_home_chlorine_container_replaced"
+    assert entity.suggested_object_id == "asin_aqua_home_chlorine_container_replaced"
     assert entity._attr_has_entity_name is True
     assert all(description.icon == "mdi:refresh" for description in button.BUTTON_DESCRIPTIONS)
 
@@ -334,3 +336,146 @@ def test_remaining_volume_is_clamped(integration_modules):
     percent = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_percent"])
     assert remaining.native_value == 0
     assert percent.native_value == 0
+
+
+def test_entities_use_supported_semantic_suggested_object_ids(integration_modules):
+    unsupported_attr = "_attr_" + "suggested_object_id"
+    entity_id_assignment = re.compile(r"\bentity_id\s*=")
+    entity_files = [
+        BASE / "sensor.py",
+        BASE / "binary_sensor.py",
+        BASE / "number.py",
+        BASE / "switch.py",
+        BASE / "button.py",
+    ]
+    for path in entity_files:
+        source = path.read_text()
+        assert unsupported_attr not in source
+        assert not entity_id_assignment.search(source)
+
+    sensor = integration_modules["sensor"]
+    binary_sensor = integration_modules["binary_sensor"]
+    number = integration_modules["number"]
+    switch = integration_modules["switch"]
+    button = integration_modules["button"]
+
+    coordinator = types.SimpleNamespace(data=None, data_available=True)
+    entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+    hass = types.SimpleNamespace()
+
+    entities = [
+        *(sensor.AsekoSensor(coordinator, description) for description in sensor.DESCRIPTIONS),
+        *(
+            binary_sensor.AsekoBinarySensor(coordinator, description)
+            for description in binary_sensor.DESCRIPTIONS
+        ),
+        number.AsekoWaterLevelOffsetNumber(hass, entry),
+        *(
+            number.AsekoConfigNumber(hass, entry, description)
+            for description in number.DOSING_NUMBER_DESCRIPTIONS
+        ),
+        switch.AsekoCloudForwardingSwitch(hass, entry),
+        *(
+            button.AsekoContainerReplacedButton(coordinator, description)
+            for description in button.BUTTON_DESCRIPTIONS
+        ),
+    ]
+
+    semantic_ids = {entity.suggested_object_id for entity in entities}
+    assert all(hasattr(type(entity), "suggested_object_id") for entity in entities)
+    assert all(value.startswith("asin_aqua_home_") for value in semantic_ids)
+    assert all(re.fullmatch(r"[a-z0-9_]+", value) for value in semantic_ids)
+    assert not any(re.search(r"_\d+$", value) for value in semantic_ids)
+    assert len(semantic_ids) == len(entities)
+
+    expected_suggestions = {
+        "asin_aqua_home_air_temperature",
+        "asin_aqua_home_chlorine",
+        "asin_aqua_home_last_backwash",
+        "asin_aqua_home_error_no_probe_flow",
+        "asin_aqua_home_relay_backwash",
+        "asin_aqua_home_relay_filling",
+        "asin_aqua_home_relay_chlorine",
+        "asin_aqua_home_cloud_forwarding",
+        "asin_aqua_home_water_level_offset",
+        "asin_aqua_home_chlorine_container_replaced",
+    }
+    assert expected_suggestions <= semantic_ids
+
+    unique_ids = {entity._attr_unique_id for entity in entities}
+    assert "asin_aqua_home_air_temperature" in unique_ids
+    assert "asin_aqua_home_chlorine" in unique_ids
+    assert "asin_aqua_home_last_backwash" in unique_ids
+    assert "asin_aqua_home_error_no_probe_flow" in unique_ids
+    assert "asin_aqua_home_relay_backwash" in unique_ids
+    assert "asin_aqua_home_relay_filling" in unique_ids
+    assert "asin_aqua_home_relay_chlorine" in unique_ids
+    assert "asin_aqua_home_cloud_forwarding" in unique_ids
+    assert "asin_aqua_home_water_level_offset" in unique_ids
+    assert "asin_aqua_home_chlorine_container_replaced" in unique_ids
+
+
+def test_chemistry_and_relay_icons_are_consistent(integration_modules):
+    sensor = integration_modules["sensor"]
+    binary_sensor = integration_modules["binary_sensor"]
+    sensor_icons = {description.key: description.icon for description in sensor.DESCRIPTIONS}
+    binary_icons = {
+        description.key: description.icon for description in binary_sensor.DESCRIPTIONS
+    }
+
+    assert sensor_icons["chlorine"] == "mdi:flask-round-bottom"
+    assert sensor_icons["chlorine_target"] == "mdi:flask-round-bottom"
+    assert binary_icons["relay_chlorine"] == "mdi:flask-round-bottom"
+
+    assert sensor_icons["ph"] == "mdi:flask-outline"
+    assert sensor_icons["ph_target"] == "mdi:flask-outline"
+    assert binary_icons["relay_ph_minus"] == "mdi:flask-outline"
+
+    assert sensor_icons["flocculation_dose"] == "mdi:bottle-tonic-outline"
+    assert binary_icons["relay_flocculation"] == "mdi:bottle-tonic-outline"
+
+    assert sensor_icons["algicide_dose"] == "mdi:bottle-tonic"
+    assert binary_icons["relay_algicide"] == "mdi:bottle-tonic"
+
+    assert binary_icons["relay_backwash"] == "mdi:wave-arrow-down"
+    assert binary_icons["relay_filling"] == "mdi:waves-arrow-up"
+    assert sensor_icons["last_backwash"] == "mdi:recycle"
+
+    for description in binary_sensor.DESCRIPTIONS:
+        if description.key.startswith("error_"):
+            assert description.device_class == "problem"
+            assert description.icon == "mdi:alert-circle-outline"
+
+
+def test_no_image_files_or_frontend_resources_added():
+    added_files = subprocess.run(
+        ["git", "diff", "--name-only", "--diff-filter=A", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    image_suffixes = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+    frontend_suffixes = {".js", ".mjs", ".ts", ".tsx", ".css"}
+
+    assert not any(Path(path).suffix.lower() in image_suffixes for path in added_files)
+    assert not any(Path(path).suffix.lower() in frontend_suffixes for path in added_files)
+
+
+def test_protocol_behavior_files_are_unchanged_in_this_patch():
+    changed_files = subprocess.run(
+        ["git", "diff", "--name-only", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    restricted_behavior_files = {
+        "custom_components/aseko_asin_aqua_home/protocol.py",
+        "custom_components/aseko_asin_aqua_home/coordinator.py",
+        "custom_components/aseko_asin_aqua_home/backwash_tracker.py",
+        "custom_components/aseko_asin_aqua_home/dosing_tracker.py",
+        "custom_components/aseko_asin_aqua_home/config_flow.py",
+        "custom_components/aseko_asin_aqua_home/__init__.py",
+        "custom_components/aseko_asin_aqua_home/strings.json",
+    }
+
+    assert not restricted_behavior_files.intersection(changed_files)
