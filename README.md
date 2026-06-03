@@ -1,7 +1,7 @@
 # ASEKO ASIN AQUA Home for Home Assistant
 
 <p align="center">
-  <img src="docs/images/aseko_asin_aqua_home.png"
+  <img src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/aseko_asin_aqua_home.png"
        alt="ASEKO ASIN AQUA Home pool controller"
        width="420">
 </p>
@@ -29,7 +29,7 @@ The listener defaults to `0.0.0.0:47524`. One-way forwarding of the original rec
 ## USR-K5 gateway configuration
 
 <p align="center">
-  <img src="docs/images/usr-k5-serial-port-configuration.png"
+  <img src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/usr-k5-serial-port-configuration.png"
        alt="USR-K5 Serial Port configuration"
        width="850">
 </p>
