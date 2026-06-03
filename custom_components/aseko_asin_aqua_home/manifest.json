@@ -7,5 +7,5 @@
   "integration_type": "hub",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/issues",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }

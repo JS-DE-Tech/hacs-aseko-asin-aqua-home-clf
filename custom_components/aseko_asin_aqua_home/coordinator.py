@@ -18,6 +18,7 @@ from .protocol import CandidateEvent, DecodedData, FrameBuffer
 _LOGGER = logging.getLogger(__name__)
 _CAPTURE_LIMIT = 200
 _CLOSE_TIMEOUT = 3.0
+_CLOUD_CONNECT_TIMEOUT = 5.0
 
 
 @dataclass
@@ -118,27 +119,53 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
 
     async def async_set_forwarding_enabled(self, enabled: bool) -> None:
         """Enable or disable one-way cloud forwarding for active sessions."""
+        await self.async_reconfigure_cloud_forwarding(
+            enabled=enabled,
+            host=self.options["forward_host"],
+            port=self.options["forward_port"],
+        )
+
+    async def async_reconfigure_cloud_forwarding(
+        self,
+        *,
+        enabled: bool,
+        host: str,
+        port: int,
+    ) -> None:
+        """Apply cloud forwarding options without interrupting local gateway sessions."""
         async with self._forwarding_lock:
             self.options["forward_enabled"] = enabled
+            self.options["forward_host"] = host
+            self.options["forward_port"] = port
+
             sessions = list(self._sessions.values())
-            if enabled:
-                for session in sessions:
-                    if session.cloud_writer is None:
-                        await self._open_cloud_forwarding(session)
-            else:
-                for session in sessions:
-                    await self._close_cloud_forwarding(session)
+            for session in sessions:
+                await self._close_cloud_forwarding(session)
+
+            if not enabled:
+                return
+
+            for session in sessions:
+                await self._open_cloud_forwarding(session)
 
     async def _open_cloud_forwarding(self, session: GatewaySession) -> None:
         """Open one-way cloud forwarding for a gateway session if possible."""
         if session.cloud_writer is not None:
             return
+        host = self.options["forward_host"]
+        port = self.options["forward_port"]
         try:
-            cloud_reader, cloud_writer = await asyncio.open_connection(
-                self.options["forward_host"], self.options["forward_port"]
+            cloud_reader, cloud_writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port),
+                timeout=_CLOUD_CONNECT_TIMEOUT,
             )
-        except OSError as err:
-            _LOGGER.warning("Cloud forwarding connection failed: %s", err)
+        except (asyncio.TimeoutError, OSError, ConnectionError) as err:
+            _LOGGER.warning(
+                "Cloud forwarding connection to %s:%s failed or timed out: %s",
+                host,
+                port,
+                err,
+            )
             return
         session.cloud_writer = cloud_writer
         session.cloud_discard_task = asyncio.create_task(
