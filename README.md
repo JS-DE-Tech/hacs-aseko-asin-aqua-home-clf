@@ -18,6 +18,27 @@ Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home*
 pool controller. It receives controller data locally over the LAN without MQTT
 or Node-RED and exposes push-updated sensors and binary sensors.
 
+## Example Home Assistant dashboard
+
+The integration exposes the ASEKO ASIN AQUA Home values as standard Home
+Assistant entities. These entities can be combined in a dashboard to provide a
+clear overview of the pool status, water values, relay states, dosing-container
+levels, and recent maintenance activity.
+
+The following screenshot shows one possible dashboard layout:
+
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/aseko_dashboard.png"
+    alt="Example Home Assistant dashboard for ASEKO ASIN AQUA Home"
+    width="1000">
+</p>
+
+The dashboard shown above is only an example. The integration does not install a
+preconfigured dashboard automatically. Users can build their own dashboard from
+the exposed Home Assistant entities and adapt the layout to their individual
+requirements.
+
 ## Installation
 1. In HACS, add this GitHub repository as a **Custom repository** with category **Integration**.
 2. Install **ASEKO ASIN AQUA Home**, restart Home Assistant, and add the integration from **Settings → Devices & services**.
