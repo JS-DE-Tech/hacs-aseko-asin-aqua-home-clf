@@ -25,7 +25,7 @@ class AsekoSensorDescription(SensorEntityDescription):
 
 SENSOR_ICONS = {
     "ph": "mdi:flask-outline",
-    "chlorine": "mdi:flask-outline",
+    "chlorine": "mdi:flask-round-bottom",
     "air_temperature": "mdi:sun-thermometer-outline",
     "water_temperature": "mdi:thermometer-water",
     "water_level": "mdi:waves",
@@ -35,7 +35,7 @@ SENSOR_ICONS = {
     "time_deviation": "mdi:clock-plus-outline",
     "set_time_recommended": "mdi:gesture-tap-button",
     "ph_target": "mdi:flask-outline",
-    "chlorine_target": "mdi:flask-outline",
+    "chlorine_target": "mdi:flask-round-bottom",
     "flocculation_dose": "mdi:bottle-tonic-outline",
     "water_temperature_target": "mdi:thermometer-check",
     "filter_1_start": "mdi:clock-start",
@@ -192,7 +192,10 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{DEVICE_IDENTIFIER}_{description.key}"
-        self._attr_suggested_object_id = f"{DEVICE_IDENTIFIER}_{description.key}"
+
+    @property
+    def suggested_object_id(self) -> str:
+        return f"{DEVICE_IDENTIFIER}_{self.entity_description.key}"
 
     @property
     def device_info(self):

@@ -98,8 +98,13 @@ Newly created entities provide semantic suggested object IDs such as
 `sensor.asin_aqua_home_last_backwash`. Unique IDs are unchanged so existing Home
 Assistant entity-registry entries remain stable.
 
-Existing Home Assistant installations may retain previously generated legacy
-entity IDs. The integration does not rename registered entity IDs automatically,
-because automatic renaming could break automations, dashboards, scripts and
-templates. Existing IDs can be renamed manually from the Home Assistant entity
-settings after updating the integration.
+## Legacy entity IDs
+
+Older installations may retain numeric entity IDs such as
+`binary_sensor.asin_aqua_home_3`. The integration now provides semantic entity
+ID suggestions for newly created registry entries. Existing IDs are not renamed
+automatically because automatic renaming could break dashboards, automations,
+scripts and templates.
+
+Existing entity IDs can be reset or renamed manually from the Home Assistant
+entity settings after updating the integration.
