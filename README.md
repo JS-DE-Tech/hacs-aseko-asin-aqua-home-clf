@@ -1,10 +1,22 @@
 # ASEKO ASIN AQUA Home for Home Assistant
 
 <p align="center">
-  <img src="docs/images/aseko_asin_aqua_home.png" alt="ASEKO ASIN AQUA Home pool controller" width="460">
+  <img src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/aseko_asin_aqua_home.png"
+       alt="ASEKO ASIN AQUA Home pool controller"
+       width="420">
 </p>
 
-Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home** pool controller. It receives controller data locally over the LAN without MQTT or Node-RED and exposes push-updated sensors and binary sensors.
+Home Assistant integration for the ASEKO ASIN AQUA Home pool controller using a local TCP gateway connection.
+
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
+[![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
+[![Protocol](https://img.shields.io/badge/protocol-local%20TCP-success)](#scope-and-protocol-notes)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Support via PayPal](https://img.shields.io/badge/Support%20via-PayPal-0070BA?logo=paypal&logoColor=white)](https://paypal.me/JensSaffrich)
+
+Read-only Home Assistant HACS custom integration for the **ASEKO ASIN AQUA Home**
+pool controller. It receives controller data locally over the LAN without MQTT
+or Node-RED and exposes push-updated sensors and binary sensors.
 
 ## Installation
 1. In HACS, add this GitHub repository as a **Custom repository** with category **Integration**.
@@ -16,7 +28,11 @@ The listener defaults to `0.0.0.0:47524`. One-way forwarding of the original rec
 
 ## USR-K5 gateway configuration
 
-![USR-K5 Serial Port configuration](docs/images/usr-k5-serial-port-configuration.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/usr-k5-serial-port-configuration.png"
+       alt="USR-K5 Serial Port configuration"
+       width="850">
+</p>
 
 ## Scope and protocol notes
 This first version is intentionally **read-only**. It does not send pool-control commands. The decoder ports the tested offsets from `reference/node-red-flow.json`, including chemistry, temperatures, water level, schedules, delays, concentrations, error bits, relay bits, and stateful status handling.
