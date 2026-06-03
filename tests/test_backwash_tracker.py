@@ -53,6 +53,15 @@ def backwash_module(monkeypatch):
     return module
 
 
+def test_inactive_relay_produces_no_timestamp(backwash_module):
+    tracker = backwash_module.BackwashTracker(types.SimpleNamespace(), "entry-1")
+    start = datetime(2026, 1, 1, 6, 20, tzinfo=timezone.utc)
+
+    assert tracker.observe_relay(False, start) is False
+    assert tracker.observe_relay(False, start + timedelta(seconds=120)) is False
+    assert tracker.last_backwash is None
+
+
 def test_backwash_confirmation_state_machine_and_persistence(backwash_module):
     tracker = backwash_module.BackwashTracker(types.SimpleNamespace(), "entry-1")
     start = datetime(2026, 1, 1, 6, 20, tzinfo=timezone.utc)

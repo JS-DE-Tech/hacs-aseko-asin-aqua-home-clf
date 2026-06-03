@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 import types
 
+import pytest
+
 import asyncio
 
 
@@ -155,3 +157,41 @@ def test_legacy_entry_id_dosing_storage_migrates_to_stable_key(monkeypatch):
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 456
     assert saved[-1][0] == "aseko_asin_aqua_home_dosing_tracker"
     assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 456
+
+
+@pytest.mark.parametrize("channel_key", ["chlorine", "ph_minus", "flocculation", "algicide"])
+def test_container_reset_persists_full_baseline_for_each_channel(monkeypatch, channel_key):
+    module, saved = load_tracker(monkeypatch)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    tracker.states[channel_key].accumulated_runtime_seconds = 123
+
+    asyncio.run(tracker.async_reset_container(channel_key))
+
+    timestamp = tracker.states[channel_key].last_container_replacement_timestamp
+    assert tracker.states[channel_key].accumulated_runtime_seconds == 0
+    assert timestamp is not None
+    assert saved[-1][1]["channels"][channel_key]["accumulated_runtime_seconds"] == 0.0
+    assert saved[-1][1]["channels"][channel_key]["last_container_replacement_timestamp"] == timestamp
+    assert saved[-1][1]["channels"][channel_key]["last_observed_timestamp"] == timestamp
+
+    module, _ = load_tracker(monkeypatch, saved[-1][1])
+    reloaded = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    asyncio.run(reloaded.async_load())
+    assert reloaded.states[channel_key].accumulated_runtime_seconds == 0
+    assert reloaded.states[channel_key].last_container_replacement_timestamp == timestamp
+    assert reloaded.states[channel_key].last_observed_timestamp == timestamp
+
+
+def test_container_reset_discards_pre_reset_active_interval(monkeypatch):
+    module, _ = load_tracker(monkeypatch)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    tracker.observe_relays({"chlorine": True}, start)
+
+    asyncio.run(tracker.async_reset_container("chlorine"))
+    reset_timestamp = datetime.fromisoformat(
+        tracker.states["chlorine"].last_container_replacement_timestamp
+    )
+    tracker.observe_relays({"chlorine": True}, reset_timestamp + timedelta(seconds=10))
+
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 10

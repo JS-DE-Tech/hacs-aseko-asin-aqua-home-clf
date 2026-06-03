@@ -163,3 +163,18 @@ def test_frame_buffer_passes_water_level_offset():
 def test_short_frame_rejected():
     with pytest.raises(InvalidFrameError):
         AsekoProtocolDecoder().decode(b"short")
+
+
+def test_minute_settings_decode_integral_seconds_without_fractional_minutes():
+    result = AsekoProtocolDecoder().decode(
+        frame(
+            **{
+                "76": 900 // 256,
+                "77": 900 % 256,
+                "106": 300 // 256,
+                "107": 300 % 256,
+            }
+        )
+    )
+    assert result.sensors["filling_time_limit"] == 15
+    assert result.sensors["dosing_delay"] == 5

@@ -166,10 +166,10 @@ class DosingTracker:
 
     async def async_reset_container(self, channel_key: str) -> None:
         state = self.states[channel_key]
+        reset_timestamp = datetime.now(timezone.utc).isoformat()
         state.accumulated_runtime_seconds = 0.0
-        state.last_container_replacement_timestamp = datetime.now(
-            timezone.utc
-        ).isoformat()
+        state.last_observed_timestamp = reset_timestamp
+        state.last_container_replacement_timestamp = reset_timestamp
         self._dirty = True
         await self.async_save()
 
