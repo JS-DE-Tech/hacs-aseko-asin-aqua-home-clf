@@ -31,7 +31,7 @@ The following screenshot shows one possible dashboard layout:
   <img
     src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/aseko_dashboard.png"
     alt="Example Home Assistant dashboard for ASEKO ASIN AQUA Home"
-    width="1000">
+    width="420">
 </p>
 
 The dashboard shown above is only an example. The integration does not install a
