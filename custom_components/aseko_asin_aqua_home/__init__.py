@@ -29,13 +29,17 @@ from .dosing_tracker import DOSING_CHANNELS
 
 _LOGGER = logging.getLogger(__name__)
 
-_RELOAD_OPTION_KEYS = {
+_FULL_RELOAD_OPTION_KEYS = {
     "listen_host",
     "listen_port",
-    "forward_host",
-    "forward_port",
     "max_chlorine",
     CONF_WATER_LEVEL_OFFSET,
+}
+
+_CLOUD_FORWARDING_OPTION_KEYS = {
+    CONF_FORWARD_ENABLED,
+    "forward_host",
+    "forward_port",
 }
 
 
@@ -89,13 +93,16 @@ async def _reload(hass: HomeAssistant, entry: ConfigEntry) -> None:
         for key, value in new_options.items()
         if coordinator.options.get(key) != value
     }
-    if changed_options & _RELOAD_OPTION_KEYS:
+    if changed_options & _FULL_RELOAD_OPTION_KEYS:
         await hass.config_entries.async_reload(entry.entry_id)
         return
+
     coordinator.options.update(new_options)
-    if CONF_FORWARD_ENABLED in changed_options:
-        await coordinator.async_set_forwarding_enabled(
-            new_options[CONF_FORWARD_ENABLED]
+    if changed_options & _CLOUD_FORWARDING_OPTION_KEYS:
+        await coordinator.async_reconfigure_cloud_forwarding(
+            enabled=new_options[CONF_FORWARD_ENABLED],
+            host=new_options["forward_host"],
+            port=new_options["forward_port"],
         )
 
 

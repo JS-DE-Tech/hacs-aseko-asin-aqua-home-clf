@@ -620,3 +620,266 @@ def test_persistent_backwash_state_is_saved_before_unload_completes(modules):
         coord.backwash_tracker._store.saved["state"]["last_backwash_timestamp"]
         == "2026-06-03T10:00:00+00:00"
     )
+
+
+def test_forward_host_change_reconfigures_without_integration_reload(modules, monkeypatch):
+    init = modules["init"]
+    module = modules["coordinator"]
+    entry = types.SimpleNamespace(
+        data={}, options={"forward_host": "new.cloud.example"}, entry_id="entry-1"
+    )
+    coord = coordinator(modules, forward_enabled=True)
+    add_session(coord, module)
+    reloads = []
+    opened = []
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            reloads.append(entry_id)
+
+    async def open_connection(host, port):
+        opened.append((host, port))
+        return NeverReader(), FakeWriter()
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+
+    asyncio.run(init._reload(hass, entry))
+
+    assert reloads == []
+    assert opened == [("new.cloud.example", 47524)]
+    assert coord.options["forward_host"] == "new.cloud.example"
+
+
+def test_forward_port_change_reconfigures_without_integration_reload(modules, monkeypatch):
+    init = modules["init"]
+    module = modules["coordinator"]
+    entry = types.SimpleNamespace(
+        data={}, options={"forward_port": 12345}, entry_id="entry-1"
+    )
+    coord = coordinator(modules, forward_enabled=True)
+    add_session(coord, module)
+    reloads = []
+    opened = []
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            reloads.append(entry_id)
+
+    async def open_connection(host, port):
+        opened.append((host, port))
+        return NeverReader(), FakeWriter()
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+
+    asyncio.run(init._reload(hass, entry))
+
+    assert reloads == []
+    assert opened == [("pool.aseko.com", 12345)]
+    assert coord.options["forward_port"] == 12345
+
+
+def test_cloud_writer_is_closed_before_reconnect(modules, monkeypatch):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=True)
+    session, gateway_writer = add_session(coord, module)
+    old_writer = FakeWriter()
+    session.cloud_writer = old_writer
+    events = []
+
+    async def open_connection(host, port):
+        events.append(("open", host, port, old_writer.closed))
+        return NeverReader(), FakeWriter()
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="new.cloud.example", port=12345
+        )
+    )
+
+    assert old_writer.closed is True
+    assert events == [("open", "new.cloud.example", 12345, True)]
+    assert session.cloud_writer is not old_writer
+    assert gateway_writer.closed is False
+
+
+def test_new_cloud_host_and_port_are_used_after_reconfiguration(modules, monkeypatch):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=True)
+    session, _ = add_session(coord, module)
+    opened = []
+
+    async def open_connection(host, port):
+        opened.append((host, port))
+        return NeverReader(), FakeWriter()
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="replacement.cloud.example", port=54321
+        )
+    )
+
+    assert opened == [("replacement.cloud.example", 54321)]
+    assert session.cloud_writer is not None
+
+
+def test_unreachable_cloud_host_times_out_cleanly(modules, monkeypatch, caplog):
+    module = modules["coordinator"]
+    monkeypatch.setattr(module, "_CLOUD_CONNECT_TIMEOUT", 0.01)
+    coord = coordinator(modules, forward_enabled=False)
+    session, gateway_writer = add_session(coord, module)
+
+    async def open_connection(host, port):
+        await asyncio.sleep(60)
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="192.0.2.1", port=47524
+        )
+    )
+
+    assert gateway_writer.closed is False
+    assert session.cloud_writer is None
+    assert "failed or timed out" in caplog.text
+
+
+def test_dns_failure_does_not_break_local_gateway_session(modules, monkeypatch):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=False)
+    session, gateway_writer = add_session(coord, module)
+
+    async def open_connection(host, port):
+        raise OSError("Name or service not known")
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="missing.example.invalid", port=47524
+        )
+    )
+
+    assert gateway_writer.closed is False
+    assert session.gateway_writer is gateway_writer
+    assert session.cloud_writer is None
+
+
+def frame(module, **values):
+    data = bytearray(module.FRAME_LENGTH)
+    now = datetime.now()
+    data[6:12] = bytes(
+        [now.year - 2000, now.month, now.day, now.hour, now.minute, now.second]
+    )
+    data[14:18] = bytes([0, 0x2D, 0, 0x7B])
+    data[23:27] = bytes([0, 200, 0, 250])
+    for index, value in values.items():
+        data[int(index)] = value
+    return bytes(data)
+
+
+class ChunkReader:
+    def __init__(self, *chunks):
+        self.chunks = list(chunks)
+
+    async def read(self, size):
+        if self.chunks:
+            return self.chunks.pop(0)
+        return b""
+
+
+def test_local_decoded_sensor_updates_continue_when_cloud_connection_fails(
+    modules, monkeypatch
+):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=True)
+    gateway_writer = FakeWriter()
+
+    async def open_connection(host, port):
+        raise OSError("cloud unavailable")
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord._handle_client(ChunkReader(frame(modules["protocol"])), gateway_writer)
+    )
+
+    assert coord.data is not None
+    assert coord.data.sensors["ph"] == 0.45
+    assert coord.last_valid_frame is not None
+
+
+def test_options_update_completes_after_cloud_timeout(modules, monkeypatch):
+    module = modules["coordinator"]
+    monkeypatch.setattr(module, "_CLOUD_CONNECT_TIMEOUT", 0.01)
+    coord = coordinator(modules, forward_enabled=False)
+    add_session(coord, module)
+
+    async def open_connection(host, port):
+        await asyncio.sleep(60)
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(
+        coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="timeout.example", port=23456
+        )
+    )
+
+    assert coord.options["forward_enabled"] is True
+    assert coord.options["forward_host"] == "timeout.example"
+    assert coord.options["forward_port"] == 23456
+
+
+def test_repeated_reconfiguration_leaves_single_cloud_discard_task(
+    modules, monkeypatch
+):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=True)
+    session, gateway_writer = add_session(coord, module)
+    writers = []
+
+    async def open_connection(host, port):
+        writer = FakeWriter()
+        writers.append(writer)
+        return NeverReader(), writer
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    async def run():
+        await coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="first.example", port=10001
+        )
+        first_task = session.cloud_discard_task
+        await coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="second.example", port=10002
+        )
+        second_task = session.cloud_discard_task
+        await coord.async_reconfigure_cloud_forwarding(
+            enabled=True, host="third.example", port=10003
+        )
+        third_task = session.cloud_discard_task
+        assert first_task is not None and first_task.cancelled()
+        assert second_task is not None and second_task.cancelled()
+        assert third_task is not None and not third_task.done()
+        await coord.async_reconfigure_cloud_forwarding(
+            enabled=False, host="third.example", port=10003
+        )
+        assert third_task.cancelled()
+
+    asyncio.run(run())
+
+    assert len(writers) == 3
+    assert all(writer.closed for writer in writers)
+    assert gateway_writer.closed is False
+    assert session.cloud_discard_task is None
