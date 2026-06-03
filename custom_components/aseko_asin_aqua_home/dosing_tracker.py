@@ -16,6 +16,7 @@ STORAGE_VERSION = 1
 STORAGE_MAJOR_VERSION = 1
 MAX_COUNTABLE_INTERVAL_SECONDS = 60
 SAVE_INTERVAL_SECONDS = 45
+STABLE_STORAGE_KEY = "aseko_asin_aqua_home_dosing_tracker"
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,14 +84,21 @@ class DosingTracker:
     """
 
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
-        self.store_key = f"aseko_asin_aqua_home_dosing_tracker_{entry_id}"
+        self.store_key = STABLE_STORAGE_KEY
         self._store = Store(hass, STORAGE_MAJOR_VERSION, self.store_key)
+        self._legacy_store = Store(
+            hass, STORAGE_MAJOR_VERSION, f"{STABLE_STORAGE_KEY}_{entry_id}"
+        )
         self.states = {channel.key: DosingChannelState() for channel in DOSING_CHANNELS}
         self._dirty = False
         self._last_save_timestamp: datetime | None = None
 
     async def async_load(self) -> None:
         data = await self._store.async_load()
+        migrated = False
+        if not data:
+            data = await self._legacy_store.async_load()
+            migrated = data is not None
         if not data:
             return
         if data.get("version", STORAGE_VERSION) > STORAGE_VERSION:
@@ -101,6 +109,8 @@ class DosingTracker:
             self.states[channel.key] = DosingChannelState.from_dict(
                 channels.get(channel.key)
             )
+        if migrated:
+            await self.async_save()
 
     def observe_relays(
         self, relays: dict[str, bool], now: datetime | None = None
@@ -143,7 +153,8 @@ class DosingTracker:
         now = now or datetime.now(timezone.utc)
         if (
             self._last_save_timestamp is not None
-            and (now - self._last_save_timestamp).total_seconds() < SAVE_INTERVAL_SECONDS
+            and (now - self._last_save_timestamp).total_seconds()
+            < SAVE_INTERVAL_SECONDS
         ):
             return
         await self.async_save()
@@ -156,9 +167,9 @@ class DosingTracker:
     async def async_reset_container(self, channel_key: str) -> None:
         state = self.states[channel_key]
         state.accumulated_runtime_seconds = 0.0
-        state.last_container_replacement_timestamp = (
-            datetime.now(timezone.utc).isoformat()
-        )
+        state.last_container_replacement_timestamp = datetime.now(
+            timezone.utc
+        ).isoformat()
         self._dirty = True
         await self.async_save()
 

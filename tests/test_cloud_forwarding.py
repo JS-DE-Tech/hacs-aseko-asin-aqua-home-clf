@@ -88,7 +88,13 @@ def modules(monkeypatch):
     monkeypatch.setitem(sys.modules, PACKAGE, package)
 
     loaded = {}
-    for module_name in ("const", "dosing_tracker", "backwash_tracker", "protocol", "coordinator"):
+    for module_name in (
+        "const",
+        "dosing_tracker",
+        "backwash_tracker",
+        "protocol",
+        "coordinator",
+    ):
         spec = importlib.util.spec_from_file_location(
             f"{PACKAGE}.{module_name}", BASE / f"{module_name}.py"
         )
@@ -265,12 +271,16 @@ def test_listener_reloads_when_non_live_option_changes(modules):
     assert reloads == ["entry-1"]
 
 
-def test_local_gateway_writer_remains_open_when_forwarding_is_enabled(modules, monkeypatch):
+def test_local_gateway_writer_remains_open_when_forwarding_is_enabled(
+    modules, monkeypatch
+):
     module = modules["coordinator"]
     coord = coordinator(modules, forward_enabled=False)
     session, gateway_writer = add_session(coord, module)
     opened = []
-    monkeypatch.setattr(module.asyncio, "open_connection", lambda *args: open_connection_factory(opened))
+    monkeypatch.setattr(
+        module.asyncio, "open_connection", lambda *args: open_connection_factory(opened)
+    )
     asyncio.run(coord.async_set_forwarding_enabled(True))
     assert opened == [True]
     assert session.cloud_writer is not None
@@ -292,7 +302,9 @@ def test_local_gateway_writer_remains_open_when_forwarding_is_disabled(modules):
     assert gateway_writer.closed is False
 
 
-def test_existing_local_sensors_and_last_valid_frame_remain_available_after_toggling(modules):
+def test_existing_local_sensors_and_last_valid_frame_remain_available_after_toggling(
+    modules,
+):
     coord = coordinator(modules, forward_enabled=False)
     data = types.SimpleNamespace(relays={})
     coord.async_set_updated_data(data)
@@ -316,7 +328,11 @@ def test_all_unrelated_config_entry_options_remain_unchanged(modules):
     init = modules["init"]
     entry = types.SimpleNamespace(
         data={},
-        options={"water_level_offset": 12, "max_chlorine": 10.5, "forward_enabled": False},
+        options={
+            "water_level_offset": 12,
+            "max_chlorine": 10.5,
+            "forward_enabled": False,
+        },
         entry_id="entry-1",
     )
     coord = coordinator(modules, forward_enabled=True)
@@ -331,10 +347,16 @@ def test_all_unrelated_config_entry_options_remain_unchanged(modules):
         data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
     )
     asyncio.run(init._reload(hass, entry))
-    assert entry.options == {"water_level_offset": 12, "max_chlorine": 10.5, "forward_enabled": False}
+    assert entry.options == {
+        "water_level_offset": 12,
+        "max_chlorine": 10.5,
+        "forward_enabled": False,
+    }
 
 
-def test_cloud_connection_failure_does_not_interrupt_local_sensor_updates(modules, monkeypatch):
+def test_cloud_connection_failure_does_not_interrupt_local_sensor_updates(
+    modules, monkeypatch
+):
     module = modules["coordinator"]
     coord = coordinator(modules, forward_enabled=False)
     _, gateway_writer = add_session(coord, module)
@@ -354,16 +376,22 @@ def test_new_gateway_session_opens_cloud_forwarding_when_enabled(modules, monkey
     module = modules["coordinator"]
     coord = coordinator(modules, forward_enabled=True)
     opened = []
-    monkeypatch.setattr(module.asyncio, "open_connection", lambda *args: open_connection_factory(opened))
+    monkeypatch.setattr(
+        module.asyncio, "open_connection", lambda *args: open_connection_factory(opened)
+    )
     asyncio.run(coord._handle_client(EmptyReader(), FakeWriter()))
     assert opened == [True]
 
 
-def test_new_gateway_session_does_not_open_cloud_forwarding_when_disabled(modules, monkeypatch):
+def test_new_gateway_session_does_not_open_cloud_forwarding_when_disabled(
+    modules, monkeypatch
+):
     module = modules["coordinator"]
     coord = coordinator(modules, forward_enabled=False)
     opened = []
-    monkeypatch.setattr(module.asyncio, "open_connection", lambda *args: open_connection_factory(opened))
+    monkeypatch.setattr(
+        module.asyncio, "open_connection", lambda *args: open_connection_factory(opened)
+    )
     asyncio.run(coord._handle_client(EmptyReader(), FakeWriter()))
     assert opened == []
 
@@ -406,3 +434,177 @@ def test_cloud_write_failure_keeps_local_gateway_open(modules):
     assert cloud_writer.closed is True
     assert gateway_writer.closed is False
     assert session.cloud_writer is None
+
+
+class HangingCloseWriter(FakeWriter):
+    async def wait_closed(self):
+        self.wait_closed_called = True
+        await asyncio.sleep(60)
+
+
+class FakeServer:
+    def __init__(self):
+        self.closed = False
+        self.wait_closed_called = False
+
+    def close(self):
+        self.closed = True
+
+    async def wait_closed(self):
+        self.wait_closed_called = True
+
+
+class FakeConfigEntriesForUnload:
+    def __init__(self):
+        self.unloaded_entries = []
+
+    async def async_unload_platforms(self, entry, platforms):
+        self.unloaded_entries.append((entry.entry_id, tuple(platforms)))
+        return True
+
+
+def unload_hass(init, coord, entry_id="entry-1"):
+    return types.SimpleNamespace(
+        data={init.DOMAIN: {entry_id: coord}},
+        config_entries=FakeConfigEntriesForUnload(),
+    )
+
+
+def test_config_entry_unload_completes_when_no_clients_are_connected(modules):
+    init = modules["init"]
+    coord = coordinator(modules)
+    server = FakeServer()
+    coord.server = server
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert server.closed is True
+    assert server.wait_closed_called is True
+    assert hass.data[init.DOMAIN] == {}
+
+
+def test_config_entry_unload_completes_with_active_gateway_session(
+    modules, monkeypatch
+):
+    init = modules["init"]
+    module = modules["coordinator"]
+    monkeypatch.setattr(module, "_CLOSE_TIMEOUT", 0.01)
+    coord = coordinator(modules)
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+    gateway_writer = FakeWriter()
+
+    async def run():
+        task = asyncio.create_task(coord._handle_client(NeverReader(), gateway_writer))
+        await asyncio.sleep(0)
+        assert coord._sessions
+        unloaded = await init.async_unload_entry(hass, entry)
+        assert unloaded is True
+        assert task.done()
+
+    asyncio.run(run())
+    assert gateway_writer.closed is True
+    assert gateway_writer.wait_closed_called is True
+    assert coord._sessions == {}
+    assert coord.clients == 0
+
+
+def test_config_entry_unload_completes_with_active_cloud_writer(modules):
+    init = modules["init"]
+    module = modules["coordinator"]
+    coord = coordinator(modules)
+    session, _ = add_session(coord, module)
+    cloud_writer = FakeWriter()
+    session.cloud_writer = cloud_writer
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert cloud_writer.closed is True
+    assert cloud_writer.wait_closed_called is True
+    assert session.cloud_writer is None
+
+
+def test_config_entry_unload_completes_when_cloud_writer_wait_closed_hangs(
+    modules, monkeypatch
+):
+    init = modules["init"]
+    module = modules["coordinator"]
+    monkeypatch.setattr(module, "_CLOSE_TIMEOUT", 0.01)
+    coord = coordinator(modules)
+    session, _ = add_session(coord, module)
+    cloud_writer = HangingCloseWriter()
+    session.cloud_writer = cloud_writer
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert cloud_writer.closed is True
+    assert cloud_writer.wait_closed_called is True
+    assert coord._sessions == {}
+
+
+def test_config_entry_unload_completes_when_gateway_writer_wait_closed_hangs(
+    modules, monkeypatch
+):
+    init = modules["init"]
+    module = modules["coordinator"]
+    monkeypatch.setattr(module, "_CLOSE_TIMEOUT", 0.01)
+    coord = coordinator(modules)
+    session, gateway_writer = add_session(coord, module)
+    hanging_gateway_writer = HangingCloseWriter()
+    session.gateway_writer = hanging_gateway_writer
+    coord._sessions = {hanging_gateway_writer: session}
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert hanging_gateway_writer.closed is True
+    assert hanging_gateway_writer.wait_closed_called is True
+    assert coord._sessions == {}
+
+
+def test_active_sessions_are_cleared_after_unload(modules):
+    init = modules["init"]
+    module = modules["coordinator"]
+    coord = coordinator(modules)
+    add_session(coord, module)
+    add_session(coord, module)
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert coord._sessions == {}
+    assert coord.clients == 0
+
+
+def test_persistent_dosing_state_is_saved_before_unload_completes(modules):
+    init = modules["init"]
+    coord = coordinator(modules)
+    coord.dosing_tracker.states["chlorine"].accumulated_runtime_seconds = 321
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert (
+        coord.dosing_tracker._store.saved["channels"]["chlorine"][
+            "accumulated_runtime_seconds"
+        ]
+        == 321
+    )
+
+
+def test_persistent_backwash_state_is_saved_before_unload_completes(modules):
+    init = modules["init"]
+    coord = coordinator(modules)
+    coord.backwash_tracker.state.last_backwash_timestamp = "2026-06-03T10:00:00+00:00"
+    coord.backwash_tracker._dirty = True
+    entry = types.SimpleNamespace(entry_id="entry-1")
+    hass = unload_hass(init, coord)
+
+    assert asyncio.run(init.async_unload_entry(hass, entry)) is True
+    assert (
+        coord.backwash_tracker._store.saved["state"]["last_backwash_timestamp"]
+        == "2026-06-03T10:00:00+00:00"
+    )
