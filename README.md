@@ -53,3 +53,45 @@ Runtime is persisted in Home Assistant storage and survives restarts, reloads,
 integration updates, option changes, and Home Assistant updates. To avoid
 unbounded overcounting after downtime, a single interval between valid payloads is
 only counted when it is no longer than 60 seconds.
+
+## Live Cloud Forwarding switch
+
+The **Cloud Forwarding** switch controls only the optional outbound connection from
+Home Assistant to `pool.aseko.com:47524`. It does not reload the integration, stop
+the local TCP listener, or close the USR-K5 gateway connection. Cloud Forwarding
+can be toggled without interrupting the local USR-K5 gateway connection or local
+Home Assistant sensor updates.
+
+When enabled, traffic flows one way from `USR-K5 gateway -> Home Assistant -> ASEKO cloud`.
+When disabled, the local path remains `USR-K5 gateway -> Home Assistant`. Cloud
+responses are discarded and are never relayed back to the gateway.
+
+## Last Backwash sensor
+
+The **Last Backwash** / **Letzte Rückspülung** sensor reports a Home Assistant
+timestamp for the most recent confirmed backwash detected from the existing
+`relay_backwash` state.
+
+The Last Backwash sensor records a backwash only when the backwash relay remains
+continuously active for at least 60 seconds. Short relay activations are ignored.
+The value is stored persistently and survives Home Assistant restarts,
+integration reloads and integration updates.
+
+The tracker stores its state separately from dosing-container runtime tracking. It
+also ignores unobserved gaps longer than 60 seconds, so restarts, reloads, network
+interruptions, gateway disconnects, and clock corrections do not create false
+backwash events.
+
+## Entity IDs for new installations
+
+Newly created entities provide semantic suggested object IDs such as
+`sensor.asin_aqua_home_ph`, `binary_sensor.asin_aqua_home_relay_backwash`,
+`switch.asin_aqua_home_cloud_forwarding`, and
+`sensor.asin_aqua_home_last_backwash`. Unique IDs are unchanged so existing Home
+Assistant entity-registry entries remain stable.
+
+Existing Home Assistant installations may retain previously generated legacy
+entity IDs. The integration does not rename registered entity IDs automatically,
+because automatic renaming could break automations, dashboards, scripts and
+templates. Existing IDs can be renamed manually from the Home Assistant entity
+settings after updating the integration.

@@ -114,6 +114,7 @@ class AsekoConfigNumber(NumberEntity):
         self.entry = entry
         self.entity_description = description
         self._attr_unique_id = f"asin_aqua_home_{description.key}"
+        self._attr_suggested_object_id = f"asin_aqua_home_{description.key}"
 
     @property
     def device_info(self):
@@ -143,7 +144,7 @@ class AsekoConfigNumber(NumberEntity):
             self.entry,
             options={**self.entry.options, self.entity_description.key: stored_value},
         )
-        await self.hass.config_entries.async_reload(self.entry.entry_id)
+        self.async_write_ha_state()
 
 
 class AsekoWaterLevelOffsetNumber(AsekoConfigNumber):

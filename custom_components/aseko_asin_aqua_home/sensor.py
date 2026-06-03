@@ -24,27 +24,27 @@ class AsekoSensorDescription(SensorEntityDescription):
 
 
 SENSOR_ICONS = {
-    "ph": "mdi:ph",
-    "chlorine": "mdi:water-opacity",
-    "air_temperature": "mdi:thermometer",
+    "ph": "mdi:flask-outline",
+    "chlorine": "mdi:flask-outline",
+    "air_temperature": "mdi:sun-thermometer-outline",
     "water_temperature": "mdi:thermometer-water",
-    "water_level": "mdi:waves-arrow-up",
+    "water_level": "mdi:waves",
     "water_level_probe": "mdi:ruler",
     "system_date": "mdi:calendar",
     "system_time": "mdi:clock-outline",
-    "time_deviation": "mdi:timer-outline",
-    "set_time_recommended": "mdi:clock-alert-outline",
-    "ph_target": "mdi:target",
-    "chlorine_target": "mdi:target",
-    "flocculation_dose": "mdi:flask-outline",
+    "time_deviation": "mdi:clock-plus-outline",
+    "set_time_recommended": "mdi:gesture-tap-button",
+    "ph_target": "mdi:flask-outline",
+    "chlorine_target": "mdi:flask-outline",
+    "flocculation_dose": "mdi:bottle-tonic-outline",
     "water_temperature_target": "mdi:thermometer-check",
     "filter_1_start": "mdi:clock-start",
     "filter_1_end": "mdi:clock-end",
     "filter_2_start": "mdi:clock-start",
     "filter_2_end": "mdi:clock-end",
     "backwash_interval_days": "mdi:calendar-sync",
-    "backwash_start": "mdi:backup-restore",
-    "algicide_dose": "mdi:flask-outline",
+    "backwash_start": "mdi:recycle",
+    "algicide_dose": "mdi:bottle-tonic",
     "filling_time_limit": "mdi:timer-outline",
     "pool_volume": "mdi:pool",
     "water_level_low": "mdi:arrow-collapse-down",
@@ -64,6 +64,7 @@ SENSOR_ICONS = {
     "byte24": "mdi:numeric",
     "byte24_binary": "mdi:code-braces",
     "raw_status": "mdi:state-machine",
+    "last_backwash": "mdi:recycle",
 }
 
 DOSING_SENSOR_METRICS = {
@@ -118,6 +119,10 @@ DESCRIPTIONS = [
     sensor_description(
         "water_level_probe",
         native_unit_of_measurement="cm",
+    ),
+    sensor_description(
+        "last_backwash",
+        device_class=SensorDeviceClass.TIMESTAMP,
     ),
 ]
 for key in (
@@ -187,6 +192,7 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{DEVICE_IDENTIFIER}_{description.key}"
+        self._attr_suggested_object_id = f"{DEVICE_IDENTIFIER}_{description.key}"
 
     @property
     def device_info(self):
@@ -199,6 +205,8 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def available(self):
+        if self.entity_description.key == "last_backwash":
+            return True
         if self.entity_description.channel_key:
             if self.entity_description.metric in (
                 "consumed_liters",
@@ -215,6 +223,8 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         if self.entity_description.channel_key:
             return self._dosing_native_value()
+        if self.entity_description.key == "last_backwash":
+            return self.coordinator.backwash_tracker.last_backwash
         return (
             self.coordinator.data.sensors.get(self.entity_description.key)
             if self.coordinator.data

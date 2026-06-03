@@ -125,7 +125,7 @@ def integration_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, PACKAGE, package)
 
     loaded = {}
-    for module_name in ("const", "dosing_tracker", "protocol", "sensor", "binary_sensor", "number", "switch", "button"):
+    for module_name in ("const", "dosing_tracker", "backwash_tracker", "protocol", "sensor", "binary_sensor", "number", "switch", "button"):
         spec = importlib.util.spec_from_file_location(
             f"{PACKAGE}.{module_name}", BASE / f"{module_name}.py"
         )
@@ -184,10 +184,8 @@ def test_water_level_offset_number_updates_options_and_reloads(integration_modul
 
     asyncio.run(entity.async_set_native_value(20))
 
-    assert calls == [
-        ("update", {"max_chlorine": 20.0, "water_level_offset": 20}),
-        ("reload", "entry-1"),
-    ]
+    assert calls == [("update", {"max_chlorine": 20.0, "water_level_offset": 20})]
+    assert entity._ha_state_written is True
     assert entity.native_value == 20
 
 
@@ -248,6 +246,7 @@ def test_cloud_forwarding_switch_updates_option_and_icons(integration_modules):
     )
     entity = switch.AsekoCloudForwardingSwitch(hass, entry)
     assert entity._attr_unique_id == "asin_aqua_home_cloud_forwarding"
+    assert entity._attr_suggested_object_id == "asin_aqua_home_cloud_forwarding"
     assert entity._attr_has_entity_name is True
     assert entity.is_on is True
     assert entity.icon == "mdi:cloud-sync"
@@ -270,6 +269,7 @@ def test_button_descriptions_have_stable_unique_ids(integration_modules):
     coordinator = types.SimpleNamespace()
     entity = button.AsekoContainerReplacedButton(coordinator, button.BUTTON_DESCRIPTIONS[0])
     assert entity._attr_unique_id == "asin_aqua_home_chlorine_container_replaced"
+    assert entity._attr_suggested_object_id == "asin_aqua_home_chlorine_container_replaced"
     assert entity._attr_has_entity_name is True
     assert all(description.icon == "mdi:refresh" for description in button.BUTTON_DESCRIPTIONS)
 

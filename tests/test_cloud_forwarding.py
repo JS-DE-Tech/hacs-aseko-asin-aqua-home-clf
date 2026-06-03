@@ -88,7 +88,7 @@ def modules(monkeypatch):
     monkeypatch.setitem(sys.modules, PACKAGE, package)
 
     loaded = {}
-    for module_name in ("const", "dosing_tracker", "protocol", "coordinator"):
+    for module_name in ("const", "dosing_tracker", "backwash_tracker", "protocol", "coordinator"):
         spec = importlib.util.spec_from_file_location(
             f"{PACKAGE}.{module_name}", BASE / f"{module_name}.py"
         )

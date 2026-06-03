@@ -10,6 +10,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from .backwash_tracker import BackwashTracker
 from .const import UNAVAILABLE_AFTER
 from .dosing_tracker import DosingTracker
 from .protocol import CandidateEvent, DecodedData, FrameBuffer
@@ -43,9 +44,11 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         self._sessions: dict[asyncio.StreamWriter, GatewaySession] = {}
         self._forwarding_lock = asyncio.Lock()
         self.dosing_tracker = DosingTracker(hass, entry_id)
+        self.backwash_tracker = BackwashTracker(hass, entry_id)
 
     async def async_start(self) -> None:
         await self.dosing_tracker.async_load()
+        await self.backwash_tracker.async_load()
         self.server = await asyncio.start_server(
             self._handle_client,
             self.options["listen_host"],
@@ -65,6 +68,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
             self._availability_cancel()
             self._availability_cancel = None
         await self.dosing_tracker.async_save()
+        await self.backwash_tracker.async_save_if_dirty()
         for session in list(self._sessions.values()):
             await self._close_cloud_forwarding(session)
         if self.server:
@@ -166,11 +170,19 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
                     relay_transition = self.dosing_tracker.observe_relays(
                         decoded.relays, now
                     )
+                    backwash_event = self.backwash_tracker.observe_relay(
+                        bool(decoded.relays.get("backwash", False)), now
+                    )
                     self.async_set_updated_data(decoded)
                     if relay_transition:
                         await self.dosing_tracker.async_save()
                     else:
                         await self.dosing_tracker.async_maybe_save(now)
+                    if backwash_event:
+                        await self.backwash_tracker.async_save()
+                        self.async_update_listeners()
+                    else:
+                        await self.backwash_tracker.async_save_if_dirty()
                 self._record_parser_events(parser)
                 if self.options["protocol_debug"]:
                     _LOGGER.debug("ASEKO pending buffer=%d", parser.pending_bytes)

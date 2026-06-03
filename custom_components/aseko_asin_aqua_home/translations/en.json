@@ -229,6 +229,9 @@
       },
       "algicide_last_container_replacement": {
         "name": "Algicide Last Container Replacement"
+      },
+      "last_backwash": {
+        "name": "Last Backwash"
       }
     },
     "binary_sensor": {

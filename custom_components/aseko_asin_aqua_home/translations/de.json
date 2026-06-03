@@ -229,6 +229,9 @@
       },
       "algicide_last_container_replacement": {
         "name": "Algizid letzter Kanisterwechsel"
+      },
+      "last_backwash": {
+        "name": "Letzte Rückspülung"
       }
     },
     "binary_sensor": {
