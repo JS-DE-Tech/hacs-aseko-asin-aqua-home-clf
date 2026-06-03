@@ -239,9 +239,6 @@ Home LAN payload is available here:
 The document distinguishes between implemented mappings, derived Home Assistant
 values and protocol fields that still require additional packet captures.
 
-## Maintainer note: external HACS metadata
-HACS validates metadata that is managed outside this repository. Add repository topics such as `hacs`, `home-assistant`, `aseko`, and `pool-controller` under **GitHub → About → Settings**. Integration brand assets belong in the separate [`home-assistant/brands`](https://github.com/home-assistant/brands) repository. The workflow temporarily ignores the `topics` and `brands` checks so this source repository remains text-only. Remove each ignore after its external metadata has been configured.
-
 ## Dosing container tracking and calibration
 
 The integration can estimate the remaining volume for the chlorine, pH-minus,
