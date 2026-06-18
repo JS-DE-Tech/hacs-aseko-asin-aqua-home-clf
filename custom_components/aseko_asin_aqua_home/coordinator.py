@@ -279,9 +279,15 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         for event in parser.events:
             if self.options["protocol_debug"]:
                 _LOGGER.debug(
-                    "ASEKO payload candidate accepted=%s offset=%d reason=%s hex=%s",
+                    (
+                        "ASEKO payload candidate status=%s accepted=%s offset=%d "
+                        "discarded=%d pending=%d reason=%s hex=%s"
+                    ),
+                    event.status,
                     event.accepted,
                     event.offset,
+                    event.discarded_bytes,
+                    event.pending_bytes,
                     event.reason,
                     event.candidate_hex,
                 )
@@ -294,9 +300,14 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
             "timestamp": timestamp,
             "type": "payload_candidate",
             "accepted": event.accepted,
+            "status": event.status,
             "offset": event.offset,
             "reason": event.reason,
             "candidate_hex": event.candidate_hex,
+            "discarded_bytes": event.discarded_bytes,
+            "pending_bytes": event.pending_bytes,
+            "aligned_frame_hex": event.aligned_frame_hex,
+            "decoded_payload_hex": event.decoded_payload_hex,
         }
 
     @staticmethod

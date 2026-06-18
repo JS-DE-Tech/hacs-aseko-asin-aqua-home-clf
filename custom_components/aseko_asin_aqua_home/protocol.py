@@ -6,11 +6,16 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Any
 
-# The Node-RED flow reads offsets through data[115]. This is the minimum bytes needed
-# to decode one payload, not a verified TCP wire-frame length. Packet captures are
-# still needed to document whether any firmware adds trailing bytes or delimiters.
+# Firmware-v7 binary traffic on port 47524 is framed as 120-byte wire frames.
+# The local decoder currently maps bytes 0..115 only; bytes 116..119 remain
+# preserved for diagnostics but intentionally undecoded.
+BINARY_WIRE_FRAME_LENGTH = 120
 MIN_PAYLOAD_LENGTH = 116
 FRAME_LENGTH = MIN_PAYLOAD_LENGTH  # Backward-compatible alias; not a wire-frame claim.
+BLOCK_SIZE = 40
+FRAME_HEADER_LENGTH = 4
+BLOCK_ID_OFFSET = 5
+EXPECTED_BLOCK_IDS = (1, 3, 2)
 DEFAULT_MAX_CHLORINE = 20.0
 DEFAULT_WATER_LEVEL_OFFSET = 33
 MAX_BUFFER_SIZE = 16_384
@@ -72,15 +77,19 @@ class CandidateEvent:
     offset: int
     reason: str
     candidate_hex: str
+    status: str = "accepted"
+    pending_bytes: int = 0
+    discarded_bytes: int = 0
+    aligned_frame_hex: str | None = None
+    decoded_payload_hex: str | None = None
 
 
 class FrameBuffer:
-    """Synchronize TCP bytes by scanning for semantically valid payload starts.
+    """Synchronize TCP bytes into firmware-v7 binary wire frames.
 
-    The Node-RED export has no verified delimiter, checksum, or complete wire-frame
-    length. This scanner therefore consumes the minimum decodable payload only after
-    semantic validation. Any trailing bytes are treated as unsynchronized input and
-    scanned until a subsequent plausible payload start is found.
+    The wire protocol uses three 40-byte blocks with matching four-byte headers and
+    block IDs 1, 3, and 2. The decoder only maps the first 116 bytes, so frame
+    synchronization and payload decoding deliberately use separate lengths.
     """
 
     def __init__(
@@ -106,8 +115,8 @@ class FrameBuffer:
         self.events = []
         self._buffer.extend(chunk)
         updates: list[DecodedData] = []
-        while len(self._buffer) >= MIN_PAYLOAD_LENGTH:
-            start = self._find_valid_start()
+        while len(self._buffer) >= FRAME_HEADER_LENGTH + BLOCK_ID_OFFSET + 1:
+            start = self._find_possible_start()
             if start is None:
                 self._discard_unusable_prefix()
                 break
@@ -118,35 +127,97 @@ class FrameBuffer:
                         0,
                         f"discarded {start} leading unsynchronized byte(s)",
                         compact_hex(self._buffer[:start]),
+                        "discarded",
+                        len(self._buffer) - start,
+                        start,
                     )
                 )
                 del self._buffer[:start]
-            candidate = bytes(self._buffer[:MIN_PAYLOAD_LENGTH])
-            decoded = self._decoder.decode(candidate)
+            if len(self._buffer) < BINARY_WIRE_FRAME_LENGTH:
+                self.events.append(
+                    CandidateEvent(
+                        False,
+                        0,
+                        (
+                            "possible frame start retained until complete "
+                            f"120-byte wire frame is available"
+                        ),
+                        compact_hex(self._buffer),
+                        "incomplete",
+                        len(self._buffer),
+                    )
+                )
+                break
+
+            wire_frame = bytes(self._buffer[:BINARY_WIRE_FRAME_LENGTH])
+            payload = wire_frame[:MIN_PAYLOAD_LENGTH]
+            try:
+                self._validate_wire_frame(wire_frame)
+                self._decoder.validate(payload)
+            except InvalidFrameError as err:
+                self.events.append(
+                    CandidateEvent(
+                        False,
+                        0,
+                        str(err),
+                        compact_hex(wire_frame),
+                        "rejected",
+                        len(self._buffer),
+                    )
+                )
+                del self._buffer[:1]
+                continue
+
+            decoded = self._decoder.decode(payload)
+            aligned_hex = wire_frame.hex()
+            payload_hex = payload.hex()
+            decoded.raw_fields["binary_wire_frame_length"] = BINARY_WIRE_FRAME_LENGTH
+            decoded.raw_fields["wire_frame_hex"] = aligned_hex
+            decoded.raw_fields["decoded_payload_hex"] = payload_hex
+            decoded.raw_fields["undecoded_tail_hex"] = wire_frame[
+                MIN_PAYLOAD_LENGTH:BINARY_WIRE_FRAME_LENGTH
+            ].hex()
             self.events.append(
-                CandidateEvent(True, 0, "validated payload", compact_hex(candidate))
+                CandidateEvent(
+                    True,
+                    0,
+                    "validated 120-byte binary wire frame",
+                    compact_hex(wire_frame),
+                    "accepted",
+                    len(self._buffer) - BINARY_WIRE_FRAME_LENGTH,
+                    0,
+                    aligned_hex,
+                    payload_hex,
+                )
             )
             updates.append(decoded)
-            del self._buffer[:MIN_PAYLOAD_LENGTH]
+            del self._buffer[:BINARY_WIRE_FRAME_LENGTH]
         return updates
 
-    def _find_valid_start(self) -> int | None:
-        last_start = len(self._buffer) - MIN_PAYLOAD_LENGTH
+    def _find_possible_start(self) -> int | None:
+        last_start = len(self._buffer) - (FRAME_HEADER_LENGTH + BLOCK_ID_OFFSET + 1)
         for offset in range(last_start + 1):
-            candidate = bytes(self._buffer[offset : offset + MIN_PAYLOAD_LENGTH])
-            try:
-                self._decoder.validate(candidate)
-            except InvalidFrameError as err:
-                if offset == 0:
-                    self.events.append(
-                        CandidateEvent(False, offset, str(err), compact_hex(candidate))
-                    )
-            else:
+            rejection_reason = self._available_structure_error(offset)
+            if rejection_reason is None:
                 return offset
+            if offset == 0:
+                candidate = self._buffer[
+                    offset : offset + min(BINARY_WIRE_FRAME_LENGTH, len(self._buffer))
+                ]
+                self.events.append(
+                    CandidateEvent(
+                        False,
+                        offset,
+                        rejection_reason,
+                        compact_hex(candidate),
+                        "rejected",
+                        len(self._buffer),
+                    )
+                )
         return None
 
     def _discard_unusable_prefix(self) -> None:
-        keep = MIN_PAYLOAD_LENGTH - 1
+        keep = FRAME_HEADER_LENGTH + BLOCK_ID_OFFSET
         discard = max(0, len(self._buffer) - keep)
         if discard:
             self.events.append(
@@ -155,11 +226,71 @@ class FrameBuffer:
                     0,
                     f"discarded {discard} byte(s) without a validated payload start",
                     compact_hex(self._buffer[:discard]),
+                    "discarded",
+                    len(self._buffer) - discard,
+                    discard,
                 )
             )
             del self._buffer[:discard]
         if len(self._buffer) > MAX_BUFFER_SIZE:
             del self._buffer[:-keep]
+
+    def _available_structure_error(self, offset: int) -> str | None:
+        remaining = len(self._buffer) - offset
+        if remaining < FRAME_HEADER_LENGTH + BLOCK_ID_OFFSET + 1:
+            return "not enough bytes to test binary frame structure"
+        header = bytes(self._buffer[offset : offset + FRAME_HEADER_LENGTH])
+        for block_index, expected_id in enumerate(EXPECTED_BLOCK_IDS):
+            block_start = block_index * BLOCK_SIZE
+            header_start = offset + block_start
+            id_index = offset + block_start + BLOCK_ID_OFFSET
+            if remaining >= block_start + 1:
+                available_header = min(
+                    FRAME_HEADER_LENGTH, remaining - block_start
+                )
+                if available_header > 0:
+                    observed = bytes(
+                        self._buffer[header_start : header_start + available_header]
+                    )
+                    if observed != header[:available_header]:
+                        return (
+                            "repeated block header mismatch at candidate offset "
+                            f"{offset}, relative offset {block_start}"
+                        )
+            if remaining > block_start + BLOCK_ID_OFFSET:
+                if self._buffer[id_index] != expected_id:
+                    return (
+                        "block id mismatch at candidate offset "
+                        f"{offset}, relative offset {block_start + BLOCK_ID_OFFSET}: "
+                        f"{self._buffer[id_index]} != {expected_id}"
+                    )
+        return None
+
+    @staticmethod
+    def _validate_wire_frame(frame: bytes) -> None:
+        if len(frame) < BINARY_WIRE_FRAME_LENGTH:
+            raise InvalidFrameError(
+                "binary wire frame is too short: "
+                f"{len(frame)} < {BINARY_WIRE_FRAME_LENGTH}"
+            )
+        header = frame[:FRAME_HEADER_LENGTH]
+        for block_index, expected_id in enumerate(EXPECTED_BLOCK_IDS):
+            block_start = block_index * BLOCK_SIZE
+            observed_header = frame[
+                block_start : block_start + FRAME_HEADER_LENGTH
+            ]
+            if observed_header != header:
+                raise InvalidFrameError(
+                    "repeated block header mismatch at offset "
+                    f"{block_start}: {observed_header.hex()} != {header.hex()}"
+                )
+            observed_id = frame[block_start + BLOCK_ID_OFFSET]
+            if observed_id != expected_id:
+                raise InvalidFrameError(
+                    "block id mismatch at offset "
+                    f"{block_start + BLOCK_ID_OFFSET}: "
+                    f"{observed_id} != {expected_id}"
+                )
 
 
 class AsekoProtocolDecoder:
@@ -190,6 +321,11 @@ class AsekoProtocolDecoder:
         self._validate_range("second", frame[11], 0, 59)
         # datetime catches impossible combinations such as 31 February.
         self._device_datetime(frame)
+        current_year = datetime.now().year
+        controller_year = frame[6] + 2000
+        self._validate_range(
+            "controller year", controller_year, current_year - 1, current_year + 1
+        )
         self._validate_range("pH", self._word(frame, 14) / 100, 0, 14)
         self._validate_range(
             "chlorine", self._word(frame, 16) / 100, 0, self._max_chlorine

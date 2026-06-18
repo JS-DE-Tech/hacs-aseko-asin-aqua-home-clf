@@ -227,7 +227,7 @@ Remote Port Number:   47524</code></pre>
 ## Scope and protocol notes
 This first version is intentionally **read-only**. It does not send pool-control commands. The decoder ports the tested offsets from `reference/node-red-flow.json`, including chemistry, temperatures, water level, schedules, delays, concentrations, error bits, relay bits, and stateful status handling.
 
-The tested extended payload accesses bytes `0..115`, which establishes a minimum decodable payload length of 116 bytes but does not prove the complete TCP wire-frame length. The TCP parser retains incomplete chunks, scans for semantically plausible payload starts, rejects shifted or malformed candidates, and recovers synchronization before publishing updates. More packet captures are needed to document delimiters or trailing bytes across firmware variants and to fully explain the inferred raw `byte24` field. Optional temporary capture diagnostics include raw TCP chunks and bounded candidate summaries while redacting configured network hosts.
+Firmware-v7 binary traffic on port `47524` is synchronized as 120-byte wire frames. The currently implemented field mapping still decodes bytes `0..115`; bytes `116..119` are preserved for diagnostics as an undecoded wire-frame tail. The TCP parser retains incomplete synchronized frames across reads, rejects shifted or malformed frames before publishing updates, and recovers synchronization on the next valid frame. More packet captures are needed to document the tail bytes across firmware variants and to fully explain the inferred raw `byte24` field. Optional temporary capture diagnostics include raw TCP chunks, bounded candidate summaries, aligned frame hex, and decoded payload hex while redacting configured network hosts.
 
 ## Reference
 
