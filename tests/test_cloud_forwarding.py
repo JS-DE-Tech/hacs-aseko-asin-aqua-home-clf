@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import importlib.util
 from pathlib import Path
 import sys
@@ -9,6 +9,12 @@ import pytest
 
 BASE = Path("custom_components/aseko_asin_aqua_home")
 PACKAGE = "aseko_cloud_forwarding_test"
+PRODUCTION_SHIFTED_CAPTURE = bytes.fromhex(
+    "02a4069132d702011a06120f191e000002c6001a001a00299a017200fb6eaa0c1d81"
+    "00000000004b023f069132d702031a06120f191e4703001c090012001600171e02ba01"
+    "02050c0006012802580384b271069132d702021a06120f191e0026003c003c003c0001"
+    "6c6d6e6f012c2002580f0f0f"
+)
 
 
 class FakeDataUpdateCoordinator:
@@ -778,6 +784,10 @@ def test_dns_failure_does_not_break_local_gateway_session(modules, monkeypatch):
 def frame(module, **values):
     data = bytearray(module.FRAME_LENGTH)
     now = datetime.now()
+    data[0:4] = b"\x06\x91\x32\xd7"
+    data[4:6] = bytes([2, 1])
+    data[40:46] = b"\x06\x91\x32\xd7\x02\x03"
+    data[80:86] = b"\x06\x91\x32\xd7\x02\x02"
     data[6:12] = bytes(
         [now.year - 2000, now.month, now.day, now.hour, now.minute, now.second]
     )
@@ -786,6 +796,10 @@ def frame(module, **values):
     for index, value in values.items():
         data[int(index)] = value
     return bytes(data)
+
+
+def wire_frame(module, **values):
+    return frame(module, **values) + b"\xa5\xc3\x5a\x7e"
 
 
 class ChunkReader:
@@ -811,12 +825,67 @@ def test_local_decoded_sensor_updates_continue_when_cloud_connection_fails(
     monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
 
     asyncio.run(
-        coord._handle_client(ChunkReader(frame(modules["protocol"])), gateway_writer)
+        coord._handle_client(
+            ChunkReader(wire_frame(modules["protocol"])), gateway_writer
+        )
     )
 
     assert coord.data is not None
     assert coord.data.sensors["ph"] == 0.45
     assert coord.last_valid_frame is not None
+
+
+def test_shifted_partial_capture_does_not_update_local_state(modules):
+    module = modules["coordinator"]
+    coord = coordinator(modules)
+
+    asyncio.run(coord._handle_client(ChunkReader(PRODUCTION_SHIFTED_CAPTURE), FakeWriter()))
+
+    assert coord.data is None
+    assert coord.last_valid_frame is None
+    assert all(
+        state.accumulated_runtime_seconds == 0
+        and state.last_observed_timestamp is None
+        for state in coord.dosing_tracker.states.values()
+    )
+    assert coord.backwash_tracker.state.last_observed_timestamp is None
+
+
+def test_invalid_structural_relay_bytes_do_not_increment_dosing_runtime(modules):
+    module = modules["coordinator"]
+    coord = coordinator(modules)
+    state = coord.dosing_tracker.states["chlorine"]
+    state.last_relay_state = True
+    state.last_observed_timestamp = (
+        datetime.now(timezone.utc) - timedelta(seconds=10)
+    ).isoformat()
+    invalid = bytearray(wire_frame(modules["protocol"], **{"29": 0x40}))
+    invalid[45] = 4
+
+    asyncio.run(coord._handle_client(ChunkReader(bytes(invalid)), FakeWriter()))
+
+    assert state.accumulated_runtime_seconds == 0
+    assert coord.data is None
+    assert coord.last_valid_frame is None
+
+
+def test_cloud_forwarding_keeps_original_raw_chunks_for_shifted_input(
+    modules, monkeypatch
+):
+    module = modules["coordinator"]
+    coord = coordinator(modules, forward_enabled=True)
+    cloud_writer = FakeWriter()
+    chunks = (PRODUCTION_SHIFTED_CAPTURE[:17], PRODUCTION_SHIFTED_CAPTURE[17:])
+
+    async def open_connection(host, port):
+        return NeverReader(), cloud_writer
+
+    monkeypatch.setattr(module.asyncio, "open_connection", open_connection)
+
+    asyncio.run(coord._handle_client(ChunkReader(*chunks), FakeWriter()))
+
+    assert cloud_writer.writes == list(chunks)
+    assert coord.data is None
 
 
 def test_options_update_completes_after_cloud_timeout(modules, monkeypatch):

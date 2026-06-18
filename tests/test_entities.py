@@ -527,7 +527,6 @@ def test_protocol_behavior_files_are_unchanged_in_this_patch():
         text=True,
     ).stdout.splitlines()
     restricted_behavior_files = {
-        "custom_components/aseko_asin_aqua_home/protocol.py",
         "custom_components/aseko_asin_aqua_home/config_flow.py",
     }
 

@@ -6,8 +6,8 @@
 **Default local listener**: `0.0.0.0:47524`  
 **Optional cloud forwarding**: `pool.aseko.com:47524`  
 **Decoder source**: tested Node-RED flow ported into the native Home Assistant integration  
+**Firmware-v7 binary wire-frame length**: `120 bytes` on port `47524`
 **Minimum decodable payload length**: `116 bytes`  
-**Verified complete TCP frame length**: not yet confirmed  
 
 ---
 
@@ -22,20 +22,20 @@
 
 ## TCP framing and synchronization
 
-The integration currently does not assume a fully verified TCP frame delimiter or
-complete wire-frame length. The tested Node-RED flow accesses offsets through
-byte `115`, and this repository therefore defines `MIN_PAYLOAD_LENGTH = 116` as
-the minimum bytes needed to decode one payload. That value is not a verified
-complete physical TCP frame length.
+Firmware-v7 binary traffic on port `47524` is handled as fixed 120-byte wire
+frames. The tested Node-RED flow accesses offsets through byte `115`, and this
+repository therefore keeps `MIN_PAYLOAD_LENGTH = 116` as the currently mapped
+decode span. Bytes `116..119` are preserved in diagnostics but remain undecoded.
 
 The current parser behavior is:
 
 - buffers fragmented TCP chunks
-- handles multiple payloads received in one read
-- scans for semantically plausible payload starts
-- validates candidate payloads before publishing values
-- retains incomplete trailing bytes for the next read
-- discards malformed or shifted candidates
+- handles multiple wire frames received in one read
+- searches for structural 120-byte binary frame starts
+- validates repeated block headers and block IDs before semantic decoding
+- decodes only aligned bytes `0..115`
+- retains incomplete synchronized wire frames for the next read
+- discards malformed or shifted candidates before publishing values
 - exposes bounded capture diagnostics when enabled
 
 Before publishing decoded values, the parser validates at least:
@@ -51,10 +51,9 @@ Before publishing decoded values, the parser validates at least:
 - filter schedule hours and minutes
 - backwash schedule hours and minutes
 
-The decoder currently consumes the first 116 validated bytes of a candidate.
-Additional captures are required to determine whether the physical TCP protocol
-uses a fixed 120-byte frame, trailing checksum bytes, delimiters or
-firmware-dependent extensions.
+The parser consumes exactly one aligned 120-byte binary wire frame at a time.
+Additional captures are still required to determine whether bytes `116..119`
+are padding, checksum data or another protocol field.
 
 ## Byte-by-byte mapping implemented by this integration
 
@@ -217,26 +216,22 @@ across Home Assistant restarts and integration reloads.
 
 ## Known limitations and open protocol questions
 
-1. The complete physical TCP frame length is not yet proven.
-   The decoder requires 116 bytes because the tested Node-RED flow accesses
-   bytes 0..115.
-
-2. Bytes 116..119 are not currently decoded.
+1. Bytes 116..119 are not currently decoded.
    Additional packet captures are required to determine whether these bytes are
    padding, checksum data or another protocol field.
 
-3. byte24 remains unresolved.
+2. byte24 remains unresolved.
    It is exposed as a raw diagnostic field.
 
-4. The semantic meaning of every raw status-byte value is not fully documented.
+3. The semantic meaning of every raw status-byte value is not fully documented.
 
-5. The current implementation targets the tested ASEKO ASIN AQUA Home LAN
+4. The current implementation targets the tested ASEKO ASIN AQUA Home LAN
    payload. Firmware variants may require additional validation.
 
-6. Additional captures should be collected while individual relays are active
+5. Additional captures should be collected while individual relays are active
    to verify all relay-bit assignments independently.
 
-7. Additional captures should be collected before and after changing individual
+6. Additional captures should be collected before and after changing individual
    controller settings to verify unknown bytes and scaling rules.
 
 ## Recommended packet-capture workflow
