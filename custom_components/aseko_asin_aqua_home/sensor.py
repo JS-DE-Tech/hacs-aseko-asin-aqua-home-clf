@@ -18,6 +18,7 @@ from homeassistant.const import (
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 from .const import DEFAULT_DOSING_FLOW_RATE, DEVICE_IDENTIFIER, DOMAIN
+from .const import DOSING_FLOW_RATE_UNIT
 from .dosing_tracker import DOSING_CHANNELS
 
 
@@ -82,9 +83,10 @@ DOSING_SENSOR_METRICS = {
     "consumed_liters": {"icon": "mdi:water-minus", "unit": "l"},
     "remaining_liters": {"icon": "mdi:cup-water", "unit": "l"},
     "remaining_percent": {"icon": "mdi:gauge", "unit": "%"},
+    "daily_consumption": {"icon": "mdi:cup-water", "unit": "ml"},
     "suggested_flow_rate": {
         "icon": "mdi:calculator-variant-outline",
-        "unit": "l/h",
+        "unit": DOSING_FLOW_RATE_UNIT,
     },
     "last_container_replacement": {
         "icon": "mdi:calendar-refresh",
@@ -274,6 +276,7 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
                 "consumed_liters",
                 "remaining_liters",
                 "remaining_percent",
+                "daily_consumption",
             ):
                 return self._runtime_seconds() == 0 or self._flow_rate() > 0
             if self.entity_description.metric == "suggested_flow_rate":
@@ -323,6 +326,11 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
             self.entity_description.channel_key
         ].accumulated_runtime_seconds
 
+    def _daily_runtime_seconds(self) -> float:
+        return self.coordinator.dosing_tracker.states[
+            self.entity_description.channel_key
+        ].daily_runtime_seconds
+
     def _container_size(self) -> float:
         key = f"{self.entity_description.channel_key}_container_size"
         channel = next(
@@ -343,7 +351,6 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
 
     def _dosing_native_value(self):
         runtime_seconds = self._runtime_seconds()
-        runtime_hours = runtime_seconds / 3600
         container_size = self._container_size()
         flow_rate = self._flow_rate()
         metric = self.entity_description.metric
@@ -363,9 +370,11 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
                 return round(container_size, 1)
             if metric == "remaining_percent":
                 return 100.0
+            if metric == "daily_consumption":
+                return round(self._daily_consumption_ml(flow_rate), 1)
         if flow_rate <= 0:
             return None
-        consumed = runtime_hours * flow_rate
+        consumed = self._consumed_liters(runtime_seconds, flow_rate)
         remaining = max(0, container_size - consumed)
         if metric == "consumed_liters":
             return round(consumed, 1)
@@ -374,4 +383,13 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
         if metric == "remaining_percent":
             percent = max(0, min(100, remaining / container_size * 100))
             return round(percent, 1)
+        if metric == "daily_consumption":
+            return round(self._daily_consumption_ml(flow_rate), 1)
         return None
+
+    @staticmethod
+    def _consumed_liters(runtime_seconds: float, flow_rate_ml_min: float) -> float:
+        return runtime_seconds * flow_rate_ml_min / 60 / 1000
+
+    def _daily_consumption_ml(self, flow_rate_ml_min: float) -> float:
+        return self._daily_runtime_seconds() * flow_rate_ml_min / 60

@@ -14,6 +14,8 @@ def load_tracker(monkeypatch, store_payload=None):
     core = types.ModuleType("homeassistant.core")
     helpers = types.ModuleType("homeassistant.helpers")
     storage = types.ModuleType("homeassistant.helpers.storage")
+    util = types.ModuleType("homeassistant.util")
+    dt = types.ModuleType("homeassistant.util.dt")
 
     saved = []
 
@@ -35,10 +37,13 @@ def load_tracker(monkeypatch, store_payload=None):
 
     core.HomeAssistant = object
     storage.Store = Store
+    dt.as_local = lambda value: value.astimezone(timezone(timedelta(hours=1)))
     monkeypatch.setitem(sys.modules, "homeassistant", homeassistant)
     monkeypatch.setitem(sys.modules, "homeassistant.core", core)
     monkeypatch.setitem(sys.modules, "homeassistant.helpers", helpers)
     monkeypatch.setitem(sys.modules, "homeassistant.helpers.storage", storage)
+    monkeypatch.setitem(sys.modules, "homeassistant.util", util)
+    monkeypatch.setitem(sys.modules, "homeassistant.util.dt", dt)
 
     spec = importlib.util.spec_from_file_location(
         "aseko_dosing_tracker_test",
@@ -92,7 +97,7 @@ def test_large_gaps_are_not_counted(monkeypatch):
 
 def test_storage_reload_schema_and_clean_save(monkeypatch):
     payload = {
-        "version": 1,
+        "version": 2,
         "channels": {
             "chlorine": {
                 "accumulated_runtime_seconds": 123,
@@ -100,6 +105,8 @@ def test_storage_reload_schema_and_clean_save(monkeypatch):
                 "last_observed_timestamp": "2026-01-01T00:00:00+00:00",
                 "last_container_replacement_timestamp": "2026-01-01T00:00:00+00:00",
                 "last_calculated_flow_rate": 2.5,
+                "daily_runtime_seconds": 45,
+                "daily_runtime_date": "2026-01-01",
             }
         },
     }
@@ -109,9 +116,11 @@ def test_storage_reload_schema_and_clean_save(monkeypatch):
     assert tracker.store_key == "aseko_asin_aqua_home_dosing_tracker"
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 123
     assert tracker.states["chlorine"].last_calculated_flow_rate == 2.5
+    assert tracker.states["chlorine"].daily_runtime_seconds == 45
+    assert tracker.states["chlorine"].daily_runtime_date == "2026-01-01"
     assert tracker.as_dict()["version"] == module.STORAGE_VERSION
     asyncio.run(tracker.async_save())
-    assert saved[-1][1]["version"] == 1
+    assert saved[-1][1]["version"] == 2
     assert saved[-1][1]["channels"]["chlorine"]["last_calculated_flow_rate"] == 2.5
 
 
@@ -143,7 +152,7 @@ def test_channel_defaults(monkeypatch):
 
 def test_legacy_entry_id_dosing_storage_migrates_to_stable_key(monkeypatch):
     legacy_payload = {
-        "version": 1,
+        "version": 2,
         "channels": {
             "chlorine": {"accumulated_runtime_seconds": 456},
         },
@@ -160,6 +169,30 @@ def test_legacy_entry_id_dosing_storage_migrates_to_stable_key(monkeypatch):
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 456
     assert saved[-1][0] == "aseko_asin_aqua_home_dosing_tracker"
     assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 456
+
+
+def test_legacy_liters_per_hour_flow_rate_migrates_to_ml_per_min(monkeypatch):
+    payload = {
+        "version": 1,
+        "channels": {
+            "chlorine": {
+                "accumulated_runtime_seconds": 607,
+                "last_container_replacement_timestamp": "2026-01-01T00:00:00+00:00",
+                "last_calculated_flow_rate": 1.2,
+            }
+        },
+    }
+    module, saved = load_tracker(monkeypatch, payload)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+
+    asyncio.run(tracker.async_load())
+
+    state = tracker.states["chlorine"]
+    assert state.last_calculated_flow_rate == pytest.approx(20.0)
+    assert state.accumulated_runtime_seconds == 607
+    assert state.last_container_replacement_timestamp == "2026-01-01T00:00:00+00:00"
+    assert saved[-1][1]["version"] == 2
+    assert saved[-1][1]["channels"]["chlorine"]["last_calculated_flow_rate"] == pytest.approx(20.0)
 
 
 @pytest.mark.parametrize("channel_key", ["chlorine", "ph_minus", "flocculation", "algicide"])
@@ -198,6 +231,59 @@ def test_container_reset_discards_pre_reset_active_interval(monkeypatch):
     tracker.observe_relays({"chlorine": True}, reset_timestamp + timedelta(seconds=10))
 
     assert tracker.states["chlorine"].accumulated_runtime_seconds == 10
+
+
+def test_daily_runtime_accumulates_within_local_day(monkeypatch):
+    module, _ = load_tracker(monkeypatch)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    start = datetime(2026, 1, 1, 10, 0, tzinfo=timezone.utc)
+
+    tracker.observe_relays({"chlorine": True}, start)
+    tracker.observe_relays({"chlorine": True}, start + timedelta(seconds=30))
+    tracker.observe_relays({"chlorine": False}, start + timedelta(seconds=45))
+
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 45
+    assert tracker.states["chlorine"].daily_runtime_seconds == 45
+    assert tracker.states["chlorine"].daily_runtime_date == "2026-01-01"
+
+
+def test_daily_runtime_resets_at_local_midnight_without_resetting_total(monkeypatch):
+    module, _ = load_tracker(monkeypatch)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    before_midnight = datetime(2026, 1, 1, 22, 59, 50, tzinfo=timezone.utc)
+    after_midnight = datetime(2026, 1, 1, 23, 0, 10, tzinfo=timezone.utc)
+
+    tracker.observe_relays({"chlorine": True}, before_midnight)
+    tracker.observe_relays({"chlorine": True}, after_midnight)
+
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 20
+    assert tracker.states["chlorine"].daily_runtime_seconds == 10
+    assert tracker.states["chlorine"].daily_runtime_date == "2026-01-02"
+
+
+def test_daily_runtime_survives_reload_without_double_counting(monkeypatch):
+    payload = {
+        "version": 2,
+        "channels": {
+            "chlorine": {
+                "accumulated_runtime_seconds": 100,
+                "daily_runtime_seconds": 40,
+                "daily_runtime_date": "2026-01-01",
+                "last_relay_state": True,
+                "last_observed_timestamp": "2026-01-01T10:00:00+00:00",
+            }
+        },
+    }
+    module, _ = load_tracker(monkeypatch, payload)
+    tracker = module.DosingTracker(types.SimpleNamespace(), "entry-1")
+    asyncio.run(tracker.async_load())
+
+    tracker.observe_relays(
+        {"chlorine": True}, datetime(2026, 1, 1, 10, 0, 30, tzinfo=timezone.utc)
+    )
+
+    assert tracker.states["chlorine"].accumulated_runtime_seconds == 130
+    assert tracker.states["chlorine"].daily_runtime_seconds == 70
 
 
 def test_calculated_flow_rate_is_persisted_without_resetting_runtime(monkeypatch):

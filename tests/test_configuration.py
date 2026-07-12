@@ -107,3 +107,97 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         "max_chlorine",
         "water_level_offset",
     }
+
+
+def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypatch):
+    import asyncio
+    import importlib.util
+    import sys
+    import types
+
+    homeassistant = types.ModuleType("homeassistant")
+    config_entries = types.ModuleType("homeassistant.config_entries")
+    core = types.ModuleType("homeassistant.core")
+    helpers = types.ModuleType("homeassistant.helpers")
+    entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
+    entity_registry.async_get = lambda hass: types.SimpleNamespace()
+    helpers.entity_registry = entity_registry
+    config_entries.ConfigEntry = object
+    core.HomeAssistant = object
+
+    package = types.ModuleType("aseko_config_migration_test")
+    package.__path__ = [str(Path("custom_components/aseko_asin_aqua_home"))]
+    const = types.ModuleType(f"{package.__name__}.const")
+    const.CONFIG_ENTRY_VERSION = 2
+    const.CONF_FORWARD_ENABLED = "forward_enabled"
+    const.CONF_WATER_LEVEL_OFFSET = "water_level_offset"
+    const.DEFAULT_CAPTURE_ENABLED = False
+    const.DEFAULT_FORWARD_ENABLED = True
+    const.DEFAULT_FORWARD_HOST = "pool.aseko.com"
+    const.DEFAULT_FORWARD_PORT = 47524
+    const.DEFAULT_LISTEN_HOST = "0.0.0.0"
+    const.DEFAULT_LISTEN_PORT = 47524
+    const.DEFAULT_MAX_CHLORINE = 20.0
+    const.DEFAULT_PROTOCOL_DEBUG = False
+    const.DEFAULT_WATER_LEVEL_OFFSET = 33
+    const.DEVICE_IDENTIFIER = "asin_aqua_home"
+    const.DOMAIN = "aseko_asin_aqua_home"
+    const.LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE = 1000 / 60
+    const.PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "button"]
+    coordinator = types.ModuleType(f"{package.__name__}.coordinator")
+    coordinator.AsekoCoordinator = object
+    dosing_tracker = types.ModuleType(f"{package.__name__}.dosing_tracker")
+    dosing_tracker.DOSING_CHANNELS = (
+        types.SimpleNamespace(key="chlorine"),
+        types.SimpleNamespace(key="ph_minus"),
+        types.SimpleNamespace(key="flocculation"),
+        types.SimpleNamespace(key="algicide"),
+    )
+
+    for name, module in {
+        "homeassistant": homeassistant,
+        "homeassistant.config_entries": config_entries,
+        "homeassistant.core": core,
+        "homeassistant.helpers": helpers,
+        "homeassistant.helpers.entity_registry": entity_registry,
+        package.__name__: package,
+        f"{package.__name__}.const": const,
+        f"{package.__name__}.coordinator": coordinator,
+        f"{package.__name__}.dosing_tracker": dosing_tracker,
+    }.items():
+        monkeypatch.setitem(sys.modules, name, module)
+
+    spec = importlib.util.spec_from_file_location(
+        package.__name__,
+        Path("custom_components/aseko_asin_aqua_home/__init__.py"),
+        submodule_search_locations=[str(Path("custom_components/aseko_asin_aqua_home"))],
+    )
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, package.__name__, module)
+    spec.loader.exec_module(module)
+
+    updates = []
+
+    class ConfigEntries:
+        def async_update_entry(self, entry, **kwargs):
+            updates.append(kwargs)
+            entry.data = kwargs.get("data", entry.data)
+            entry.options = kwargs.get("options", entry.options)
+            entry.version = kwargs.get("version", entry.version)
+
+    entry = types.SimpleNamespace(
+        version=1,
+        data={"chlorine_flow_rate": 1.2, "listen_port": 47524},
+        options={"ph_minus_flow_rate": 0.6, "water_level_offset": 12},
+        entry_id="entry-1",
+    )
+    hass = types.SimpleNamespace(config_entries=ConfigEntries())
+
+    assert asyncio.run(module.async_migrate_entry(hass, entry)) is True
+
+    assert entry.version == 2
+    assert entry.data["chlorine_flow_rate"] == 20.0
+    assert entry.options["ph_minus_flow_rate"] == 10.0
+    assert entry.data["listen_port"] == 47524
+    assert entry.options["water_level_offset"] == 12
+    assert updates

@@ -230,6 +230,14 @@ def test_dosing_number_descriptions_have_defaults_and_unique_ids(integration_mod
     assert defaults["flocculation_container_size"] == 6.0
     assert defaults["algicide_container_size"] == 6.0
     assert defaults["chlorine_flow_rate"] == 0.0
+    flow_description = next(
+        description
+        for description in number.DOSING_NUMBER_DESCRIPTIONS
+        if description.key == "chlorine_flow_rate"
+    )
+    assert flow_description.native_unit_of_measurement == "ml/min"
+    assert flow_description.native_step == 0.1
+    assert flow_description.native_max_value == 500.0
     entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
     hass = types.SimpleNamespace()
     entity = number.AsekoConfigNumber(hass, entry, number.DOSING_NUMBER_DESCRIPTIONS[0])
@@ -305,6 +313,7 @@ def test_dosing_sensor_descriptions_are_present(integration_modules):
     assert "chlorine_runtime_since_replacement" in keys
     assert "ph_minus_remaining_percent" in keys
     assert "flocculation_suggested_flow_rate" in keys
+    assert "algicide_daily_consumption" in keys
     assert "algicide_last_container_replacement" in keys
 
 
@@ -312,13 +321,14 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     sensor = integration_modules["sensor"]
     state = types.SimpleNamespace(
         accumulated_runtime_seconds=3600,
+        daily_runtime_seconds=607,
         last_container_replacement_timestamp="2026-01-01T00:00:00+00:00",
         last_calculated_flow_rate=None,
     )
     tracker = types.SimpleNamespace(states={"chlorine": state})
     coordinator = types.SimpleNamespace(
         dosing_tracker=tracker,
-        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 2.0},
+        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 1000 / 30},
         data=None,
         data_available=True,
     )
@@ -327,11 +337,15 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     remaining = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_liters"])
     percent = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_percent"])
     suggested = sensor.AsekoSensor(coordinator, descriptions["chlorine_suggested_flow_rate"])
+    daily = sensor.AsekoSensor(coordinator, descriptions["chlorine_daily_consumption"])
     runtime = sensor.AsekoSensor(coordinator, descriptions["chlorine_runtime_since_replacement"])
     assert runtime.native_value == 3600
     assert consumed.native_value == 2.0
     assert remaining.native_value == 18.0
     assert percent.native_value == 90.0
+    assert daily.native_value == 337.2
+    assert descriptions["chlorine_daily_consumption"].native_unit_of_measurement == "ml"
+    assert descriptions["chlorine_suggested_flow_rate"].native_unit_of_measurement == "ml/min"
     assert suggested.available is False
     assert suggested.native_value is None
     state.last_calculated_flow_rate = 20.0
@@ -351,11 +365,12 @@ def test_remaining_volume_is_clamped(integration_modules):
     sensor = integration_modules["sensor"]
     state = types.SimpleNamespace(
         accumulated_runtime_seconds=20 * 3600,
+        daily_runtime_seconds=0,
         last_container_replacement_timestamp=None,
     )
     coordinator = types.SimpleNamespace(
         dosing_tracker=types.SimpleNamespace(states={"chlorine": state}),
-        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 2.0},
+        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 1000 / 30},
         data=None,
         data_available=True,
     )
@@ -364,6 +379,34 @@ def test_remaining_volume_is_clamped(integration_modules):
     percent = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_percent"])
     assert remaining.native_value == 0
     assert percent.native_value == 0
+
+
+def test_migrated_flow_rate_preserves_total_consumption_and_remaining_volume(
+    integration_modules,
+):
+    sensor = integration_modules["sensor"]
+    state = types.SimpleNamespace(
+        accumulated_runtime_seconds=10 * 3600,
+        daily_runtime_seconds=0,
+        last_container_replacement_timestamp=None,
+    )
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=types.SimpleNamespace(states={"chlorine": state}),
+        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 20.0},
+        data=None,
+        data_available=True,
+    )
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+
+    consumed = sensor.AsekoSensor(
+        coordinator, descriptions["chlorine_consumed_liters"]
+    )
+    remaining = sensor.AsekoSensor(
+        coordinator, descriptions["chlorine_remaining_liters"]
+    )
+
+    assert consumed.native_value == 12.0
+    assert remaining.native_value == 8.0
 
 
 def test_entities_use_supported_semantic_suggested_object_ids(integration_modules):
@@ -527,7 +570,7 @@ def test_protocol_behavior_files_are_unchanged_in_this_patch():
         text=True,
     ).stdout.splitlines()
     restricted_behavior_files = {
-        "custom_components/aseko_asin_aqua_home/config_flow.py",
+        "custom_components/aseko_asin_aqua_home/protocol.py",
     }
 
     assert not restricted_behavior_files.intersection(changed_files)
@@ -593,6 +636,7 @@ def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, c
     sensor = integration_modules["sensor"]
     state = types.SimpleNamespace(
         accumulated_runtime_seconds=0,
+        daily_runtime_seconds=0,
         last_container_replacement_timestamp="2026-01-01T00:00:00+00:00",
     )
     coordinator = types.SimpleNamespace(
@@ -606,6 +650,7 @@ def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, c
     remaining = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_remaining_liters"])
     percent = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_remaining_percent"])
     runtime = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_runtime_since_replacement"])
+    daily = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_daily_consumption"])
     replacement = sensor.AsekoSensor(coordinator, descriptions[f"{channel_key}_last_container_replacement"])
 
     assert runtime.native_value == 0
@@ -615,6 +660,8 @@ def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, c
     assert remaining.native_value == container_size
     assert percent.available is True
     assert percent.native_value == 100.0
+    assert daily.available is True
+    assert daily.native_value == 0.0
     assert replacement.native_value.isoformat() == "2026-01-01T00:00:00+00:00"
 
     state.accumulated_runtime_seconds = 60
@@ -625,10 +672,12 @@ def test_dosing_reset_values_are_available_with_zero_flow(integration_modules, c
     assert percent.available is False
     assert percent.native_value is None
 
-    coordinator.options[f"{channel_key}_flow_rate"] = 6.0
+    coordinator.options[f"{channel_key}_flow_rate"] = 100.0
     state.accumulated_runtime_seconds = 1800
+    state.daily_runtime_seconds = 607
     assert consumed.available is True
     assert consumed.native_value == 3.0
+    assert daily.native_value == pytest.approx(1011.7)
     assert remaining.native_value == max(0, container_size - 3.0)
     assert percent.native_value == round(max(0, min(100, (container_size - 3.0) / container_size * 100)), 1)
 
@@ -637,6 +686,7 @@ def test_short_runtime_does_not_expose_unrealistic_suggested_flow_rate(integrati
     sensor = integration_modules["sensor"]
     state = types.SimpleNamespace(
         accumulated_runtime_seconds=9,
+        daily_runtime_seconds=0,
         last_container_replacement_timestamp=None,
         last_calculated_flow_rate=None,
     )
@@ -713,11 +763,11 @@ def test_calculate_flow_rate_button_persists_option_and_refreshes(integration_mo
 
     asyncio.run(entity.async_press())
 
-    assert saved == [("chlorine", 2.0)]
-    assert tracker.states["chlorine"].last_calculated_flow_rate == 2.0
-    assert entry.options["chlorine_flow_rate"] == 2.0
-    assert coordinator.options["chlorine_flow_rate"] == 2.0
-    assert updates == [{"chlorine_flow_rate": 2.0}, "listeners"]
+    assert saved == [("chlorine", pytest.approx(33.33))]
+    assert tracker.states["chlorine"].last_calculated_flow_rate == pytest.approx(33.33)
+    assert entry.options["chlorine_flow_rate"] == pytest.approx(33.33)
+    assert coordinator.options["chlorine_flow_rate"] == pytest.approx(33.33)
+    assert updates == [{"chlorine_flow_rate": pytest.approx(33.33)}, "listeners"]
 
 
 def test_calculate_flow_rate_button_rejects_implausible_values(integration_modules):

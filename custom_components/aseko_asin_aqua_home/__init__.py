@@ -69,6 +69,41 @@ def _options(entry: ConfigEntry) -> dict:
     return options
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate stored config-entry flow rates from l/h to ml/min."""
+    from .const import CONFIG_ENTRY_VERSION
+
+    if entry.version > CONFIG_ENTRY_VERSION:
+        _LOGGER.error(
+            "Cannot migrate ASEKO config entry from future version %s",
+            entry.version,
+        )
+        return False
+
+    if entry.version < 2:
+        hass.config_entries.async_update_entry(
+            entry,
+            data=_migrate_flow_rate_values(dict(entry.data)),
+            options=_migrate_flow_rate_values(dict(entry.options)),
+            version=2,
+        )
+
+    return True
+
+
+def _migrate_flow_rate_values(values: dict) -> dict:
+    """Return values with legacy l/h dosing flow rates converted to ml/min."""
+    from .const import LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE
+
+    for channel in DOSING_CHANNELS:
+        key = f"{channel.key}_flow_rate"
+        if key in values:
+            values[key] = (
+                float(values[key]) * LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE
+            )
+    return values
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_migrate_duplicated_prefix_entity_ids(hass, entry)
     coordinator = AsekoCoordinator(hass, entry.entry_id, _options(entry))

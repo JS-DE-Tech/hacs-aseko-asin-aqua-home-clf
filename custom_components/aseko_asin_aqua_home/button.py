@@ -124,7 +124,7 @@ class AsekoCalculateFlowRateButton(AsekoDosingButton):
             )
 
         container_size = self._container_size()
-        flow_rate = round(container_size / (runtime_seconds / 3600), 2)
+        flow_rate = round(container_size * 1000 * 60 / runtime_seconds, 2)
         if not MIN_DOSING_FLOW_RATE < flow_rate <= MAX_DOSING_FLOW_RATE:
             raise HomeAssistantError(
                 "Calculated dosing pump flow rate is outside the allowed range"
