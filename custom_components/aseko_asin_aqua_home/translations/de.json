@@ -170,6 +170,9 @@
       "chlorine_remaining_percent": {
         "name": "Chlor Restbestand"
       },
+      "chlorine_daily_consumption": {
+        "name": "Chlor Tagesverbrauch"
+      },
       "chlorine_suggested_flow_rate": {
         "name": "Chlor empfohlene Förderleistung"
       },
@@ -187,6 +190,9 @@
       },
       "ph_minus_remaining_percent": {
         "name": "pH-Minus Restbestand"
+      },
+      "ph_minus_daily_consumption": {
+        "name": "pH-Minus Tagesverbrauch"
       },
       "ph_minus_suggested_flow_rate": {
         "name": "pH-Minus empfohlene Förderleistung"
@@ -206,6 +212,9 @@
       "flocculation_remaining_percent": {
         "name": "Flockungsmittel Restbestand"
       },
+      "flocculation_daily_consumption": {
+        "name": "Flockungsmittel Tagesverbrauch"
+      },
       "flocculation_suggested_flow_rate": {
         "name": "Flockungsmittel empfohlene Förderleistung"
       },
@@ -223,6 +232,9 @@
       },
       "algicide_remaining_percent": {
         "name": "Algizid Restbestand"
+      },
+      "algicide_daily_consumption": {
+        "name": "Algizid Tagesverbrauch"
       },
       "algicide_suggested_flow_rate": {
         "name": "Algizid empfohlene Förderleistung"
@@ -304,25 +316,25 @@
         "name": "Chlor Kanistergröße"
       },
       "chlorine_flow_rate": {
-        "name": "Chlor Förderleistung"
+        "name": "Chlor Förderleistung (ml/min)"
       },
       "ph_minus_container_size": {
         "name": "pH-Minus Kanistergröße"
       },
       "ph_minus_flow_rate": {
-        "name": "pH-Minus Förderleistung"
+        "name": "pH-Minus Förderleistung (ml/min)"
       },
       "flocculation_container_size": {
         "name": "Flockungsmittel Kanistergröße"
       },
       "flocculation_flow_rate": {
-        "name": "Flockungsmittel Förderleistung"
+        "name": "Flockungsmittel Förderleistung (ml/min)"
       },
       "algicide_container_size": {
         "name": "Algizid Kanistergröße"
       },
       "algicide_flow_rate": {
-        "name": "Algizid Förderleistung"
+        "name": "Algizid Förderleistung (ml/min)"
       }
     },
     "switch": {
@@ -344,16 +356,16 @@
         "name": "Algizid-Kanister ausgetauscht"
       },
       "chlorine_calculate_flow_rate": {
-        "name": "Chlor-Kanister leer – Förderleistung berechnen"
+        "name": "Chlor-Kanister leer – Förderleistung berechnen (ml/min)"
       },
       "ph_minus_calculate_flow_rate": {
-        "name": "pH-Minus-Kanister leer – Förderleistung berechnen"
+        "name": "pH-Minus-Kanister leer – Förderleistung berechnen (ml/min)"
       },
       "flocculation_calculate_flow_rate": {
-        "name": "Flockungsmittel-Kanister leer – Förderleistung berechnen"
+        "name": "Flockungsmittel-Kanister leer – Förderleistung berechnen (ml/min)"
       },
       "algicide_calculate_flow_rate": {
-        "name": "Algizid-Kanister leer – Förderleistung berechnen"
+        "name": "Algizid-Kanister leer – Förderleistung berechnen (ml/min)"
       }
     }
   }

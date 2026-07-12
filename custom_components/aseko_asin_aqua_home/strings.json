@@ -170,6 +170,9 @@
       "chlorine_remaining_percent": {
         "name": "Chlorine Remaining Percent"
       },
+      "chlorine_daily_consumption": {
+        "name": "Chlorine Daily Consumption"
+      },
       "chlorine_suggested_flow_rate": {
         "name": "Chlorine Suggested Pump Flow Rate"
       },
@@ -187,6 +190,9 @@
       },
       "ph_minus_remaining_percent": {
         "name": "pH-Minus Remaining Percent"
+      },
+      "ph_minus_daily_consumption": {
+        "name": "pH-Minus Daily Consumption"
       },
       "ph_minus_suggested_flow_rate": {
         "name": "pH-Minus Suggested Pump Flow Rate"
@@ -206,6 +212,9 @@
       "flocculation_remaining_percent": {
         "name": "Flocculation Remaining Percent"
       },
+      "flocculation_daily_consumption": {
+        "name": "Flocculation Daily Consumption"
+      },
       "flocculation_suggested_flow_rate": {
         "name": "Flocculation Suggested Pump Flow Rate"
       },
@@ -223,6 +232,9 @@
       },
       "algicide_remaining_percent": {
         "name": "Algicide Remaining Percent"
+      },
+      "algicide_daily_consumption": {
+        "name": "Algicide Daily Consumption"
       },
       "algicide_suggested_flow_rate": {
         "name": "Algicide Suggested Pump Flow Rate"
@@ -304,25 +316,25 @@
         "name": "Chlorine Container Size"
       },
       "chlorine_flow_rate": {
-        "name": "Chlorine Pump Flow Rate"
+        "name": "Chlorine Pump Flow Rate (ml/min)"
       },
       "ph_minus_container_size": {
         "name": "pH-Minus Container Size"
       },
       "ph_minus_flow_rate": {
-        "name": "pH-Minus Pump Flow Rate"
+        "name": "pH-Minus Pump Flow Rate (ml/min)"
       },
       "flocculation_container_size": {
         "name": "Flocculation Container Size"
       },
       "flocculation_flow_rate": {
-        "name": "Flocculation Pump Flow Rate"
+        "name": "Flocculation Pump Flow Rate (ml/min)"
       },
       "algicide_container_size": {
         "name": "Algicide Container Size"
       },
       "algicide_flow_rate": {
-        "name": "Algicide Pump Flow Rate"
+        "name": "Algicide Pump Flow Rate (ml/min)"
       }
     },
     "switch": {
@@ -344,16 +356,16 @@
         "name": "Algicide Container Replaced"
       },
       "chlorine_calculate_flow_rate": {
-        "name": "Chlorine container empty – calculate flow rate"
+        "name": "Chlorine container empty – calculate flow rate (ml/min)"
       },
       "ph_minus_calculate_flow_rate": {
-        "name": "pH-Minus container empty – calculate flow rate"
+        "name": "pH-Minus container empty – calculate flow rate (ml/min)"
       },
       "flocculation_calculate_flow_rate": {
-        "name": "Flocculation container empty – calculate flow rate"
+        "name": "Flocculation container empty – calculate flow rate (ml/min)"
       },
       "algicide_calculate_flow_rate": {
-        "name": "Algicide container empty – calculate flow rate"
+        "name": "Algicide container empty – calculate flow rate (ml/min)"
       }
     }
   }

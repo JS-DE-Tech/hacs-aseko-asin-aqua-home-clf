@@ -3,20 +3,26 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 import logging
 from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
+try:
+    from homeassistant.util import dt as dt_util
+except ImportError:  # pragma: no cover - only used by lightweight unit stubs
+    dt_util = None
+
 _LOGGER = logging.getLogger(__name__)
 
-STORAGE_VERSION = 1
+STORAGE_VERSION = 2
 STORAGE_MAJOR_VERSION = 1
 MAX_COUNTABLE_INTERVAL_SECONDS = 60
 SAVE_INTERVAL_SECONDS = 45
 STABLE_STORAGE_KEY = "aseko_asin_aqua_home_dosing_tracker"
+LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE = 1000 / 60
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,11 +56,22 @@ class DosingChannelState:
     last_observed_timestamp: str | None = None
     last_container_replacement_timestamp: str | None = None
     last_calculated_flow_rate: float | None = None
+    daily_runtime_seconds: float = 0.0
+    daily_runtime_date: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> DosingChannelState:
+    def from_dict(
+        cls, data: dict[str, Any] | None, *, storage_version: int = STORAGE_VERSION
+    ) -> DosingChannelState:
         if not isinstance(data, dict):
             return cls()
+        flow_rate = (
+            float(data["last_calculated_flow_rate"])
+            if data.get("last_calculated_flow_rate") is not None
+            else None
+        )
+        if flow_rate is not None and storage_version < 2:
+            flow_rate *= LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE
         return cls(
             accumulated_runtime_seconds=float(
                 data.get("accumulated_runtime_seconds", 0.0)
@@ -64,11 +81,9 @@ class DosingChannelState:
             last_container_replacement_timestamp=data.get(
                 "last_container_replacement_timestamp"
             ),
-            last_calculated_flow_rate=(
-                float(data["last_calculated_flow_rate"])
-                if data.get("last_calculated_flow_rate") is not None
-                else None
-            ),
+            last_calculated_flow_rate=flow_rate,
+            daily_runtime_seconds=float(data.get("daily_runtime_seconds", 0.0)),
+            daily_runtime_date=data.get("daily_runtime_date"),
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -78,6 +93,8 @@ class DosingChannelState:
             "last_observed_timestamp": self.last_observed_timestamp,
             "last_container_replacement_timestamp": self.last_container_replacement_timestamp,
             "last_calculated_flow_rate": self.last_calculated_flow_rate,
+            "daily_runtime_seconds": self.daily_runtime_seconds,
+            "daily_runtime_date": self.daily_runtime_date,
         }
 
 
@@ -108,15 +125,16 @@ class DosingTracker:
             migrated = data is not None
         if not data:
             return
-        if data.get("version", STORAGE_VERSION) > STORAGE_VERSION:
+        storage_version = int(data.get("version", 1))
+        if storage_version > STORAGE_VERSION:
             _LOGGER.warning("Ignoring newer dosing tracker storage version")
             return
         channels = data.get("channels", {})
         for channel in DOSING_CHANNELS:
             self.states[channel.key] = DosingChannelState.from_dict(
-                channels.get(channel.key)
+                channels.get(channel.key), storage_version=storage_version
             )
-        if migrated:
+        if migrated or storage_version < STORAGE_VERSION:
             await self.async_save()
 
     def observe_relays(
@@ -133,6 +151,11 @@ class DosingTracker:
         for channel in DOSING_CHANNELS:
             state = self.states[channel.key]
             previous_timestamp = _parse_datetime(state.last_observed_timestamp)
+            current_day = _local_date_string(now)
+            if state.daily_runtime_date != current_day:
+                state.daily_runtime_seconds = 0.0
+                state.daily_runtime_date = current_day
+                self._dirty = True
             if previous_timestamp is not None:
                 elapsed = (now - previous_timestamp).total_seconds()
                 if (
@@ -140,6 +163,9 @@ class DosingTracker:
                     and 0 < elapsed <= MAX_COUNTABLE_INTERVAL_SECONDS
                 ):
                     state.accumulated_runtime_seconds += elapsed
+                    state.daily_runtime_seconds += _daily_counted_seconds(
+                        previous_timestamp, now, elapsed
+                    )
                     self._dirty = True
                     if elapsed > 0:
                         save_needed = True
@@ -185,6 +211,8 @@ class DosingTracker:
         state.accumulated_runtime_seconds = 0.0
         state.last_observed_timestamp = reset_timestamp
         state.last_container_replacement_timestamp = reset_timestamp
+        if state.daily_runtime_date is None:
+            state.daily_runtime_date = _local_date_string(datetime.now(timezone.utc))
         self._dirty = True
         await self.async_save()
 
@@ -205,3 +233,26 @@ def _parse_datetime(value: str | None) -> datetime | None:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=timezone.utc)
     return parsed.astimezone(timezone.utc)
+
+
+def _as_local(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    if dt_util is not None and hasattr(dt_util, "as_local"):
+        return dt_util.as_local(value)
+    return value.astimezone()
+
+
+def _local_date_string(value: datetime) -> str:
+    return _as_local(value).date().isoformat()
+
+
+def _daily_counted_seconds(
+    previous_timestamp: datetime, now: datetime, elapsed: float
+) -> float:
+    previous_local = _as_local(previous_timestamp)
+    now_local = _as_local(now)
+    if previous_local.date() == now_local.date():
+        return elapsed
+    midnight = datetime.combine(now_local.date(), time.min, tzinfo=now_local.tzinfo)
+    return max(0.0, min(elapsed, (now_local - midnight).total_seconds()))

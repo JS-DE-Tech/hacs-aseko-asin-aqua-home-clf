@@ -5,6 +5,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from .const import (
     CONF_CAPTURE_ENABLED,
+    CONFIG_ENTRY_VERSION,
     CONF_FORWARD_ENABLED,
     CONF_FORWARD_HOST,
     CONF_FORWARD_PORT,
@@ -74,7 +75,7 @@ def schema(values: dict | None = None):
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = CONFIG_ENTRY_VERSION
 
     async def async_step_user(self, user_input=None):
         if user_input is not None:

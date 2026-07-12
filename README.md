@@ -250,16 +250,22 @@ you configure manually.
 Each channel has two configuration number entities:
 
 - container size in liters
-- pump flow rate in liters per hour
+- pump flow rate in milliliters per minute (`ml/min`)
 
-The default pump flow rate is `0.0 l/h`, which means the channel is not calibrated
-yet. While a channel is uncalibrated, runtime tracking continues, but consumed
-liters, remaining liters, and remaining percent stay unavailable. The suggested flow
-rate sensor becomes available after runtime has been recorded.
+Existing pump flow-rate values stored in `l/h` are migrated automatically to
+`ml/min` during the update, so no recalibration is required. Total consumed volume
+and remaining volume stay in liters and keep their existing values. Daily
+consumption is exposed separately in milliliters and resets at local midnight.
+
+The default pump flow rate is `0.0 ml/min`, which means the channel is not
+calibrated yet. While a channel is uncalibrated, runtime tracking continues, but
+consumed liters, remaining liters, remaining percent, and daily consumption stay
+unavailable after runtime has been recorded. The suggested flow rate sensor becomes
+available after runtime has been recorded and is also shown in `ml/min`.
 
 Recommended calibration workflow:
 
-1. Leave the pump flow rate at `0.0 l/h`.
+1. Leave the pump flow rate at `0.0 ml/min`.
 2. Install a full chemical container.
 3. Press the matching `... Container Replaced` / `... Kanister ausgetauscht` button.
 4. Let the integration accumulate runtime while the ASEKO controller doses normally.
@@ -267,13 +273,13 @@ Recommended calibration workflow:
 6. Enter that value manually into the channel's pump flow-rate number entity.
 7. Install a new full container.
 8. Press the matching replacement button again.
-9. The integration can now estimate consumed volume, remaining liters, and remaining
-   percent for the new container.
+9. The integration can now estimate consumed volume, remaining liters, remaining
+   percent, and daily consumption for the new container.
 
-Runtime is persisted in Home Assistant storage and survives restarts, reloads,
-integration updates, option changes, and Home Assistant updates. To avoid
-unbounded overcounting after downtime, a single interval between valid payloads is
-only counted when it is no longer than 60 seconds.
+Total runtime and current-day runtime are persisted in Home Assistant storage and
+survive restarts, reloads, integration updates, option changes, and Home Assistant
+updates. To avoid unbounded overcounting after downtime, a single interval between
+valid payloads is only counted when it is no longer than 60 seconds.
 
 ## Live Cloud Forwarding switch
 
