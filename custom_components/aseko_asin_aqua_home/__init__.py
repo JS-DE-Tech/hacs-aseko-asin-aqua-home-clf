@@ -36,6 +36,9 @@ _LOGGER = logging.getLogger(__name__)
 _FULL_RELOAD_OPTION_KEYS = {
     "listen_host",
     "listen_port",
+}
+
+_PROTOCOL_OPTION_KEYS = {
     "max_chlorine",
     CONF_WATER_LEVEL_OFFSET,
     CONF_WATER_LEVEL_ERROR_LABELS,
@@ -147,6 +150,10 @@ async def _reload(hass: HomeAssistant, entry: ConfigEntry) -> None:
         return
 
     coordinator.options.update(new_options)
+    if changed_options & _PROTOCOL_OPTION_KEYS:
+        coordinator.reconfigure_protocol_options()
+    if changed_options:
+        coordinator.async_update_listeners()
     if changed_options & _CLOUD_FORWARDING_OPTION_KEYS:
         await coordinator.async_reconfigure_cloud_forwarding(
             enabled=new_options[CONF_FORWARD_ENABLED],

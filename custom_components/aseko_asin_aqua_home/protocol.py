@@ -139,6 +139,22 @@ class FrameBuffer:
         self._buffer = bytearray()
         self.events: list[CandidateEvent] = []
 
+    def configure(
+        self,
+        *,
+        max_chlorine: float = DEFAULT_MAX_CHLORINE,
+        water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
+        water_level_error_labels: bool = False,
+        time_correction_threshold_minutes: int = DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
+    ) -> None:
+        """Update decoder options without clearing buffered bytes or retained status."""
+        self._decoder.configure(
+            max_chlorine=max_chlorine,
+            water_level_offset=water_level_offset,
+            water_level_error_labels=water_level_error_labels,
+            time_correction_threshold_minutes=time_correction_threshold_minutes,
+        )
+
     @property
     def pending_bytes(self) -> int:
         return len(self._buffer)
@@ -337,15 +353,31 @@ class AsekoProtocolDecoder:
         water_level_error_labels: bool = False,
         time_correction_threshold_minutes: int = DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
     ) -> None:
+        self.configure(
+            max_chlorine=max_chlorine,
+            water_level_offset=water_level_offset,
+            water_level_error_labels=water_level_error_labels,
+            time_correction_threshold_minutes=time_correction_threshold_minutes,
+        )
+        self._air_temperature: float | None = None
+        self._water_temperature: float | None = None
+        self._status = StatusState()
+
+    def configure(
+        self,
+        *,
+        max_chlorine: float = DEFAULT_MAX_CHLORINE,
+        water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
+        water_level_error_labels: bool = False,
+        time_correction_threshold_minutes: int = DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
+    ) -> None:
+        """Update semantic decoder limits without resetting retained sensor state."""
         self._max_chlorine = max_chlorine
         self._water_level_offset = water_level_offset
         self._water_level_error_labels = water_level_error_labels
         self._time_correction_threshold_seconds = (
             time_correction_threshold_minutes * 60
         )
-        self._air_temperature: float | None = None
-        self._water_temperature: float | None = None
-        self._status = StatusState()
 
     def validate(self, frame: bytes) -> None:
         """Reject shifted or implausible candidates before publishing entities."""

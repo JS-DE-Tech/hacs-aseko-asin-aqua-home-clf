@@ -374,6 +374,64 @@ def test_all_unrelated_config_entry_options_remain_unchanged(modules):
     }
 
 
+def test_protocol_options_update_active_parser_without_reload(modules):
+    init = modules["init"]
+    protocol = modules["protocol"]
+    entry = types.SimpleNamespace(
+        data={},
+        options={
+            "max_chlorine": 8.0,
+            "water_level_offset": 12,
+            "water_level_error_labels": True,
+            "time_correction_threshold_minutes": 3,
+        },
+        entry_id="entry-1",
+    )
+    coord = coordinator(modules, forward_enabled=False)
+    session, _ = add_session(coord, modules["coordinator"])
+    session.parser = protocol.FrameBuffer(
+        max_chlorine=20.0,
+        water_level_offset=33,
+        water_level_error_labels=False,
+        time_correction_threshold_minutes=5,
+    )
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            raise AssertionError("reload should not be called")
+
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+    asyncio.run(init._reload(hass, entry))
+
+    decoder = session.parser._decoder
+    assert decoder._max_chlorine == 8.0
+    assert decoder._water_level_offset == 12
+    assert decoder._water_level_error_labels is True
+    assert decoder._time_correction_threshold_seconds == 180
+    assert coord.update_listener_calls == 1
+
+
+def test_listener_port_change_still_triggers_full_reload(modules):
+    init = modules["init"]
+    entry = types.SimpleNamespace(
+        data={}, options={"listen_port": 47525}, entry_id="entry-1"
+    )
+    coord = coordinator(modules, forward_enabled=False)
+    reloads = []
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            reloads.append(entry_id)
+
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+    asyncio.run(init._reload(hass, entry))
+
+    assert reloads == ["entry-1"]
+
 def test_cloud_connection_failure_does_not_interrupt_local_sensor_updates(
     modules, monkeypatch
 ):

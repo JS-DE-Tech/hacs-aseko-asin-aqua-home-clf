@@ -195,7 +195,7 @@ def test_time_correction_threshold_number_range_and_default(integration_modules)
     assert entity.native_value == 5
 
 
-def test_water_level_offset_number_updates_options_and_reloads(integration_modules):
+def test_water_level_offset_number_updates_options_without_reload(integration_modules):
     number = integration_modules["number"]
     calls = []
 
@@ -218,6 +218,7 @@ def test_water_level_offset_number_updates_options_and_reloads(integration_modul
     asyncio.run(entity.async_set_native_value(20))
 
     assert calls == [("update", {"max_chlorine": 20.0, "water_level_offset": 20})]
+    assert entity.available is True
     assert entity._ha_state_written is True
     assert entity.native_value == 20
 
@@ -392,13 +393,46 @@ def test_dosing_sensor_calculations_and_availability(integration_modules):
     assert suggested.native_value == 20.0
 
     coordinator.options["chlorine_flow_rate"] = 0.0
-    assert consumed.available is False
-    assert remaining.available is False
-    assert percent.available is False
+    assert consumed.available is True
+    assert consumed.native_value == 1.2
+    assert remaining.available is True
+    assert remaining.native_value == 18.8
+    assert percent.available is True
+    assert percent.native_value == 94.0
+    assert daily.native_value == pytest.approx(202.3)
     assert suggested.available is True
     state.accumulated_runtime_seconds = 0
     assert suggested.available is True
 
+
+def test_dosing_remaining_uses_persisted_calculated_flow_rate_fallback(integration_modules):
+    sensor = integration_modules["sensor"]
+    state = types.SimpleNamespace(
+        accumulated_runtime_seconds=9177.962142000002,
+        daily_runtime_seconds=504.1247769999999,
+        last_container_replacement_timestamp="2026-07-28T16:55:26.045869+00:00",
+        last_calculated_flow_rate=60.95,
+    )
+    coordinator = types.SimpleNamespace(
+        dosing_tracker=types.SimpleNamespace(states={"chlorine": state}),
+        options={"chlorine_container_size": 20.0, "chlorine_flow_rate": 0.0},
+        data=None,
+        data_available=False,
+    )
+    descriptions = {description.key: description for description in sensor.DESCRIPTIONS}
+    consumed = sensor.AsekoSensor(coordinator, descriptions["chlorine_consumed_liters"])
+    remaining = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_liters"])
+    percent = sensor.AsekoSensor(coordinator, descriptions["chlorine_remaining_percent"])
+    daily = sensor.AsekoSensor(coordinator, descriptions["chlorine_daily_consumption"])
+
+    assert consumed.available is True
+    assert consumed.native_value == 9.3
+    assert remaining.available is True
+    assert remaining.native_value == 10.7
+    assert percent.available is True
+    assert percent.native_value == 53.4
+    assert daily.available is True
+    assert daily.native_value == 512.1
 
 def test_remaining_volume_is_clamped(integration_modules):
     sensor = integration_modules["sensor"]
@@ -581,7 +615,7 @@ def test_chemistry_and_relay_icons_are_consistent(integration_modules):
 
 
 def test_german_translations_keep_required_visible_names():
-    german = (BASE / "translations" / "de.json").read_text()
+    german = (BASE / "translations" / "de.json").read_text(encoding="utf-8")
     for expected in (
         "Chlor-Sollwert",
         "Wassertemperatur Sollwert",

@@ -26,6 +26,7 @@ class GatewaySession:
     """Active gateway connection and its optional one-way cloud forwarding."""
 
     gateway_writer: asyncio.StreamWriter
+    parser: FrameBuffer | None = None
     cloud_writer: asyncio.StreamWriter | None = None
     cloud_discard_task: asyncio.Task[None] | None = None
     session_task: asyncio.Task[None] | None = None
@@ -116,6 +117,29 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
     @callback
     def _refresh_availability(self, _now: datetime) -> None:
         self.async_update_listeners()
+
+    def reconfigure_protocol_options(self) -> None:
+        """Apply decoder-only options to active gateway parsers."""
+        for session in self._sessions.values():
+            if session.parser is not None:
+                self._configure_parser(session.parser)
+
+    def _new_parser(self) -> FrameBuffer:
+        parser = FrameBuffer()
+        self._configure_parser(parser)
+        return parser
+
+    def _configure_parser(self, parser: FrameBuffer) -> None:
+        parser.configure(
+            max_chlorine=self.options["max_chlorine"],
+            water_level_offset=self.options["water_level_offset"],
+            water_level_error_labels=self.options.get(
+                "water_level_error_labels", False
+            ),
+            time_correction_threshold_minutes=self.options.get(
+                "time_correction_threshold_minutes", 5
+            ),
+        )
 
     async def async_set_forwarding_enabled(self, enabled: bool) -> None:
         """Enable or disable one-way cloud forwarding for active sessions."""
@@ -213,16 +237,8 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         try:
             if self.options["forward_enabled"]:
                 await self._open_cloud_forwarding(session)
-            parser = FrameBuffer(
-                max_chlorine=self.options["max_chlorine"],
-                water_level_offset=self.options["water_level_offset"],
-                water_level_error_labels=self.options.get(
-                    "water_level_error_labels", False
-                ),
-                time_correction_threshold_minutes=self.options.get(
-                    "time_correction_threshold_minutes", 5
-                ),
-            )
+            parser = self._new_parser()
+            session.parser = parser
             while chunk := await reader.read(4096):
                 self._record_chunk(chunk, parser.pending_bytes)
                 await self._forward_chunk_to_cloud(session, chunk)

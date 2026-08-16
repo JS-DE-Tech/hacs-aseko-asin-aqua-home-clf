@@ -153,6 +153,10 @@ class AsekoConfigNumber(NumberEntity):
         }
 
     @property
+    def available(self) -> bool:
+        return True
+
+    @property
     def native_value(self) -> float:
         return self.entry.options.get(
             self.entity_description.key,

@@ -241,7 +241,7 @@ values and protocol fields that still require additional packet captures.
 
 ## Status and alarm handling
 
-Version `1.0.7` adds a combined disturbance status sensor. It reports `OK` when
+Version `1.0.7` and later adds a combined disturbance status sensor. It reports `OK` when
 no supported disturbance is active. When one or more alarms are active, the value
 contains the alarm texts separated by ` |`, for example
 `Zu schnelle pH-Wert-Änderung | Kein Durchfluss an den Sonden`.
@@ -279,10 +279,12 @@ and remaining volume stay in liters and keep their existing values. Daily
 consumption is exposed separately in milliliters and resets at local midnight.
 
 The default pump flow rate is `0.0 ml/min`, which means the channel is not
-calibrated yet. While a channel is uncalibrated, runtime tracking continues, but
-consumed liters, remaining liters, remaining percent, and daily consumption stay
-unavailable after runtime has been recorded. The suggested flow rate sensor becomes
-available after runtime has been recorded and is also shown in `ml/min`.
+calibrated yet. While a channel is uncalibrated, runtime tracking continues. If a
+previously calculated pump flow rate is already stored, version `1.0.8` and later
+uses it as a fallback so consumed liters, remaining liters, remaining percent, and
+daily consumption remain available after an update or reload. The suggested flow
+rate sensor becomes available after runtime has been recorded and is also shown in
+`ml/min`.
 
 Recommended calibration workflow:
 

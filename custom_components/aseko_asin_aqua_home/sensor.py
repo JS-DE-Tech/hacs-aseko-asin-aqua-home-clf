@@ -282,7 +282,7 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
                 "remaining_percent",
                 "daily_consumption",
             ):
-                return self._runtime_seconds() == 0 or self._flow_rate() > 0
+                return self._runtime_seconds() == 0 or self._effective_flow_rate() > 0
             if self.entity_description.metric == "suggested_flow_rate":
                 return self._last_calculated_flow_rate() is not None
             return True
@@ -345,13 +345,23 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
         return float(self.coordinator.options.get(key, channel.container_size_default))
 
     def _flow_rate(self) -> float:
+        return self._effective_flow_rate()
+
+    def _configured_flow_rate(self) -> float:
         key = f"{self.entity_description.channel_key}_flow_rate"
-        return float(self.coordinator.options.get(key, DEFAULT_DOSING_FLOW_RATE))
+        return float(self.coordinator.options.get(key, DEFAULT_DOSING_FLOW_RATE) or 0)
+
+    def _effective_flow_rate(self) -> float:
+        configured_flow_rate = self._configured_flow_rate()
+        if configured_flow_rate > 0:
+            return configured_flow_rate
+        return float(self._last_calculated_flow_rate() or 0)
 
     def _last_calculated_flow_rate(self) -> float | None:
-        return self.coordinator.dosing_tracker.states[
+        state = self.coordinator.dosing_tracker.states[
             self.entity_description.channel_key
-        ].last_calculated_flow_rate
+        ]
+        return getattr(state, "last_calculated_flow_rate", None)
 
     def _dosing_native_value(self):
         runtime_seconds = self._runtime_seconds()

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.8
+
+- Use the persisted calculated pump flow rate as a fallback for consumed volume,
+  remaining volume, remaining percent, and daily consumption when the editable
+  configured flow rate is still `0 ml/min`.
+- Keep active TCP gateway sessions alive when decoder-only options change, such as
+  water-level offset, water-level alarm labels, maximum chlorine, and the time
+  correction threshold.
+- Keep configuration number entities available independently of the live ASEKO data
+  stream.
+- Leave the 120-byte TCP framing, cloud forwarding, and backwash logic unchanged.
+
 ## 1.0.7
 
 - Add extended ASIN AQUA Home alarm handling, including the confirmed
