@@ -11,6 +11,8 @@ CONFIG_KEYS = {
     "CONF_CAPTURE_ENABLED",
     "CONF_MAX_CHLORINE",
     "CONF_WATER_LEVEL_OFFSET",
+    "CONF_WATER_LEVEL_ERROR_LABELS",
+    "CONF_TIME_CORRECTION_THRESHOLD_MINUTES",
 }
 
 
@@ -106,6 +108,8 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         "capture_enabled",
         "max_chlorine",
         "water_level_offset",
+        "water_level_error_labels",
+        "time_correction_threshold_minutes",
     }
 
 
@@ -130,6 +134,8 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     const = types.ModuleType(f"{package.__name__}.const")
     const.CONFIG_ENTRY_VERSION = 2
     const.CONF_FORWARD_ENABLED = "forward_enabled"
+    const.CONF_TIME_CORRECTION_THRESHOLD_MINUTES = "time_correction_threshold_minutes"
+    const.CONF_WATER_LEVEL_ERROR_LABELS = "water_level_error_labels"
     const.CONF_WATER_LEVEL_OFFSET = "water_level_offset"
     const.DEFAULT_CAPTURE_ENABLED = False
     const.DEFAULT_FORWARD_ENABLED = True
@@ -139,10 +145,14 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     const.DEFAULT_LISTEN_PORT = 47524
     const.DEFAULT_MAX_CHLORINE = 20.0
     const.DEFAULT_PROTOCOL_DEBUG = False
+    const.DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES = 5
+    const.DEFAULT_WATER_LEVEL_ERROR_LABELS = False
     const.DEFAULT_WATER_LEVEL_OFFSET = 33
     const.DEVICE_IDENTIFIER = "asin_aqua_home"
     const.DOMAIN = "aseko_asin_aqua_home"
     const.LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE = 1000 / 60
+    const.MAX_TIME_CORRECTION_THRESHOLD_MINUTES = 10
+    const.MIN_TIME_CORRECTION_THRESHOLD_MINUTES = 1
     const.PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "button"]
     coordinator = types.ModuleType(f"{package.__name__}.coordinator")
     coordinator.AsekoCoordinator = object

@@ -18,19 +18,46 @@ BLOCK_ID_OFFSET = 5
 EXPECTED_BLOCK_IDS = (1, 3, 2)
 DEFAULT_MAX_CHLORINE = 20.0
 DEFAULT_WATER_LEVEL_OFFSET = 33
+DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES = 5
 MAX_BUFFER_SIZE = 16_384
 HEX_DUMP_BYTES = 48
+FILTRATION_NONSTOP_24H_VALUES = {0x43, 0x4B}
+FILTRATION_TIMER_VALUES = {0x53, 0x5B}
 
-ERROR_NAMES = (
-    "hour_dosing_exceeded",
-    "time_correction",
+ERROR_BITS = (
+    ("hour_dosing_exceeded", 13, 0, "Stundendosierung überschritten"),
+    ("time_correction", 13, 1, "Zeitkorrektur"),
+    ("no_probe_flow", 13, 2, "Kein Durchfluss an den Sonden"),
+    ("buffer_tank_empty", 13, 3, "Pufferbehälter leer"),
+    ("buffer_tank_overflow", 13, 4, "Pufferbehälter übergelaufen"),
+    ("low_filling_speed", 13, 5, "Nachfüllgeschwindigkeit zu gering"),
+    ("ph_doses_without_change", 13, 6, "pH-Dosierungen ohne Änderung"),
+    (
+        "chlorine_doses_without_change",
+        13,
+        7,
+        "Chlordosierungen ohne Änderung",
+    ),
+    ("rapid_ph_change", 12, 2, "Zu schnelle pH-Wert-Änderung"),
+)
+ERROR_NAMES = tuple(key for key, _, _, _ in ERROR_BITS)
+ERROR_STATUS_ORDER = (
+    "rapid_ph_change",
+    "chlorine_doses_without_change",
     "no_probe_flow",
-    "buffer_tank_empty",
-    "buffer_tank_overflow",
     "low_filling_speed",
     "ph_doses_without_change",
-    "chlorine_doses_without_change",
+    "buffer_tank_empty",
+    "buffer_tank_overflow",
+    "hour_dosing_exceeded",
+    "time_correction",
 )
+ERROR_STATUS_MESSAGES = {key: message for key, _, _, message in ERROR_BITS}
+WATER_LEVEL_ERROR_STATUS_MESSAGES = {
+    **ERROR_STATUS_MESSAGES,
+    "buffer_tank_empty": "Wasserstand zu niedrig",
+    "buffer_tank_overflow": "Wasserstand zu hoch",
+}
 RELAY_NAMES = (
     "backwash",
     "filling",
@@ -56,6 +83,8 @@ class StatusState:
     standby: bool = False
     heating: bool = False
     open_menu: bool = False
+    nonstop_24h: bool = False
+    timer: bool = False
 
 
 @dataclass(slots=True)
@@ -98,10 +127,14 @@ class FrameBuffer:
         *,
         max_chlorine: float = DEFAULT_MAX_CHLORINE,
         water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
+        water_level_error_labels: bool = False,
+        time_correction_threshold_minutes: int = DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
     ) -> None:
         self._decoder = decoder or AsekoProtocolDecoder(
             max_chlorine=max_chlorine,
             water_level_offset=water_level_offset,
+            water_level_error_labels=water_level_error_labels,
+            time_correction_threshold_minutes=time_correction_threshold_minutes,
         )
         self._buffer = bytearray()
         self.events: list[CandidateEvent] = []
@@ -301,9 +334,15 @@ class AsekoProtocolDecoder:
         *,
         max_chlorine: float = DEFAULT_MAX_CHLORINE,
         water_level_offset: int = DEFAULT_WATER_LEVEL_OFFSET,
+        water_level_error_labels: bool = False,
+        time_correction_threshold_minutes: int = DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
     ) -> None:
         self._max_chlorine = max_chlorine
         self._water_level_offset = water_level_offset
+        self._water_level_error_labels = water_level_error_labels
+        self._time_correction_threshold_seconds = (
+            time_correction_threshold_minutes * 60
+        )
         self._air_temperature: float | None = None
         self._water_temperature: float | None = None
         self._status = StatusState()
@@ -350,20 +389,28 @@ class AsekoProtocolDecoder:
         self._water_temperature = self._fallback(
             water_raw, -5, 45, self._water_temperature
         )
-        error_byte, relay_byte, byte24 = data[13], data[29], data[25]
-        errors = {
-            name: bool(error_byte & (1 << bit)) for bit, name in enumerate(ERROR_NAMES)
-        }
+        warning_byte, error_byte, relay_byte, byte24 = (
+            data[12],
+            data[13],
+            data[29],
+            data[25],
+        )
         relays = {
             name: bool(relay_byte & (1 << bit)) for bit, name in enumerate(RELAY_NAMES)
         }
         self._update_status(data[78])
+        self._update_filtration_mode(data)
         device_datetime = self._device_datetime(data)
         deviation_seconds = abs(
             (
                 datetime.now().astimezone().replace(tzinfo=None) - device_datetime
             ).total_seconds()
         )
+        time_correction_recommended = (
+            deviation_seconds > self._time_correction_threshold_seconds
+        )
+        errors = self._decode_errors(data)
+        errors["time_correction"] = time_correction_recommended
         sensors: dict[str, Any] = {
             "ph": self._word(data, 14) / 100,
             "chlorine": self._word(data, 16) / 100,
@@ -374,7 +421,6 @@ class AsekoProtocolDecoder:
             "system_date": device_datetime.strftime("%d.%m.%Y"),
             "system_time": device_datetime.strftime("%H:%M:%S"),
             "time_deviation": self._duration(deviation_seconds),
-            "set_time_recommended": deviation_seconds > 300,
             "ph_target": data[52] / 10,
             "chlorine_target": data[53] / 10,
             "flocculation_dose": data[54],
@@ -398,6 +444,11 @@ class AsekoProtocolDecoder:
             "ph_minus_concentration": data[112],
             "max_chlorine_doses": data[114],
             "max_ph_doses": data[115],
+            "error_status": self._error_status(
+                errors, self._water_level_error_labels
+            ),
+            "warning_byte": warning_byte,
+            "warning_byte_binary": f"{warning_byte:08b}",
             "error_byte": error_byte,
             "error_byte_binary": f"{error_byte:08b}",
             "relay_byte": relay_byte,
@@ -414,6 +465,7 @@ class AsekoProtocolDecoder:
             {
                 "minimum_payload_length": MIN_PAYLOAD_LENGTH,
                 "payload_hex": frame[:MIN_PAYLOAD_LENGTH].hex(),
+                "warning_byte": warning_byte,
                 "error_byte": error_byte,
                 "relay_byte": relay_byte,
                 "byte24": byte24,
@@ -439,6 +491,36 @@ class AsekoProtocolDecoder:
                 status.standby = False
             status.open_menu = False
         status.raw = current
+
+    def _update_filtration_mode(self, data: bytes) -> None:
+        mode = data[37]
+        if mode in FILTRATION_NONSTOP_24H_VALUES:
+            self._status.nonstop_24h = True
+            self._status.timer = False
+        elif mode in FILTRATION_TIMER_VALUES:
+            self._status.nonstop_24h = False
+            self._status.timer = True
+
+    @staticmethod
+    def _decode_errors(data: bytes) -> dict[str, bool]:
+        return {
+            key: bool(data[byte_index] & (1 << bit))
+            for key, byte_index, bit, _ in ERROR_BITS
+        }
+
+    @staticmethod
+    def _error_status(errors: dict[str, bool], water_level_labels: bool) -> str:
+        labels = (
+            WATER_LEVEL_ERROR_STATUS_MESSAGES
+            if water_level_labels
+            else ERROR_STATUS_MESSAGES
+        )
+        messages = [
+            labels[key]
+            for key in ERROR_STATUS_ORDER
+            if errors.get(key)
+        ]
+        return "OK" if not messages else " | ".join(messages)
 
     @staticmethod
     def _validate_range(name: str, value: float, low: float, high: float) -> None:

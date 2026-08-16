@@ -7,7 +7,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DEVICE_IDENTIFIER, DOMAIN
+from .const import CONF_WATER_LEVEL_ERROR_LABELS, DEVICE_IDENTIFIER, DOMAIN
 from .protocol import ERROR_NAMES, RELAY_NAMES
 
 
@@ -33,6 +33,13 @@ STATUS_ICONS = {
     "standby": "mdi:pump-off",
     "heating": "mdi:heat-wave",
     "open_menu": "mdi:menu",
+    "nonstop_24h": "mdi:hours-24",
+    "timer": "mdi:timer-outline",
+}
+
+WATER_LEVEL_ERROR_TRANSLATION_KEYS = {
+    "error_buffer_tank_empty": "error_water_level_too_low",
+    "error_buffer_tank_overflow": "error_water_level_too_high",
 }
 
 DESCRIPTIONS = (
@@ -83,6 +90,13 @@ class AsekoBinarySensor(CoordinatorEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{DEVICE_IDENTIFIER}_{description.key}"
+        options = getattr(coordinator, "options", {})
+        if options.get(
+            CONF_WATER_LEVEL_ERROR_LABELS, False
+        ) and description.key in WATER_LEVEL_ERROR_TRANSLATION_KEYS:
+            self._attr_translation_key = WATER_LEVEL_ERROR_TRANSLATION_KEYS[
+                description.key
+            ]
 
     @property
     def suggested_object_id(self) -> str:

@@ -14,11 +14,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import (
+    CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
     CONF_WATER_LEVEL_OFFSET,
     DEFAULT_DOSING_FLOW_RATE,
+    DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
     DEFAULT_WATER_LEVEL_OFFSET,
     DOSING_FLOW_RATE_UNIT,
+    MAX_TIME_CORRECTION_THRESHOLD_MINUTES,
     MAX_DOSING_FLOW_RATE,
+    MIN_TIME_CORRECTION_THRESHOLD_MINUTES,
     MIN_DOSING_FLOW_RATE,
     DEVICE_IDENTIFIER,
     DOMAIN,
@@ -44,6 +48,19 @@ WATER_LEVEL_OFFSET_DESCRIPTION = AsekoNumberDescription(
     mode=NumberMode.BOX,
     entity_category=EntityCategory.CONFIG,
     default_value=DEFAULT_WATER_LEVEL_OFFSET,
+)
+
+TIME_CORRECTION_THRESHOLD_DESCRIPTION = AsekoNumberDescription(
+    key=CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+    translation_key=CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+    icon="mdi:clock-alert-outline",
+    native_min_value=MIN_TIME_CORRECTION_THRESHOLD_MINUTES,
+    native_max_value=MAX_TIME_CORRECTION_THRESHOLD_MINUTES,
+    native_step=1,
+    native_unit_of_measurement="min",
+    mode=NumberMode.BOX,
+    entity_category=EntityCategory.CONFIG,
+    default_value=DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
 )
 
 
@@ -91,7 +108,11 @@ DOSING_NUMBER_DESCRIPTIONS = tuple(
         _flow_rate_description(channel),
     )
 )
-DESCRIPTIONS = (WATER_LEVEL_OFFSET_DESCRIPTION, *DOSING_NUMBER_DESCRIPTIONS)
+DESCRIPTIONS = (
+    WATER_LEVEL_OFFSET_DESCRIPTION,
+    TIME_CORRECTION_THRESHOLD_DESCRIPTION,
+    *DOSING_NUMBER_DESCRIPTIONS,
+)
 
 
 async def async_setup_entry(

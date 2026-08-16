@@ -10,6 +10,8 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import (
     CONF_FORWARD_ENABLED,
+    CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+    CONF_WATER_LEVEL_ERROR_LABELS,
     CONF_WATER_LEVEL_OFFSET,
     DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
@@ -19,6 +21,8 @@ from .const import (
     DEFAULT_LISTEN_PORT,
     DEFAULT_MAX_CHLORINE,
     DEFAULT_PROTOCOL_DEBUG,
+    DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
+    DEFAULT_WATER_LEVEL_ERROR_LABELS,
     DEFAULT_WATER_LEVEL_OFFSET,
     DEVICE_IDENTIFIER,
     DOMAIN,
@@ -34,6 +38,8 @@ _FULL_RELOAD_OPTION_KEYS = {
     "listen_port",
     "max_chlorine",
     CONF_WATER_LEVEL_OFFSET,
+    CONF_WATER_LEVEL_ERROR_LABELS,
+    CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
 }
 
 _CLOUD_FORWARDING_OPTION_KEYS = {
@@ -57,6 +63,14 @@ def _options(entry: ConfigEntry) -> dict:
         "water_level_offset": values.get(
             CONF_WATER_LEVEL_OFFSET,
             DEFAULT_WATER_LEVEL_OFFSET,
+        ),
+        "water_level_error_labels": values.get(
+            CONF_WATER_LEVEL_ERROR_LABELS,
+            DEFAULT_WATER_LEVEL_ERROR_LABELS,
+        ),
+        "time_correction_threshold_minutes": values.get(
+            CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+            DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
         ),
     }
     for channel in DOSING_CHANNELS:
