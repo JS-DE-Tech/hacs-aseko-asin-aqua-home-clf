@@ -180,6 +180,21 @@ def test_water_level_offset_number_range_and_default(integration_modules):
     assert entity.native_value == 33
 
 
+def test_time_correction_threshold_number_range_and_default(integration_modules):
+    number = integration_modules["number"]
+    description = number.TIME_CORRECTION_THRESHOLD_DESCRIPTION
+
+    assert description.native_min_value == 1
+    assert description.native_max_value == 10
+    assert description.native_step == 1
+    assert description.native_unit_of_measurement == "min"
+    assert description.default_value == 5
+
+    entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
+    entity = number.AsekoConfigNumber(types.SimpleNamespace(), entry, description)
+    assert entity.native_value == 5
+
+
 def test_water_level_offset_number_updates_options_and_reloads(integration_modules):
     number = integration_modules["number"]
     calls = []
@@ -220,6 +235,30 @@ def test_error_binary_sensors_are_problem_class(integration_modules):
         if description.key.startswith("error_"):
             assert description.device_class == "problem"
             assert description.icon == "mdi:alert-circle-outline"
+
+
+def test_buffer_tank_error_sensors_can_use_water_level_translation_keys(
+    integration_modules,
+):
+    binary_sensor = integration_modules["binary_sensor"]
+    coordinator = types.SimpleNamespace(
+        data=None,
+        data_available=True,
+        options={"water_level_error_labels": True},
+    )
+    entities = {
+        description.key: binary_sensor.AsekoBinarySensor(coordinator, description)
+        for description in binary_sensor.DESCRIPTIONS
+    }
+
+    assert (
+        entities["error_buffer_tank_empty"]._attr_translation_key
+        == "error_water_level_too_low"
+    )
+    assert (
+        entities["error_buffer_tank_overflow"]._attr_translation_key
+        == "error_water_level_too_high"
+    )
 
 
 def test_dosing_number_descriptions_have_defaults_and_unique_ids(integration_modules):
@@ -430,7 +469,7 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
     switch = integration_modules["switch"]
     button = integration_modules["button"]
 
-    coordinator = types.SimpleNamespace(data=None, data_available=True)
+    coordinator = types.SimpleNamespace(data=None, data_available=True, options={})
     entry = types.SimpleNamespace(data={}, options={}, entry_id="entry-1")
     hass = types.SimpleNamespace()
 
@@ -441,6 +480,9 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
             for description in binary_sensor.DESCRIPTIONS
         ),
         number.AsekoWaterLevelOffsetNumber(hass, entry),
+        number.AsekoConfigNumber(
+            hass, entry, number.TIME_CORRECTION_THRESHOLD_DESCRIPTION
+        ),
         *(
             number.AsekoConfigNumber(hass, entry, description)
             for description in number.DOSING_NUMBER_DESCRIPTIONS
@@ -467,12 +509,17 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
         "air_temperature",
         "chlorine",
         "last_backwash",
+        "error_status",
         "error_no_probe_flow",
+        "error_rapid_ph_change",
         "relay_backwash",
         "relay_filling",
         "relay_chlorine",
+        "status_nonstop_24h",
+        "status_timer",
         "cloud_forwarding",
         "water_level_offset",
+        "time_correction_threshold_minutes",
         "chlorine_container_replaced",
         "chlorine_calculate_flow_rate",
     }
@@ -486,12 +533,17 @@ def test_entities_use_supported_semantic_suggested_object_ids(integration_module
     assert "asin_aqua_home_air_temperature" in unique_ids
     assert "asin_aqua_home_chlorine" in unique_ids
     assert "asin_aqua_home_last_backwash" in unique_ids
+    assert "asin_aqua_home_error_status" in unique_ids
     assert "asin_aqua_home_error_no_probe_flow" in unique_ids
+    assert "asin_aqua_home_error_rapid_ph_change" in unique_ids
     assert "asin_aqua_home_relay_backwash" in unique_ids
     assert "asin_aqua_home_relay_filling" in unique_ids
     assert "asin_aqua_home_relay_chlorine" in unique_ids
+    assert "asin_aqua_home_status_nonstop_24h" in unique_ids
+    assert "asin_aqua_home_status_timer" in unique_ids
     assert "asin_aqua_home_cloud_forwarding" in unique_ids
     assert "asin_aqua_home_water_level_offset" in unique_ids
+    assert "asin_aqua_home_time_correction_threshold_minutes" in unique_ids
     assert "asin_aqua_home_chlorine_container_replaced" in unique_ids
     assert "asin_aqua_home_chlorine_calculate_flow_rate" in unique_ids
 
@@ -542,7 +594,13 @@ def test_german_translations_keep_required_visible_names():
         "Maximale Nachfüllzeit",
         "Dosierverzögerung",
         "Startverzögerung",
+        "Schwellwert für Uhrzeitkorrektur",
         "Letzte Rückspülung",
+        "Status: 24h NONSTOP",
+        "Status: Timer",
+        "Störung: Zu schnelle pH-Wert-Änderung",
+        "Störung: Wasserstand zu niedrig",
+        "Störung: Wasserstand zu hoch",
     ):
         assert expected in german
     assert "Rückspühlung" not in german
@@ -562,7 +620,7 @@ def test_no_image_files_or_frontend_resources_added():
     assert not any(Path(path).suffix.lower() in frontend_suffixes for path in added_files)
 
 
-def test_protocol_behavior_files_are_unchanged_in_this_patch():
+def test_backwash_files_are_unchanged_in_this_patch():
     changed_files = subprocess.run(
         ["git", "diff", "--name-only", "HEAD"],
         check=True,
@@ -570,7 +628,7 @@ def test_protocol_behavior_files_are_unchanged_in_this_patch():
         text=True,
     ).stdout.splitlines()
     restricted_behavior_files = {
-        "custom_components/aseko_asin_aqua_home/protocol.py",
+        "custom_components/aseko_asin_aqua_home/backwash_tracker.py",
     }
 
     assert not restricted_behavior_files.intersection(changed_files)

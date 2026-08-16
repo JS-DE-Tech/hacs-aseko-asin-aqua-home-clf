@@ -186,6 +186,8 @@ def coordinator(modules, *, forward_enabled=False):
             "capture_enabled": False,
             "max_chlorine": 20.0,
             "water_level_offset": 33,
+            "water_level_error_labels": False,
+            "time_correction_threshold_minutes": 5,
             "chlorine_container_size": 20.0,
             "chlorine_flow_rate": 0.0,
             "ph_minus_container_size": 20.0,

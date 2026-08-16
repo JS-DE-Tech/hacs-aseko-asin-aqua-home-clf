@@ -13,7 +13,9 @@
           "protocol_debug": "Enable protocol debug logging",
           "capture_enabled": "Capture temporary protocol diagnostics",
           "max_chlorine": "Maximum plausible chlorine value",
-          "water_level_offset": "Water Level Offset"
+          "water_level_offset": "Water Level Offset",
+          "water_level_error_labels": "Show buffer tank alarms as water level alarms",
+          "time_correction_threshold_minutes": "Time correction threshold"
         }
       }
     }
@@ -31,7 +33,9 @@
           "protocol_debug": "Enable protocol debug logging",
           "capture_enabled": "Capture temporary protocol diagnostics",
           "max_chlorine": "Maximum plausible chlorine value",
-          "water_level_offset": "Water Level Offset"
+          "water_level_offset": "Water Level Offset",
+          "water_level_error_labels": "Show buffer tank alarms as water level alarms",
+          "time_correction_threshold_minutes": "Time correction threshold"
         }
       }
     }
@@ -64,9 +68,6 @@
       },
       "time_deviation": {
         "name": "Time Deviation"
-      },
-      "set_time_recommended": {
-        "name": "Set Time Recommended"
       },
       "ph_target": {
         "name": "pH Target"
@@ -136,6 +137,15 @@
       },
       "max_ph_doses": {
         "name": "Max pH Doses"
+      },
+      "error_status": {
+        "name": "Error Status"
+      },
+      "warning_byte": {
+        "name": "Warning Byte"
+      },
+      "warning_byte_binary": {
+        "name": "Warning Byte Binary"
       },
       "error_byte": {
         "name": "Error Byte"
@@ -262,6 +272,12 @@
       "error_buffer_tank_overflow": {
         "name": "Error: Buffer Tank Overflow"
       },
+      "error_water_level_too_low": {
+        "name": "Error: Water Level Too Low"
+      },
+      "error_water_level_too_high": {
+        "name": "Error: Water Level Too High"
+      },
       "error_low_filling_speed": {
         "name": "Error: Low Filling Speed"
       },
@@ -270,6 +286,9 @@
       },
       "error_chlorine_doses_without_change": {
         "name": "Error: Chlorine Doses Without Change"
+      },
+      "error_rapid_ph_change": {
+        "name": "Error: pH Value Changes Too Quickly"
       },
       "relay_backwash": {
         "name": "Relay: Backwash"
@@ -306,11 +325,20 @@
       },
       "status_open_menu": {
         "name": "Status: Open Menu"
+      },
+      "status_nonstop_24h": {
+        "name": "Status: 24h NONSTOP"
+      },
+      "status_timer": {
+        "name": "Status: Timer"
       }
     },
     "number": {
       "water_level_offset": {
         "name": "Water Level Offset"
+      },
+      "time_correction_threshold_minutes": {
+        "name": "Time Correction Threshold"
       },
       "chlorine_container_size": {
         "name": "Chlorine Container Size"

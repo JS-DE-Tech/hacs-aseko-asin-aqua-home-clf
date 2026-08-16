@@ -239,6 +239,27 @@ Home LAN payload is available here:
 The document distinguishes between implemented mappings, derived Home Assistant
 values and protocol fields that still require additional packet captures.
 
+## Status and alarm handling
+
+Version `1.0.7` adds a combined disturbance status sensor. It reports `OK` when
+no supported disturbance is active. When one or more alarms are active, the value
+contains the alarm texts separated by ` |`, for example
+`Zu schnelle pH-Wert-Änderung | Kein Durchfluss an den Sonden`.
+
+The individual alarm binary sensors remain available. The rapid pH-change alarm
+is decoded from the confirmed `data[12] & 0x04` bit. The time-correction alarm is
+derived locally from the calculated time deviation and the configurable threshold,
+not directly from the device error bit. The threshold can be set from 1 to 10
+minutes and defaults to 5 minutes.
+
+The buffer-tank alarm labels can optionally be shown as water-level labels. With
+the option disabled, the entities are named `Störung: Pufferbehälter leer` and
+`Störung: Pufferbehälter übergelaufen`. With the option enabled, they are shown
+as `Störung: Wasserstand zu niedrig` and `Störung: Wasserstand zu hoch`.
+
+Two additional binary sensors expose the filtration mode as `Status: 24h
+NONSTOP` and `Status: Timer`.
+
 ## Dosing container tracking and calibration
 
 The integration can estimate the remaining volume for the chlorine, pH-minus,

@@ -13,6 +13,8 @@ from .const import (
     CONF_LISTEN_PORT,
     CONF_MAX_CHLORINE,
     CONF_PROTOCOL_DEBUG,
+    CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+    CONF_WATER_LEVEL_ERROR_LABELS,
     CONF_WATER_LEVEL_OFFSET,
     DEFAULT_CAPTURE_ENABLED,
     DEFAULT_FORWARD_ENABLED,
@@ -22,8 +24,12 @@ from .const import (
     DEFAULT_LISTEN_PORT,
     DEFAULT_MAX_CHLORINE,
     DEFAULT_PROTOCOL_DEBUG,
+    DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
+    DEFAULT_WATER_LEVEL_ERROR_LABELS,
     DEFAULT_WATER_LEVEL_OFFSET,
     DOMAIN,
+    MAX_TIME_CORRECTION_THRESHOLD_MINUTES,
+    MIN_TIME_CORRECTION_THRESHOLD_MINUTES,
 )
 
 
@@ -70,6 +76,26 @@ def schema(values: dict | None = None):
                     CONF_WATER_LEVEL_OFFSET, DEFAULT_WATER_LEVEL_OFFSET
                 ),
             ): vol.All(vol.Coerce(int), vol.Range(min=-100, max=100)),
+            vol.Required(
+                CONF_WATER_LEVEL_ERROR_LABELS,
+                default=values.get(
+                    CONF_WATER_LEVEL_ERROR_LABELS,
+                    DEFAULT_WATER_LEVEL_ERROR_LABELS,
+                ),
+            ): bool,
+            vol.Required(
+                CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+                default=values.get(
+                    CONF_TIME_CORRECTION_THRESHOLD_MINUTES,
+                    DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES,
+                ),
+            ): vol.All(
+                vol.Coerce(int),
+                vol.Range(
+                    min=MIN_TIME_CORRECTION_THRESHOLD_MINUTES,
+                    max=MAX_TIME_CORRECTION_THRESHOLD_MINUTES,
+                ),
+            ),
         }
     )
 

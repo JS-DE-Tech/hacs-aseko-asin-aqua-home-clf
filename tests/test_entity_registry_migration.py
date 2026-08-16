@@ -54,6 +54,8 @@ def load_init_module(monkeypatch, registry):
     package.__path__ = [str(BASE)]
     const = types.ModuleType(f"{PACKAGE}.const")
     const.CONF_FORWARD_ENABLED = "forward_enabled"
+    const.CONF_TIME_CORRECTION_THRESHOLD_MINUTES = "time_correction_threshold_minutes"
+    const.CONF_WATER_LEVEL_ERROR_LABELS = "water_level_error_labels"
     const.CONF_WATER_LEVEL_OFFSET = "water_level_offset"
     const.DEFAULT_CAPTURE_ENABLED = False
     const.DEFAULT_FORWARD_ENABLED = True
@@ -63,6 +65,8 @@ def load_init_module(monkeypatch, registry):
     const.DEFAULT_LISTEN_PORT = 47524
     const.DEFAULT_MAX_CHLORINE = 20.0
     const.DEFAULT_PROTOCOL_DEBUG = False
+    const.DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES = 5
+    const.DEFAULT_WATER_LEVEL_ERROR_LABELS = False
     const.DEFAULT_WATER_LEVEL_OFFSET = 33
     const.DEVICE_IDENTIFIER = "asin_aqua_home"
     const.DOMAIN = "aseko_asin_aqua_home"

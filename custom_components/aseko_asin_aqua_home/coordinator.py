@@ -216,6 +216,12 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
             parser = FrameBuffer(
                 max_chlorine=self.options["max_chlorine"],
                 water_level_offset=self.options["water_level_offset"],
+                water_level_error_labels=self.options.get(
+                    "water_level_error_labels", False
+                ),
+                time_correction_threshold_minutes=self.options.get(
+                    "time_correction_threshold_minutes", 5
+                ),
             )
             while chunk := await reader.read(4096):
                 self._record_chunk(chunk, parser.pending_bytes)

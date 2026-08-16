@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.7
+
+- Add extended ASIN AQUA Home alarm handling, including the confirmed
+  `data[12] & 0x04` rapid pH-change alarm.
+- Add a combined disturbance status sensor that lists active alarms without
+  repeating the `Störung:` prefix in the value.
+- Add binary sensors for `Status: 24h NONSTOP` and `Status: Timer`, decoded from
+  the observed filtration mode byte.
+- Add an option to display the buffer-tank alarm entities and combined status as
+  water-level alarms instead.
+- Replace the separate time-correction recommendation sensor with a configurable
+  threshold that drives `Störung: Zeitkorrektur`.
+
 ## 1.0.6
 
 - Store and display dosing pump flow rates in `ml/min` instead of `l/h`, with
