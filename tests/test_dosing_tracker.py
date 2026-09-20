@@ -297,3 +297,39 @@ def test_calculated_flow_rate_is_persisted_without_resetting_runtime(monkeypatch
     assert tracker.states["chlorine"].last_calculated_flow_rate == 2.0
     assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 10 * 3600
     assert saved[-1][1]["channels"]["chlorine"]["last_calculated_flow_rate"] == 2.0
+
+
+def test_newer_storage_refuses_load_and_cannot_be_overwritten(monkeypatch):
+    payload = {"version": 999, "channels": {"chlorine": {"accumulated_runtime_seconds": 12345}}}
+    module, saved = load_tracker(monkeypatch, payload)
+    tracker = module.DosingTracker(None, "entry-1")
+    with pytest.raises(ValueError, match="preserving"):
+        asyncio.run(tracker.async_load())
+    asyncio.run(tracker.async_save())
+    asyncio.run(tracker.async_reset_container("chlorine"))
+    assert saved == []
+    assert payload["channels"]["chlorine"]["accumulated_runtime_seconds"] == 12345
+
+
+def test_midnight_without_packets_resets_only_daily_counter(monkeypatch):
+    payload = {"version": 2, "channels": {"chlorine": {
+        "accumulated_runtime_seconds": 12345,
+        "daily_runtime_seconds": 360,
+        "daily_runtime_date": "2026-01-01",
+        "last_calculated_flow_rate": 25.0,
+        "last_container_replacement_timestamp": "2025-12-20T12:00:00+00:00",
+    }}}
+    module, saved = load_tracker(monkeypatch, payload)
+    tracker = module.DosingTracker(None, "entry-1")
+    asyncio.run(tracker.async_load())
+    now = datetime(2026, 1, 1, 23, 0, tzinfo=timezone.utc)
+    assert tracker.advance_day(now)
+    assert not tracker.advance_day(now)
+    state = tracker.states["chlorine"]
+    assert state.daily_runtime_seconds == 0
+    assert state.daily_runtime_date == "2026-01-02"
+    assert state.accumulated_runtime_seconds == 12345
+    assert state.last_calculated_flow_rate == 25
+    assert state.last_container_replacement_timestamp == "2025-12-20T12:00:00+00:00"
+    asyncio.run(tracker.async_save())
+    assert saved[-1][1]["channels"]["chlorine"]["accumulated_runtime_seconds"] == 12345

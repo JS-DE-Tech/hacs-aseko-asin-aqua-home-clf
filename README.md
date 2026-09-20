@@ -54,7 +54,9 @@ and maintenance activity.
   </a>
 </p>
 
-Dashboard reference used for these screenshots: **Pool Cockpit v2.7.9**.\n\nThe matching public dashboard files are available under [`dashboard/`](dashboard/).
+Dashboard reference used for these screenshots: **Pool Cockpit v2.7.9**.
+
+The matching public dashboard files are available under [`dashboard/`](dashboard/).
 
 The ASEKO integration supplies the controller values used in these examples,
 including water chemistry, ASIN temperatures, water level, relay states, dosing
@@ -272,6 +274,27 @@ Home LAN payload is available here:
 The document distinguishes between implemented mappings, derived Home Assistant
 values and protocol fields that still require additional packet captures.
 
+## Status and alarm handling
+
+Version `1.0.7` and later adds a combined disturbance status sensor. It reports `OK` when
+no supported disturbance is active. When one or more alarms are active, the value
+contains the alarm texts separated by ` |`, for example
+`Zu schnelle pH-Wert-Änderung | Kein Durchfluss an den Sonden`.
+
+The individual alarm binary sensors remain available. The rapid pH-change alarm
+is decoded from the confirmed `data[12] & 0x04` bit. The time-correction alarm is
+derived locally from the calculated time deviation and the configurable threshold,
+not directly from the device error bit. The threshold can be set from 1 to 10
+minutes and defaults to 5 minutes.
+
+The buffer-tank alarm labels can optionally be shown as water-level labels. With
+the option disabled, the entities are named `Störung: Pufferbehälter leer` and
+`Störung: Pufferbehälter übergelaufen`. With the option enabled, they are shown
+as `Störung: Wasserstand zu niedrig` and `Störung: Wasserstand zu hoch`.
+
+Two additional binary sensors expose the filtration mode as `Status: 24h
+NONSTOP` and `Status: Timer`.
+
 ## Dosing container tracking and calibration
 
 The integration can estimate the remaining volume for the chlorine, pH-minus,
@@ -291,10 +314,12 @@ and remaining volume stay in liters and keep their existing values. Daily
 consumption is exposed separately in milliliters and resets at local midnight.
 
 The default pump flow rate is `0.0 ml/min`, which means the channel is not
-calibrated yet. While a channel is uncalibrated, runtime tracking continues, but
-consumed liters, remaining liters, remaining percent, and daily consumption stay
-unavailable after runtime has been recorded. The suggested flow rate sensor becomes
-available after runtime has been recorded and is also shown in `ml/min`.
+calibrated yet. While a channel is uncalibrated, runtime tracking continues. If a
+previously calculated pump flow rate is already stored, version `1.0.8` and later
+uses it as a fallback so consumed liters, remaining liters, remaining percent, and
+daily consumption remain available after an update or reload. The suggested flow
+rate sensor becomes available after runtime has been recorded and is also shown in
+`ml/min`.
 
 Recommended calibration workflow:
 
@@ -313,6 +338,59 @@ Total runtime and current-day runtime are persisted in Home Assistant storage an
 survive restarts, reloads, integration updates, option changes, and Home Assistant
 updates. To avoid unbounded overcounting after downtime, a single interval between
 valid payloads is only counted when it is no longer than 60 seconds.
+
+## Container remaining-days forecasts
+
+Version `1.0.9` adds two sensors per chemical: `..._remaining_days` and
+`..._forecast_status`, using the existing `asin_aqua_home_<channel>` prefix.
+The channels are `chlorine`, `ph_minus`, `flocculation`, and `algicide`.
+Existing entity IDs (including numeric, custom, and duplicated-prefix IDs), units,
+calibration, accumulated runtime, and container replacement data are preserved.
+The forecast history is separate: `.storage/aseko_asin_aqua_home_forecast`.
+
+The estimate divides the remaining volume by expected daily consumption. It uses
+up to 14 completed active days, giving the last seven usable active days twice the
+weight. A usable day needs at least 90% observed coverage and six hours of enabled
+dosing. At least three usable days are required. The current day is excluded.
+Runtime is normalized to 24 hours of enabled dosing and converted with the same
+configured/calculated pump flow rate used by the existing volume sensors.
+Changing calibration therefore recalculates the estimate, just like the existing
+remaining-volume calculation; it does not erase recorded runtime.
+
+Setting algicide or flocculation dosing to zero **on the ASEKO device** pauses that
+channel's forecast. Paused time is excluded, while ordinary relay-off time with
+dosing enabled is included. Missing packets and intervals over 60 seconds never
+count as observed zero consumption. History survives restarts and container
+replacements and is retained for 180 days, including multi-week dosing pauses.
+After a long pause, a retained estimate is provisional until at least three usable
+days fall within the last seven calendar days. Incomplete recent samples also
+make estimates provisional. History older than 180 days requires learning again.
+
+Status values (translated in the Home Assistant UI):
+
+| State | Meaning |
+| --- | --- |
+| `active` | Sufficient recent observations |
+| `provisional` | Older or incomplete observations; estimate needs confirmation |
+| `paused` | Algicide/flocculation dose is zero |
+| `learning` | Initial collection of observations |
+| `calibration_missing` | No positive pump flow rate available |
+| `no_consumption` | Usable days contain no pump runtime |
+| `insufficient_data` | Too few adequately observed active days |
+| `device_data_missing` | No current valid device data or dose setting |
+
+The remaining-days sensor is unknown when no numeric forecast is justified. It
+never uses zero to mean paused, uncalibrated, or offline. Numeric results round
+down: `0 d` means less than one full day, including an empty container. Attributes
+include `estimated_daily_consumption_ml`, `evaluated_active_days`,
+`last_sample_date`, `last_observation`, `last_calculation`, and `forecast_status`.
+
+Daily consumption resets at Home Assistant's local midnight even without new
+gateway packets. This does not reset the total runtime or discard historical days.
+Store-format errors prevent loading rather than silently replacing stored values.
+This protection applies when running this version; it cannot change how older
+already-released versions behave. Keep a full Home Assistant backup before updates
+or downgrades. Update the integration in place, without deleting/re-adding it.
 
 ## Live Cloud Forwarding switch
 
@@ -360,3 +438,12 @@ scripts and templates.
 
 Existing entity IDs can be reset or renamed manually from the Home Assistant
 entity settings after updating the integration.
+
+## Development checks
+
+Run `python -m pip install -r requirements-test.txt`, then `python -m pytest -q`
+from the repository root. The suite uses lightweight Home Assistant stubs and
+checks parsing, storage migration, retained entity identities, option preservation,
+forecast behavior, local midnight/DST, and shutdown/reload behavior. GitHub runs
+these tests with Python 3.12 and 3.13. These checks do not replace a smoke test in
+a running Home Assistant instance before deploying to a production pool setup.

@@ -251,15 +251,150 @@ def test_error_and_relay_bits():
     )
 
 
+def test_rapid_ph_change_uses_warning_byte():
+    result = AsekoProtocolDecoder().decode(frame(**{"12": 0b00000100}))
+
+    assert result.errors["rapid_ph_change"]
+    assert result.sensors["warning_byte"] == 4
+    assert result.sensors["warning_byte_binary"] == "00000100"
+    assert result.sensors["error_byte"] == 0
+    assert result.sensors["error_status"] == "Zu schnelle pH-Wert-Änderung"
+
+
+def test_error_status_lists_active_disturbances(monkeypatch):
+    class FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            value = cls(2026, 8, 16, 12, 10, 0)
+            return value if tz is None else value.replace(tzinfo=tz)
+
+    monkeypatch.setattr(module, "datetime", FrozenDateTime)
+    result = AsekoProtocolDecoder().decode(
+        frame(
+            **{
+                "6": 26,
+                "7": 8,
+                "8": 16,
+                "9": 12,
+                "10": 0,
+                "11": 0,
+                "12": 0b00000100,
+                "13": 0b11111111,
+            }
+        )
+    )
+
+    assert result.sensors["error_status"] == (
+        "Zu schnelle pH-Wert-Änderung"
+        " | Chlordosierungen ohne Änderung"
+        " | Kein Durchfluss an den Sonden"
+        " | Nachfüllgeschwindigkeit zu gering"
+        " | pH-Dosierungen ohne Änderung"
+        " | Pufferbehälter leer"
+        " | Pufferbehälter übergelaufen"
+        " | Stundendosierung überschritten"
+        " | Zeitkorrektur"
+    )
+
+
+def test_error_status_is_ok_without_active_disturbance():
+    assert AsekoProtocolDecoder().decode(frame()).sensors["error_status"] == "OK"
+
+
+def test_error_status_can_use_water_level_labels():
+    result = AsekoProtocolDecoder(water_level_error_labels=True).decode(
+        frame(**{"13": 0b00011000})
+    )
+
+    assert result.sensors["error_status"] == (
+        "Wasserstand zu niedrig | Wasserstand zu hoch"
+    )
+
+
+def test_time_correction_threshold_is_configurable(monkeypatch):
+    class FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            value = cls(2026, 8, 16, 12, 0, 0)
+            return value if tz is None else value.replace(tzinfo=tz)
+
+    monkeypatch.setattr(module, "datetime", FrozenDateTime)
+    payload = frame(
+        **{
+            "6": 26,
+            "7": 8,
+            "8": 16,
+            "9": 11,
+            "10": 56,
+            "11": 0,
+        }
+    )
+
+    default_result = AsekoProtocolDecoder().decode(payload)
+    custom_result = AsekoProtocolDecoder(
+        time_correction_threshold_minutes=3
+    ).decode(payload)
+
+    assert "set_time_recommended" not in default_result.sensors
+    assert not default_result.errors["time_correction"]
+    assert custom_result.errors["time_correction"]
+
+
+def test_time_correction_ignores_device_error_bit_below_threshold(monkeypatch):
+    class FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            value = cls(2026, 8, 16, 12, 0, 0)
+            return value if tz is None else value.replace(tzinfo=tz)
+
+    monkeypatch.setattr(module, "datetime", FrozenDateTime)
+    result = AsekoProtocolDecoder().decode(
+        frame(
+            **{
+                "6": 26,
+                "7": 8,
+                "8": 16,
+                "9": 11,
+                "10": 58,
+                "11": 32,
+                "13": 0b00000010,
+            }
+        )
+    )
+
+    assert result.sensors["time_deviation"] == "00:01:28"
+    assert not result.errors["time_correction"]
+    assert result.sensors["error_status"] == "OK"
+
+
 def test_stateful_status_handling():
     decoder = AsekoProtocolDecoder()
     assert decoder.decode(frame(**{"78": 130})).status.heating
+    nonstop = decoder.decode(frame(**{"78": 162, "37": 0x4B})).status
+    assert nonstop.nonstop_24h and not nonstop.timer
     opened = decoder.decode(frame(**{"78": 40})).status
-    assert opened.open_menu and opened.heating
+    assert opened.open_menu and opened.heating and opened.nonstop_24h
     retained = decoder.decode(frame(**{"78": 0})).status
-    assert retained.open_menu and retained.heating
-    stopped = decoder.decode(frame(**{"78": 226})).status
-    assert not stopped.filtration and not stopped.heating and not stopped.open_menu
+    assert retained.open_menu and retained.heating and retained.nonstop_24h
+    stopped = decoder.decode(frame(**{"78": 226, "37": 0x5B})).status
+    assert (
+        not stopped.filtration
+        and not stopped.heating
+        and not stopped.open_menu
+        and not stopped.nonstop_24h
+        and stopped.timer
+    )
+
+
+def test_filtration_nonstop_24h_mode_values():
+    decoder = AsekoProtocolDecoder()
+
+    assert decoder.decode(frame(**{"37": 0x43})).status.nonstop_24h
+    timer = decoder.decode(frame(**{"37": 0x53})).status
+    assert not timer.nonstop_24h and timer.timer
+    assert decoder.decode(frame(**{"37": 0x4B})).status.nonstop_24h
+    timer = decoder.decode(frame(**{"37": 0x5B})).status
+    assert not timer.nonstop_24h and timer.timer
 
 
 def test_default_water_level_offset():

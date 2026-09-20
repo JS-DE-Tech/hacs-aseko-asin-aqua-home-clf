@@ -50,16 +50,21 @@ def install_homeassistant_stubs(monkeypatch):
     homeassistant = types.ModuleType("homeassistant")
     config_entries = types.ModuleType("homeassistant.config_entries")
     core = types.ModuleType("homeassistant.core")
+    ha_const = types.ModuleType("homeassistant.const")
+    ha_const.EVENT_HOMEASSISTANT_STOP = "homeassistant_stop"
     helpers = types.ModuleType("homeassistant.helpers")
     event = types.ModuleType("homeassistant.helpers.event")
     update_coordinator = types.ModuleType("homeassistant.helpers.update_coordinator")
     storage = types.ModuleType("homeassistant.helpers.storage")
+    util = types.ModuleType("homeassistant.util")
+    dt = types.ModuleType("homeassistant.util.dt")
+    dt.as_local = lambda value: value.astimezone(timezone.utc)
     entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
 
     def callback(func):
         return func
 
-    def async_track_time_interval(*args):
+    def async_track_time_interval(*args, **kwargs):
         def cancel():
             return None
 
@@ -72,6 +77,7 @@ def install_homeassistant_stubs(monkeypatch):
     core.callback = callback
     config_entries.ConfigEntry = ConfigEntry
     event.async_track_time_interval = async_track_time_interval
+    event.async_track_time_change = async_track_time_interval
     update_coordinator.DataUpdateCoordinator = FakeDataUpdateCoordinator
     storage.Store = FakeStore
 
@@ -87,6 +93,9 @@ def install_homeassistant_stubs(monkeypatch):
 
     for name, module in {
         "homeassistant": homeassistant,
+        "homeassistant.const": ha_const,
+        "homeassistant.util": util,
+        "homeassistant.util.dt": dt,
         "homeassistant.config_entries": config_entries,
         "homeassistant.core": core,
         "homeassistant.helpers": helpers,
@@ -186,6 +195,8 @@ def coordinator(modules, *, forward_enabled=False):
             "capture_enabled": False,
             "max_chlorine": 20.0,
             "water_level_offset": 33,
+            "water_level_error_labels": False,
+            "time_correction_threshold_minutes": 5,
             "chlorine_container_size": 20.0,
             "chlorine_flow_rate": 0.0,
             "ph_minus_container_size": 20.0,
@@ -372,6 +383,64 @@ def test_all_unrelated_config_entry_options_remain_unchanged(modules):
     }
 
 
+def test_protocol_options_update_active_parser_without_reload(modules):
+    init = modules["init"]
+    protocol = modules["protocol"]
+    entry = types.SimpleNamespace(
+        data={},
+        options={
+            "max_chlorine": 8.0,
+            "water_level_offset": 12,
+            "water_level_error_labels": True,
+            "time_correction_threshold_minutes": 3,
+        },
+        entry_id="entry-1",
+    )
+    coord = coordinator(modules, forward_enabled=False)
+    session, _ = add_session(coord, modules["coordinator"])
+    session.parser = protocol.FrameBuffer(
+        max_chlorine=20.0,
+        water_level_offset=33,
+        water_level_error_labels=False,
+        time_correction_threshold_minutes=5,
+    )
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            raise AssertionError("reload should not be called")
+
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+    asyncio.run(init._reload(hass, entry))
+
+    decoder = session.parser._decoder
+    assert decoder._max_chlorine == 8.0
+    assert decoder._water_level_offset == 12
+    assert decoder._water_level_error_labels is True
+    assert decoder._time_correction_threshold_seconds == 180
+    assert coord.update_listener_calls == 1
+
+
+def test_listener_port_change_still_triggers_full_reload(modules):
+    init = modules["init"]
+    entry = types.SimpleNamespace(
+        data={}, options={"listen_port": 47525}, entry_id="entry-1"
+    )
+    coord = coordinator(modules, forward_enabled=False)
+    reloads = []
+
+    class ConfigEntries:
+        async def async_reload(self, entry_id):
+            reloads.append(entry_id)
+
+    hass = types.SimpleNamespace(
+        data={init.DOMAIN: {entry.entry_id: coord}}, config_entries=ConfigEntries()
+    )
+    asyncio.run(init._reload(hass, entry))
+
+    assert reloads == ["entry-1"]
+
 def test_cloud_connection_failure_does_not_interrupt_local_sensor_updates(
     modules, monkeypatch
 ):
@@ -500,6 +569,96 @@ def test_config_entry_unload_completes_when_no_clients_are_connected(modules):
     assert server.closed is True
     assert server.wait_closed_called is True
     assert hass.data[init.DOMAIN] == {}
+
+
+def test_midnight_updates_and_saves_daily_consumption_without_packets(modules):
+    coord = coordinator(modules)
+    state = coord.dosing_tracker.states["chlorine"]
+    state.accumulated_runtime_seconds = 1234
+    state.daily_runtime_seconds = 234
+    state.daily_runtime_date = "2026-09-01"
+    asyncio.run(coord._async_day_changed(datetime(2026, 9, 2, tzinfo=timezone.utc)))
+    assert state.daily_runtime_seconds == 0
+    assert state.accumulated_runtime_seconds == 1234
+    assert coord.dosing_tracker._store.saved["channels"]["chlorine"]["daily_runtime_seconds"] == 0
+    assert coord.update_listener_calls == 1
+
+
+def test_start_registers_local_midnight_and_stop_cancels_it(modules, monkeypatch):
+    module = modules["coordinator"]
+    from unittest.mock import AsyncMock, Mock
+    server = FakeServer()
+    monkeypatch.setattr(module.asyncio, "start_server", AsyncMock(return_value=server))
+    cancel = Mock()
+    register = Mock(return_value=cancel)
+    monkeypatch.setattr(module, "async_track_time_change", register)
+    coord = coordinator(modules)
+
+    async def run():
+        await coord.async_start()
+        register.assert_called_once_with(coord.hass, coord._async_day_changed, hour=0, minute=0, second=0)
+        await coord.async_stop()
+        cancel.assert_called_once()
+    asyncio.run(run())
+
+
+def test_future_dosing_storage_prevents_listener_start_and_overwrite(modules, monkeypatch):
+    from unittest.mock import AsyncMock
+    module = modules["coordinator"]
+    server = AsyncMock()
+    monkeypatch.setattr(module.asyncio, "start_server", server)
+    coord = coordinator(modules)
+    coord.dosing_tracker._store.async_load = AsyncMock(return_value={"version": 99})
+    coord.dosing_tracker._store.async_save = AsyncMock()
+    with pytest.raises(ValueError, match="preserving"):
+        asyncio.run(coord.async_start())
+    asyncio.run(coord.async_stop())
+    server.assert_not_called()
+    coord.dosing_tracker._store.async_save.assert_not_called()
+
+
+def test_upgrade_and_restart_preserve_all_four_existing_container_states(modules, monkeypatch):
+    from copy import deepcopy
+    from unittest.mock import AsyncMock
+    module = modules["coordinator"]
+    coord = coordinator(modules)
+    now = datetime.now(timezone.utc)
+    payload = {"version": 2, "channels": {}}
+    for index, channel in enumerate(modules["dosing_tracker"].DOSING_CHANNELS):
+        payload["channels"][channel.key] = {
+            "accumulated_runtime_seconds": 1234.5 + index,
+            "last_relay_state": False,
+            "last_observed_timestamp": now.isoformat(),
+            "last_container_replacement_timestamp": "2026-08-01T10:00:00+00:00",
+            "last_calculated_flow_rate": 25.5 + index,
+            "daily_runtime_seconds": 123 + index,
+            "daily_runtime_date": now.date().isoformat(),
+        }
+    backwash = {"version": 1, "state": {
+        "last_backwash_timestamp": "2026-09-01T12:00:00+00:00",
+        "active_since_timestamp": None,
+        "last_relay_state": False,
+        "last_observed_timestamp": now.isoformat(),
+        "event_recorded_for_current_cycle": False,
+    }}
+    coord.dosing_tracker._store.async_load = AsyncMock(return_value=deepcopy(payload))
+    coord.backwash_tracker._store.async_load = AsyncMock(return_value=deepcopy(backwash))
+    monkeypatch.setattr(module.asyncio, "start_server", AsyncMock(return_value=FakeServer()))
+
+    async def run():
+        await coord.async_start()
+        assert coord.dosing_tracker.as_dict() == payload
+        assert coord.backwash_tracker.as_dict() == backwash
+        assert all(not days for days in coord.forecast.days.values())
+        await coord.async_stop()
+        assert coord.dosing_tracker._store.saved == payload
+        # Backwash requires no rewrite when unchanged.
+        assert coord.backwash_tracker.as_dict() == backwash
+        reloaded = modules["dosing_tracker"].DosingTracker(None, "entry-1")
+        reloaded._store.async_load = AsyncMock(return_value=deepcopy(coord.dosing_tracker._store.saved))
+        await reloaded.async_load()
+        assert reloaded.as_dict() == payload
+    asyncio.run(run())
 
 
 def test_config_entry_unload_completes_with_active_gateway_session(

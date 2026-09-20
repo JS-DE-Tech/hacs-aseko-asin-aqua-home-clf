@@ -8,11 +8,12 @@ from datetime import datetime, timezone
 import logging
 from typing import Any
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .backwash_tracker import BackwashTracker
 from .const import UNAVAILABLE_AFTER
 from .dosing_tracker import DosingTracker
+from .forecast import ConsumptionForecast
 from .protocol import CandidateEvent, DecodedData, FrameBuffer
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class GatewaySession:
     """Active gateway connection and its optional one-way cloud forwarding."""
 
     gateway_writer: asyncio.StreamWriter
+    parser: FrameBuffer | None = None
     cloud_writer: asyncio.StreamWriter | None = None
     cloud_discard_task: asyncio.Task[None] | None = None
     session_task: asyncio.Task[None] | None = None
@@ -44,14 +46,18 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         self.clients = 0
         self.capture_records: deque[dict[str, Any]] = deque(maxlen=_CAPTURE_LIMIT)
         self._availability_cancel = None
+        self._midnight_cancel = None
         self._sessions: dict[asyncio.StreamWriter, GatewaySession] = {}
         self._forwarding_lock = asyncio.Lock()
         self.dosing_tracker = DosingTracker(hass, entry_id)
         self.backwash_tracker = BackwashTracker(hass, entry_id)
+        self.forecast = ConsumptionForecast(hass)
 
     async def async_start(self) -> None:
         await self.dosing_tracker.async_load()
         await self.backwash_tracker.async_load()
+        await self.forecast.async_load()
+        await self._async_day_changed(datetime.now(timezone.utc))
         self.server = await asyncio.start_server(
             self._handle_client,
             self.options["listen_host"],
@@ -60,20 +66,27 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         self._availability_cancel = async_track_time_interval(
             self.hass, self._refresh_availability, UNAVAILABLE_AFTER
         )
+        self._midnight_cancel = async_track_time_change(
+            self.hass, self._async_day_changed, hour=0, minute=0, second=0
+        )
         _LOGGER.info(
             "Listening for ASIN AQUA Home on %s:%s",
             self.options["listen_host"],
             self.options["listen_port"],
         )
 
-    async def async_stop(self) -> None:
+    async def async_stop(self, _event=None) -> None:
         """Stop listeners, persist state, and close all active TCP sessions."""
         if self._availability_cancel:
             self._availability_cancel()
             self._availability_cancel = None
+        if self._midnight_cancel:
+            self._midnight_cancel()
+            self._midnight_cancel = None
 
         await self.dosing_tracker.async_save()
         await self.backwash_tracker.async_save_if_dirty()
+        await self.forecast.async_save(force=True)
 
         if self.server:
             self.server.close()
@@ -105,6 +118,19 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
 
         self.clients = 0
         self._sessions.clear()
+        # A frame could have arrived while the connections were closing.
+        await self.dosing_tracker.async_save()
+        await self.backwash_tracker.async_save_if_dirty()
+        await self.forecast.async_save(force=True)
+        self.forecast.break_observation()
+
+    async def _async_day_changed(self, now: datetime) -> None:
+        """Publish the new local day's counters even without gateway traffic."""
+        if self.dosing_tracker.advance_day(now):
+            await self.dosing_tracker.async_save()
+        self.forecast.advance_day(now)
+        await self.forecast.async_save(force=True)
+        self.async_update_listeners()
 
     @property
     def data_available(self) -> bool:
@@ -116,6 +142,29 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
     @callback
     def _refresh_availability(self, _now: datetime) -> None:
         self.async_update_listeners()
+
+    def reconfigure_protocol_options(self) -> None:
+        """Apply decoder-only options to active gateway parsers."""
+        for session in self._sessions.values():
+            if session.parser is not None:
+                self._configure_parser(session.parser)
+
+    def _new_parser(self) -> FrameBuffer:
+        parser = FrameBuffer()
+        self._configure_parser(parser)
+        return parser
+
+    def _configure_parser(self, parser: FrameBuffer) -> None:
+        parser.configure(
+            max_chlorine=self.options["max_chlorine"],
+            water_level_offset=self.options["water_level_offset"],
+            water_level_error_labels=self.options.get(
+                "water_level_error_labels", False
+            ),
+            time_correction_threshold_minutes=self.options.get(
+                "time_correction_threshold_minutes", 5
+            ),
+        )
 
     async def async_set_forwarding_enabled(self, enabled: bool) -> None:
         """Enable or disable one-way cloud forwarding for active sessions."""
@@ -213,10 +262,8 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         try:
             if self.options["forward_enabled"]:
                 await self._open_cloud_forwarding(session)
-            parser = FrameBuffer(
-                max_chlorine=self.options["max_chlorine"],
-                water_level_offset=self.options["water_level_offset"],
-            )
+            parser = self._new_parser()
+            session.parser = parser
             while chunk := await reader.read(4096):
                 self._record_chunk(chunk, parser.pending_bytes)
                 await self._forward_chunk_to_cloud(session, chunk)
@@ -226,6 +273,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
                     relay_transition = self.dosing_tracker.observe_relays(
                         decoded.relays, now
                     )
+                    self.forecast.observe(decoded.relays, decoded.sensors, now)
                     backwash_event = self.backwash_tracker.observe_relay(
                         bool(decoded.relays.get("backwash", False)), now
                     )
@@ -234,6 +282,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
                         await self.dosing_tracker.async_save()
                     else:
                         await self.dosing_tracker.async_maybe_save(now)
+                    await self.forecast.async_save(now=now)
                     if backwash_event:
                         await self.backwash_tracker.async_save()
                         self.async_update_listeners()
@@ -245,6 +294,7 @@ class AsekoCoordinator(DataUpdateCoordinator[DecodedData]):
         except (ConnectionError, asyncio.CancelledError) as err:
             _LOGGER.debug("Gateway disconnected: %s", err)
         finally:
+            self.forecast.break_observation()
             self.clients = max(0, self.clients - 1)
             self._sessions.pop(writer, None)
             await self._close_cloud_forwarding(session)

@@ -71,6 +71,7 @@ class BackwashTracker:
         )
         self.state = BackwashTrackerState()
         self._dirty = False
+        self._storage_writable = True
 
     @property
     def last_backwash(self) -> datetime | None:
@@ -78,17 +79,19 @@ class BackwashTracker:
         return _parse_datetime(self.state.last_backwash_timestamp)
 
     async def async_load(self) -> None:
+        self._storage_writable = False
         data = await self._store.async_load()
         migrated = False
         if not data:
             data = await self._legacy_store.async_load()
             migrated = data is not None
         if not data:
+            self._storage_writable = True
             return
         if data.get("version", STORAGE_VERSION) > STORAGE_VERSION:
-            _LOGGER.warning("Ignoring newer backwash tracker storage version")
-            return
+            raise ValueError("Newer backwash tracker storage version; preserving stored data")
         self.state = BackwashTrackerState.from_dict(data.get("state", data))
+        self._storage_writable = True
         if migrated:
             await self.async_save()
 
@@ -154,6 +157,8 @@ class BackwashTracker:
         return event_confirmed
 
     async def async_save(self) -> None:
+        if not self._storage_writable:
+            return
         await self._store.async_save(self.as_dict())
         self._dirty = False
 

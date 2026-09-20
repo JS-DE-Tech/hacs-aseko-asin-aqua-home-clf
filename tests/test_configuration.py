@@ -11,6 +11,8 @@ CONFIG_KEYS = {
     "CONF_CAPTURE_ENABLED",
     "CONF_MAX_CHLORINE",
     "CONF_WATER_LEVEL_OFFSET",
+    "CONF_WATER_LEVEL_ERROR_LABELS",
+    "CONF_TIME_CORRECTION_THRESHOLD_MINUTES",
 }
 
 
@@ -46,7 +48,7 @@ def test_default_forwarding_is_one_way_to_aseko_cloud():
     assert "_relay_cloud" not in coordinator
 
 
-def test_config_flow_schema_can_be_built(monkeypatch):
+def load_config_flow(monkeypatch):
     import importlib.util
     import sys
     import types
@@ -95,7 +97,11 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         module = importlib.util.module_from_spec(spec)
         monkeypatch.setitem(sys.modules, spec.name, module)
         spec.loader.exec_module(module)
-    built = sys.modules[f"{package.__name__}.config_flow"].schema()
+    return sys.modules[f"{package.__name__}.config_flow"]
+
+
+def test_config_flow_schema_can_be_built(monkeypatch):
+    built = load_config_flow(monkeypatch).schema()
     assert {marker.key for marker in built.schema} == {
         "listen_host",
         "listen_port",
@@ -106,6 +112,8 @@ def test_config_flow_schema_can_be_built(monkeypatch):
         "capture_enabled",
         "max_chlorine",
         "water_level_offset",
+        "water_level_error_labels",
+        "time_correction_threshold_minutes",
     }
 
 
@@ -118,6 +126,8 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     homeassistant = types.ModuleType("homeassistant")
     config_entries = types.ModuleType("homeassistant.config_entries")
     core = types.ModuleType("homeassistant.core")
+    ha_const = types.ModuleType("homeassistant.const")
+    ha_const.EVENT_HOMEASSISTANT_STOP = "homeassistant_stop"
     helpers = types.ModuleType("homeassistant.helpers")
     entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
     entity_registry.async_get = lambda hass: types.SimpleNamespace()
@@ -130,6 +140,8 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     const = types.ModuleType(f"{package.__name__}.const")
     const.CONFIG_ENTRY_VERSION = 2
     const.CONF_FORWARD_ENABLED = "forward_enabled"
+    const.CONF_TIME_CORRECTION_THRESHOLD_MINUTES = "time_correction_threshold_minutes"
+    const.CONF_WATER_LEVEL_ERROR_LABELS = "water_level_error_labels"
     const.CONF_WATER_LEVEL_OFFSET = "water_level_offset"
     const.DEFAULT_CAPTURE_ENABLED = False
     const.DEFAULT_FORWARD_ENABLED = True
@@ -139,10 +151,14 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     const.DEFAULT_LISTEN_PORT = 47524
     const.DEFAULT_MAX_CHLORINE = 20.0
     const.DEFAULT_PROTOCOL_DEBUG = False
+    const.DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES = 5
+    const.DEFAULT_WATER_LEVEL_ERROR_LABELS = False
     const.DEFAULT_WATER_LEVEL_OFFSET = 33
     const.DEVICE_IDENTIFIER = "asin_aqua_home"
     const.DOMAIN = "aseko_asin_aqua_home"
     const.LITERS_PER_HOUR_TO_MILLILITERS_PER_MINUTE = 1000 / 60
+    const.MAX_TIME_CORRECTION_THRESHOLD_MINUTES = 10
+    const.MIN_TIME_CORRECTION_THRESHOLD_MINUTES = 1
     const.PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "button"]
     coordinator = types.ModuleType(f"{package.__name__}.coordinator")
     coordinator.AsekoCoordinator = object
@@ -156,6 +172,7 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
 
     for name, module in {
         "homeassistant": homeassistant,
+        "homeassistant.const": ha_const,
         "homeassistant.config_entries": config_entries,
         "homeassistant.core": core,
         "homeassistant.helpers": helpers,
@@ -201,3 +218,25 @@ def test_config_entry_flow_rates_migrate_from_liters_per_hour_to_ml_min(monkeypa
     assert entry.data["listen_port"] == 47524
     assert entry.options["water_level_offset"] == 12
     assert updates
+
+
+def test_options_dialog_keeps_calibration_container_sizes_and_future_options(monkeypatch):
+    import asyncio
+    from copy import deepcopy
+    from types import SimpleNamespace
+
+    module = load_config_flow(monkeypatch)
+    original = {
+        "chlorine_flow_rate": 80.5, "chlorine_container_size": 25.0,
+        "ph_minus_flow_rate": 30.0, "ph_minus_container_size": 15.0,
+        "flocculation_flow_rate": 12.5, "flocculation_container_size": 6.0,
+        "algicide_flow_rate": 44.0, "algicide_container_size": 10.0,
+        "future_setting": "keep", "water_level_offset": 30,
+    }
+    entry = SimpleNamespace(options=deepcopy(original), data={"listen_port": 47524})
+    flow = module.OptionsFlow(entry)
+    flow.async_create_entry = lambda **kwargs: kwargs
+    result = asyncio.run(flow.async_step_init({"water_level_offset": 42, "forward_enabled": False}))
+    assert result["data"] == {**original, "water_level_offset": 42, "forward_enabled": False}
+    assert entry.options == original
+    assert entry.data == {"listen_port": 47524}

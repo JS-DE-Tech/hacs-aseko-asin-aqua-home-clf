@@ -43,6 +43,8 @@ def load_init_module(monkeypatch, registry):
     homeassistant = types.ModuleType("homeassistant")
     config_entries = types.ModuleType("homeassistant.config_entries")
     core = types.ModuleType("homeassistant.core")
+    ha_const = types.ModuleType("homeassistant.const")
+    ha_const.EVENT_HOMEASSISTANT_STOP = "homeassistant_stop"
     helpers = types.ModuleType("homeassistant.helpers")
     entity_registry = types.ModuleType("homeassistant.helpers.entity_registry")
     entity_registry.async_get = lambda hass: registry
@@ -54,6 +56,8 @@ def load_init_module(monkeypatch, registry):
     package.__path__ = [str(BASE)]
     const = types.ModuleType(f"{PACKAGE}.const")
     const.CONF_FORWARD_ENABLED = "forward_enabled"
+    const.CONF_TIME_CORRECTION_THRESHOLD_MINUTES = "time_correction_threshold_minutes"
+    const.CONF_WATER_LEVEL_ERROR_LABELS = "water_level_error_labels"
     const.CONF_WATER_LEVEL_OFFSET = "water_level_offset"
     const.DEFAULT_CAPTURE_ENABLED = False
     const.DEFAULT_FORWARD_ENABLED = True
@@ -63,6 +67,8 @@ def load_init_module(monkeypatch, registry):
     const.DEFAULT_LISTEN_PORT = 47524
     const.DEFAULT_MAX_CHLORINE = 20.0
     const.DEFAULT_PROTOCOL_DEBUG = False
+    const.DEFAULT_TIME_CORRECTION_THRESHOLD_MINUTES = 5
+    const.DEFAULT_WATER_LEVEL_ERROR_LABELS = False
     const.DEFAULT_WATER_LEVEL_OFFSET = 33
     const.DEVICE_IDENTIFIER = "asin_aqua_home"
     const.DOMAIN = "aseko_asin_aqua_home"
@@ -74,6 +80,7 @@ def load_init_module(monkeypatch, registry):
 
     for name, module in {
         "homeassistant": homeassistant,
+        "homeassistant.const": ha_const,
         "homeassistant.config_entries": config_entries,
         "homeassistant.core": core,
         "homeassistant.helpers": helpers,
@@ -93,71 +100,30 @@ def load_init_module(monkeypatch, registry):
     module = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(sys.modules, PACKAGE, module)
     spec.loader.exec_module(module)
-    module._known_semantic_entity_keys = lambda: (
-        ("sensor", "last_backwash"),
-        ("sensor", "chlorine_target"),
-    )
     return module
 
 
-def test_duplicated_prefix_registry_migration_renames_only_known_generated_ids(monkeypatch):
-    entries = {
-        "sensor.asin_aqua_home_asin_aqua_home_last_backwash": RegistryEntry(
-            "sensor.asin_aqua_home_asin_aqua_home_last_backwash",
-            "asin_aqua_home_last_backwash",
-        ),
-        "sensor.asin_aqua_home_asin_aqua_home_chlorine_target": RegistryEntry(
-            "sensor.asin_aqua_home_asin_aqua_home_chlorine_target",
-            "custom_unique_id",
-        ),
-        "sensor.user_customized_duplicate_name": RegistryEntry(
-            "sensor.user_customized_duplicate_name",
-            "asin_aqua_home_last_backwash",
-        ),
-    }
-    registry = Registry(entries)
+def test_setup_preserves_all_existing_entity_ids(monkeypatch):
+    from unittest.mock import AsyncMock, Mock
+
+    ids = (
+        "sensor.asin_aqua_home_asin_aqua_home_last_backwash",
+        "sensor.asin_aqua_home_last_backwash",
+        "sensor.asin_aqua_home_3",
+        "sensor.my_custom_pool_sensor",
+    )
+    registry = Registry({key: RegistryEntry(key, "asin_aqua_home_last_backwash") for key in ids})
     module = load_init_module(monkeypatch, registry)
-
-    asyncio.run(
-        module._async_migrate_duplicated_prefix_entity_ids(
-            types.SimpleNamespace(), types.SimpleNamespace(entry_id="entry-1")
-        )
-    )
-
-    assert registry.updates == [
-        (
-            "sensor.asin_aqua_home_asin_aqua_home_last_backwash",
-            {"new_entity_id": "sensor.asin_aqua_home_last_backwash"},
-        )
-    ]
-    assert "sensor.asin_aqua_home_last_backwash" in registry.entries
-    assert (
-        registry.entries["sensor.asin_aqua_home_last_backwash"].unique_id
-        == "asin_aqua_home_last_backwash"
-    )
-    assert "sensor.asin_aqua_home_asin_aqua_home_chlorine_target" in registry.entries
-    assert "sensor.user_customized_duplicate_name" in registry.entries
-
-
-def test_duplicated_prefix_registry_migration_skips_existing_target(monkeypatch, caplog):
-    entries = {
-        "sensor.asin_aqua_home_asin_aqua_home_last_backwash": RegistryEntry(
-            "sensor.asin_aqua_home_asin_aqua_home_last_backwash",
-            "asin_aqua_home_last_backwash",
-        ),
-        "sensor.asin_aqua_home_last_backwash": RegistryEntry(
-            "sensor.asin_aqua_home_last_backwash",
-            "asin_aqua_home_last_backwash_2",
-        ),
-    }
-    registry = Registry(entries)
-    module = load_init_module(monkeypatch, registry)
-
-    asyncio.run(
-        module._async_migrate_duplicated_prefix_entity_ids(
-            types.SimpleNamespace(), types.SimpleNamespace(entry_id="entry-1")
-        )
-    )
-
+    coordinator = types.SimpleNamespace(async_start=AsyncMock(), async_stop=AsyncMock())
+    module.AsekoCoordinator = lambda *args: coordinator
+    entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={},
+                                  async_on_unload=lambda listener: None,
+                                  add_update_listener=lambda listener: None)
+    register_stop = Mock()
+    hass = types.SimpleNamespace(data={}, bus=types.SimpleNamespace(async_listen_once=register_stop), config_entries=types.SimpleNamespace(
+        async_forward_entry_setups=AsyncMock()))
+    assert asyncio.run(module.async_setup_entry(hass, entry)) is True
     assert registry.updates == []
-    assert "target entity ID already exists" in caplog.text
+    assert tuple(registry.entries) == ids
+    assert all(key == value.entity_id for key, value in registry.entries.items())
+    register_stop.assert_called_once_with("homeassistant_stop", coordinator.async_stop)

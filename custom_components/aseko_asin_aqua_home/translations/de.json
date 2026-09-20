@@ -13,7 +13,9 @@
           "protocol_debug": "Protokoll-Debug-Logging aktivieren",
           "capture_enabled": "Temporäre Protokolldiagnose erfassen",
           "max_chlorine": "Maximal plausibler Chlorwert",
-          "water_level_offset": "Wasserstand Offset"
+          "water_level_offset": "Wasserstand Offset",
+          "water_level_error_labels": "Pufferbehälter-Störungen als Wasserstand anzeigen",
+          "time_correction_threshold_minutes": "Schwellwert für Uhrzeitkorrektur"
         }
       }
     }
@@ -31,7 +33,9 @@
           "protocol_debug": "Protokoll-Debug-Logging aktivieren",
           "capture_enabled": "Temporäre Protokolldiagnose erfassen",
           "max_chlorine": "Maximal plausibler Chlorwert",
-          "water_level_offset": "Wasserstand Offset"
+          "water_level_offset": "Wasserstand Offset",
+          "water_level_error_labels": "Pufferbehälter-Störungen als Wasserstand anzeigen",
+          "time_correction_threshold_minutes": "Schwellwert für Uhrzeitkorrektur"
         }
       }
     }
@@ -64,9 +68,6 @@
       },
       "time_deviation": {
         "name": "Zeitabweichung"
-      },
-      "set_time_recommended": {
-        "name": "Uhrzeitkorrektur empfohlen"
       },
       "ph_target": {
         "name": "pH-Sollwert"
@@ -136,6 +137,15 @@
       },
       "max_ph_doses": {
         "name": "Maximale Anzahl pH-Dosierungen"
+      },
+      "error_status": {
+        "name": "Störungsstatus"
+      },
+      "warning_byte": {
+        "name": "Warnungsbyte"
+      },
+      "warning_byte_binary": {
+        "name": "Warnungsbyte binär"
       },
       "error_byte": {
         "name": "Fehlerbyte"
@@ -244,6 +254,70 @@
       },
       "last_backwash": {
         "name": "Letzte Rückspülung"
+      },
+      "chlorine_remaining_days": {
+        "name": "Chlor Voraussichtliche Resttage"
+      },
+      "chlorine_forecast_status": {
+        "name": "Chlor Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "ph_minus_remaining_days": {
+        "name": "pH-Minus Voraussichtliche Resttage"
+      },
+      "ph_minus_forecast_status": {
+        "name": "pH-Minus Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "flocculation_remaining_days": {
+        "name": "Flockungsmittel Voraussichtliche Resttage"
+      },
+      "flocculation_forecast_status": {
+        "name": "Flockungsmittel Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "algicide_remaining_days": {
+        "name": "Algizid Voraussichtliche Resttage"
+      },
+      "algicide_forecast_status": {
+        "name": "Algizid Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
       }
     },
     "binary_sensor": {
@@ -262,6 +336,12 @@
       "error_buffer_tank_overflow": {
         "name": "Störung: Pufferbehälter übergelaufen"
       },
+      "error_water_level_too_low": {
+        "name": "Störung: Wasserstand zu niedrig"
+      },
+      "error_water_level_too_high": {
+        "name": "Störung: Wasserstand zu hoch"
+      },
       "error_low_filling_speed": {
         "name": "Störung: Nachfüllgeschwindigkeit zu gering"
       },
@@ -270,6 +350,9 @@
       },
       "error_chlorine_doses_without_change": {
         "name": "Störung: Chlordosierungen ohne Änderung"
+      },
+      "error_rapid_ph_change": {
+        "name": "Störung: Zu schnelle pH-Wert-Änderung"
       },
       "relay_backwash": {
         "name": "Relais: Rückspülung"
@@ -306,11 +389,20 @@
       },
       "status_open_menu": {
         "name": "Status: Menü geöffnet"
+      },
+      "status_nonstop_24h": {
+        "name": "Status: 24h NONSTOP"
+      },
+      "status_timer": {
+        "name": "Status: Timer"
       }
     },
     "number": {
       "water_level_offset": {
         "name": "Wasserstand Offset"
+      },
+      "time_correction_threshold_minutes": {
+        "name": "Schwellwert für Uhrzeitkorrektur"
       },
       "chlorine_container_size": {
         "name": "Chlor Kanistergröße"
