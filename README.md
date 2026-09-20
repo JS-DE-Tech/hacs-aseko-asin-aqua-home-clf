@@ -21,23 +21,54 @@ or Node-RED and exposes push-updated sensors and binary sensors.
 ## Example Home Assistant dashboard
 
 The integration exposes the ASEKO ASIN AQUA Home values as standard Home
-Assistant entities. These entities can be combined in a dashboard to provide a
-clear overview of the pool status, water values, relay states, dosing-container
-levels, and recent maintenance activity.
+Assistant entities. They can be used in a custom dashboard together with data
+from other pool components to provide a complete overview of water chemistry,
+dosing containers, temperatures, water level, circulation, filtration, heating,
+and maintenance activity.
 
-The following screenshot shows one possible dashboard layout:
+### Desktop view
 
 <p align="center">
-  <img
-    src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/aseko_dashboard.png"
-    alt="Example Home Assistant dashboard for ASEKO ASIN AQUA Home"
-    width="420">
+  <a href="docs/images/homeassistant_dashboard.png">
+    <img
+      src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/homeassistant_dashboard.png"
+      alt="Desktop Home Assistant pool dashboard with ASEKO ASIN AQUA Home data"
+      width="900">
+  </a>
 </p>
 
-The dashboard shown above is only an example. The integration does not install a
-preconfigured dashboard automatically. Users can build their own dashboard from
-the exposed Home Assistant entities and adapt the layout to their individual
-requirements.
+### Mobile view
+
+<p align="center">
+  <a href="docs/images/homeassistant_mobil1.png">
+    <img
+      src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/homeassistant_mobil1.png"
+      alt="Mobile Home Assistant pool dashboard overview"
+      width="390">
+  </a>
+  <a href="docs/images/homeassistant_mobil2.png">
+    <img
+      src="https://raw.githubusercontent.com/JS-DE-Tech/hacs-aseko-asin-aqua-home-clf/main/docs/images/homeassistant_mobil2.png"
+      alt="Mobile Home Assistant pool dashboard technical details"
+      width="390">
+  </a>
+</p>
+
+The ASEKO integration supplies the controller values used in these examples,
+including water chemistry, ASIN temperatures, water level, relay states, dosing
+container estimates, and maintenance data. The pump, BESGO pressure reserve,
+filter pressure and filtered-water volume, heating system, and BADU FlowSonic
+Plus require additional sensors or integrations. Their entity IDs and any
+templates must be adapted to the individual installation. If a required entity
+is unavailable, the corresponding dashboard field should display
+`unavailable` or be hidden.
+
+For a local Home Assistant connection of the **BADU FlowSonic Plus** through an
+ifm AL1350/AL1352 IO-Link master, see
+[JS-DE-Tech/hacs-ifm-io-link-master-al13xx-iot](https://github.com/JS-DE-Tech/hacs-ifm-io-link-master-al13xx-iot).
+
+These screenshots show one possible custom layout. This integration does not
+install a preconfigured dashboard automatically.
 
 ## Installation
 1. In HACS, add this GitHub repository as a **Custom repository** with category **Integration**.
