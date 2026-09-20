@@ -1,0 +1,1320 @@
+/* Pool Cockpit Lovelace Card 2.7.9 — Techniküberschrift und Filterdruckdetails */
+const POOL_COCKPIT_CSS=":host{display:block}\n:host,ha-card,.poolc{overflow-anchor:none!important}\nha-card{background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}\n.poolc{container-type:inline-size;--ink:#edf5fa;--muted:#879eae;--line:#223540;--accent:#5bd8d0;font-family:Inter,\"Segoe UI\",system-ui,sans-serif;color:var(--ink);font-size:14px;line-height:1.5;background:#0b151e;border:1px solid #223340;border-radius:24px;width:100%;max-width:1440px;margin:24px auto;isolation:isolate;box-shadow:0 22px 70px #0002;font-weight:400}.poolc *{box-sizing:border-box}.poolc h1,.poolc h2,.poolc h3,.poolc p{margin:0;color:inherit;font-family:inherit}.poolc button,.poolc input,.poolc a{font:inherit}.poolc button{cursor:pointer}.poolc button:disabled{cursor:not-allowed;opacity:.55}.poolc button:focus-visible,.poolc a:focus-visible,.poolc input:focus-visible,.poolc summary:focus-visible{outline:2px solid #79e6e0;outline-offset:4px}.poolc svg{display:block}.poolc [hidden]{display:none!important}.poolc-shell{padding:29px 37px 20px;max-width:1360px;margin:auto}.poolc-top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:24px;gap:16px}.poolc-brand{display:flex;align-items:center;gap:12px;font-size:15px;letter-spacing:2px;font-weight:700}.poolc-mark{display:grid;place-items:center;width:41px;height:41px;border-radius:12px;background:#16353c;border:1px solid #29535a;color:#81dce0}.poolc-mark svg{width:25px;height:25px;stroke:currentColor;stroke-width:1.5;fill:none}.poolc-brand-small{display:block;font-size:8px;letter-spacing:3px;font-weight:400;color:#73909f;margin-top:2px}.poolc-top-right{display:flex;align-items:center;gap:18px}.poolc-connection{font-size:11px;color:#b4b19b;display:flex;align-items:center;gap:7px}.poolc-connection:before{content:'';width:6px;height:6px;background:#c6b17a;border-radius:50%}.poolc-connection[data-good=yes]{color:#99cbbd}.poolc-connection[data-good=yes]:before{background:#75cdab;box-shadow:0 0 10px #75cdab35}.poolc-icon-button{width:34px;height:34px;border:1px solid #29404b;background:#11232d;color:#9bb6c5;border-radius:9px;display:grid;place-items:center;padding:8px}.poolc-icon-button svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.6;fill:none}.poolc-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:34px 0 28px}.poolc-eyebrow{font-size:9px;color:#819eac;letter-spacing:2.3px;font-weight:600}.poolc-eyebrow span{color:#4f6875;margin:0 8px}.poolc h1{font-size:45px;line-height:1.1;letter-spacing:-1.7px;font-weight:550;margin-top:14px}.poolc h1 span{color:#8ca4b4}.poolc-intro p{font-size:12px;color:#7c94a5;margin-top:13px}.poolc-intro-state{text-align:right;margin-bottom:5px;display:grid;gap:5px}.poolc-tiny{font-size:8px;font-weight:500;letter-spacing:1.4px;color:#76909f}.poolc-intro-state strong{font-size:18px;font-weight:450;color:#a0ded0}.poolc-intro-state small{font-size:10px;color:#718a9c}.poolc-notice{background:#252c29;border:1px solid #414b39;border-radius:8px;color:#bfcaac;padding:10px 14px;font-size:11px;margin-bottom:25px}.poolc-section{margin-top:29px}.poolc-section-title{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}.poolc-section-title h2{font-size:17px;font-weight:500;letter-spacing:-.25px}.poolc-section-title h2>span{color:#527587;font-size:10px;font-weight:400;margin-right:11px}.poolc-section-title>span{font-size:8px;color:#617e90;letter-spacing:1.6px}.poolc-card{border:1px solid #253944;border-radius:14px;background:linear-gradient(135deg,#13232e,#10202a);padding:20px;min-width:0}.poolc-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.poolc-card-top h3{font-size:13px;font-weight:550;letter-spacing:-.1px;display:flex;align-items:center;gap:10px}.poolc-card-top>svg,.poolc-card-top h3 svg{width:19px;height:19px;stroke:var(--accent);stroke-width:1.5;fill:none}.poolc-water-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.poolc-value-card{position:relative;overflow:hidden}.poolc-value-card:after{content:'';position:absolute;width:100px;height:100px;background:radial-gradient(circle,var(--accent),transparent 68%);opacity:.035;right:-25px;top:-20px;pointer-events:none}.poolc-big{display:flex;align-items:baseline;gap:7px;margin-top:21px}.poolc-big strong{font-size:43px;letter-spacing:-1.5px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums}.poolc-big small{font-size:12px;color:#7491a3}.poolc-comparison{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:9px;font-size:9px;color:#84a1b1}.poolc-comparison b{font-weight:500;color:#adc6d3}.poolc-comparison>span:last-child:not(:first-child){font-size:8px;color:#809298}.poolc-value-track,.poolc-temperature-line{height:3px;background:#2a3c43;border-radius:3px;margin-top:14px;overflow:hidden}.poolc-value-track i,.poolc-temperature-line i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .6s}.poolc-card-caption{font-size:9px;color:#698a9c;margin-top:9px!important}.poolc-card-caption b{font-weight:500}.poolc-level-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}.poolc-level-inner .poolc-big{margin-top:13px}.poolc-level-inner p{font-size:9px;color:#8ca1ac;margin-top:10px;max-width:116px}.poolc-level-inner small{font-size:9px;color:#678397;display:block;margin-top:6px}.poolc-level-vessel{position:relative;width:32px;height:124px;background:#0a1a24;border:1px solid #355462;border-radius:6px;overflow:hidden;flex-shrink:0}.poolc-level-vessel>[data-role=level-fill]{position:absolute;width:100%;bottom:0;background:linear-gradient(180deg,#5fbfcbd0,#286c9a80);border-top:2px solid #9ee9e6;transition:height .7s}.poolc-level-vessel:after{content:'';position:absolute;left:5px;top:9px;bottom:9px;width:2px;background:#b6e9f522;border-radius:3px}.poolc-level-vessel i{position:absolute;right:0;width:100%;border-top:1px dashed #dfc196a0}.poolc-mini-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}.poolc-mini{display:flex;align-items:center;gap:15px;padding:17px 19px;background:#101e27}.poolc-mini>svg{width:24px;height:24px;stroke:#669fb1;stroke-width:1.3;fill:none;flex-shrink:0}.poolc-mini h3{font-size:9px;color:#8aa4b3;font-weight:500;margin-bottom:4px}.poolc-mini strong{font-size:21px;font-weight:450;letter-spacing:-.5px}.poolc-mini small{font-size:9px;color:#668699;margin-left:5px}.poolc-chem-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.poolc-chem{padding:21px 20px 16px;position:relative;background:linear-gradient(155deg,#172631,#0e1c27);overflow:hidden}.poolc-chem-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 12%,transparent)}.poolc-chem .poolc-card-top p{font-size:9px;margin-top:4px;color:#7391a2}.poolc-canister-wrap{margin:13px auto 8px;max-width:176px}.poolc-canister{width:100%;height:222px;overflow:visible}.poolc-liquid-wave{animation:poolc-wave 5s linear infinite;transform-origin:center}.poolc-chem:nth-child(2) .poolc-liquid-wave{animation-duration:6s}.poolc-chem:nth-child(3) .poolc-liquid-wave{animation-duration:7s}.poolc-quantity{text-align:center;font-size:12px;color:#7190a3;margin:3px 0 19px}.poolc-quantity>strong{font-size:25px;font-weight:450;letter-spacing:-.5px;color:#e4eef5}.poolc-chem-details{display:flex;justify-content:space-between;gap:8px;font-size:9px;margin-top:8px;color:#68899d}.poolc-chem-details strong{font-size:11px;font-weight:500;color:var(--accent)}.poolc-chem-details>span:last-child{color:#91a9b7;text-align:right}.poolc-last-change{border-top:1px solid #253742;margin-top:13px!important;padding-top:10px;font-size:8px;color:#607f94}.poolc-low{border-color:#8c6550}.poolc-footnote{font-size:9px;line-height:1.7;color:#688393;margin-top:12px!important}.poolc-tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.poolc-heating,.poolc-pressure{padding:22px 24px}.poolc-pill{font-size:9px;background:#1d303b;border:1px solid #334a56;padding:5px 8px;border-radius:5px;color:#b3c9d4;white-space:nowrap}.poolc-heating-line{font-size:11px;color:#7293a7;margin-top:17px!important}.poolc-heating-stats{display:flex;align-items:center;gap:30px;margin:17px 0 19px}.poolc-heating-stats>span{font-size:9px;color:#69899c}.poolc-heating-stats strong{display:block;font-size:22px;font-weight:450;letter-spacing:-.5px;color:#d7e9f3;margin-top:4px}.poolc-heating-stats b{font-weight:450}.poolc-heating-stats .poolc-arrow{font-size:21px;color:#3d667a}.poolc-switch-buttons{display:flex;gap:8px}.poolc-switch-buttons button,.poolc-login{border:1px solid #34515e;background:#10232d;color:#a7bfcd;border-radius:7px;padding:11px 14px;font-size:11px;flex:1;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none}.poolc-switch-buttons button.selected{background:#284954;border-color:#417280;color:#cef3f3;opacity:1}.poolc-switch-buttons svg,.poolc-login svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none}.poolc-switch-buttons button:not(:disabled):hover{background:#234755}.poolc-command-note{font-size:9px;color:#728da0;min-height:34px;margin-top:11px;line-height:1.6}.poolc-status-list{display:flex;flex-wrap:wrap;gap:10px 20px;border-top:1px solid #263d4a;padding-top:14px;margin-top:4px;color:#698a9e;font-size:9px}.poolc-status-list b{color:#95aeba;font-weight:450;margin-left:8px}.poolc-pressure-metrics{display:flex;gap:50px;margin-top:23px}.poolc-pressure-metrics>div{min-width:0}.poolc-pressure-metrics span{font-size:9px;color:#7293a7}.poolc-pressure-metrics strong{display:flex;align-items:baseline;gap:7px;font-size:32px;font-weight:450;letter-spacing:-1px;line-height:1.3;margin-top:4px;overflow-wrap:anywhere}.poolc-pressure-metrics b{font-weight:450}.poolc-pressure-metrics small{font-size:12px;color:#6b8e9d}.poolc-accent{color:#8be0d3}.poolc-pressure-track{height:5px;background:#30414b;border-radius:5px;position:relative;margin:16px 0 10px}.poolc-pressure-track>i{height:100%;border-radius:5px;display:block;width:0;background:linear-gradient(90deg,#2d7684,#92e2d3);transition:width .6s}.poolc-pressure-track>span{position:absolute;top:-3px;width:2px;height:11px;background:#e4bf7a}.poolc-pressure-caption{display:flex;justify-content:space-between;gap:10px;font-size:9px;color:#83a5b6}.poolc-pressure-caption>span:last-child{color:#67879b}.poolc-params{display:flex;gap:14px;margin-top:22px}.poolc-params label{font-size:9px;color:#718f9f;flex:1;min-width:0}.poolc-params label>div{display:flex;align-items:center;justify-content:space-between;border:1px solid #2e4654;background:#0b1b25;border-radius:6px;margin-top:7px;padding:6px 11px}.poolc-params input{width:100%;min-width:0;background:transparent;color:#cfdee7;border:0;padding:3px 0;font-size:15px;outline:none}.poolc-params input[aria-invalid=true]{color:#f2b091}.poolc-params input:focus-visible{outline:none}.poolc-params label>div:focus-within{outline:1px solid #60b5b8}.poolc-params label>div>span{font-size:9px;color:#7391a3}.poolc-energy{border:1px solid #203541;border-radius:11px;background:#0d1c26;margin-top:17px;padding:16px 21px}.poolc-energy summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:11px;color:#9fbac9}.poolc-energy summary::-webkit-details-marker{display:none}.poolc-energy summary>span:first-child{display:flex;gap:10px;align-items:center}.poolc-energy summary>span:last-child{color:#587d94;font-size:9px}.poolc-energy svg{width:16px;height:16px;stroke:#77a8b6;stroke-width:1.5;fill:none}.poolc-energy-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:23px}.poolc-energy-grid>div{display:grid;grid-template-columns:22px 1fr;gap:5px 9px;font-size:10px;color:#7695a6}.poolc-energy-grid svg{grid-row:span 2}.poolc-energy-grid strong{font-size:18px;font-weight:500;color:#cce0ec}.poolc-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid #20333f;margin-top:29px;padding-top:17px;font-size:8px;color:#536f83}.poolc-footer>span:first-child{display:flex;gap:7px;align-items:center}.poolc-footer svg{width:12px;height:12px;stroke:#537382;stroke-width:1.5;fill:none}.poolc-footer>span:last-child{letter-spacing:.8px}.poolc-footer>span:last-child>span{margin:0 9px}.poolc-stale .poolc-connection{color:#dfb389}.poolc-loading{padding:25px}.poolc-dialog{background:#132631;border:1px solid #36515e;border-radius:16px;max-width:440px;width:calc(100% - 32px);padding:28px;color:#d8e9f2;box-shadow:0 15px 80px #0009}.poolc-dialog::backdrop{background:#051019b8;backdrop-filter:blur(3px)}.poolc-dialog h2{font-size:24px;font-weight:500;line-height:1.25;margin-top:13px}.poolc-dialog p{font-size:12px;line-height:1.8;margin-top:14px;color:#91aab9}.poolc-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:23px}.poolc-dialog-actions button{padding:10px 15px;border:1px solid #385762;border-radius:7px;background:#162e39;color:#b4cfda;font-size:12px}.poolc-dialog-actions button.poolc-primary{background:#82d8cd;color:#0a3638;border-color:#82d8cd}.poolc a:hover{color:#d9fbff}\n@keyframes poolc-wave{from{transform:translateX(0)}to{transform:translateX(100px)}}\n@container(max-width:1100px){.poolc-shell{padding:25px}.poolc-water-grid,.poolc-chem-grid{gap:12px}.poolc-card{padding:17px}.poolc-big strong{font-size:34px}.poolc-mini{padding:15px 12px;gap:10px}.poolc-mini small{display:block;margin-left:0}.poolc-level-vessel{width:27px}.poolc-level-inner{gap:8px}.poolc-card-top h3{font-size:11px}.poolc-canister{height:202px}.poolc-chem-details{font-size:8px}.poolc-quantity{font-size:10px}.poolc-chem-details strong{font-size:10px}.poolc-pressure-metrics{gap:38px}.poolc-comparison{flex-wrap:wrap}.poolc-heating,.poolc-pressure{padding:22px}}\n@container(max-width:850px){.poolc-water-grid,.poolc-chem-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poolc-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poolc-tech-grid{grid-template-columns:1fr}.poolc-canister{height:230px}.poolc-card-top h3{font-size:13px}.poolc-big strong{font-size:42px}.poolc-chem-details{font-size:10px}.poolc-chem-details strong{font-size:12px}.poolc-last-change{font-size:9px}.poolc h1{font-size:40px}.poolc-intro-state strong{font-size:14px}.poolc-intro-state small{font-size:9px}.poolc-heating-stats{gap:50px}.poolc-pressure-metrics{gap:80px}.poolc-mini small{display:inline-block;margin-left:7px}.poolc-quantity{font-size:12px}.poolc-level-vessel{width:35px}.poolc-intro-state{max-width:180px}}\n@container(max-width:520px){.poolc{border-radius:15px;margin:12px auto}.poolc-shell{padding:19px 14px 17px}.poolc-top{padding-bottom:18px}.poolc-brand{font-size:12px;gap:9px;letter-spacing:1.7px}.poolc-mark{width:33px;height:33px;border-radius:9px}.poolc-mark svg{width:22px;height:22px}.poolc-brand-small{font-size:6px;letter-spacing:2.3px}.poolc-top-right{gap:8px}.poolc-connection{font-size:8px;gap:4px;max-width:105px}.poolc-connection:before{width:4px;height:4px;flex-shrink:0}.poolc-icon-button{width:29px;height:29px;padding:6px}.poolc-intro{margin:28px 0 22px;display:block}.poolc-eyebrow{font-size:8px;letter-spacing:1.5px}.poolc h1{font-size:39px;margin-top:13px}.poolc-intro p{font-size:10px;max-width:260px}.poolc-intro-state{text-align:left;margin-top:21px;max-width:none;border-left:2px solid #285361;padding-left:12px;gap:3px}.poolc-intro-state strong{font-size:13px}.poolc-tiny{font-size:7px}.poolc-intro-state small{font-size:8px}.poolc-notice{font-size:9px;padding:10px 11px;line-height:1.7}.poolc-section{margin-top:23px}.poolc-section-title{gap:8px;margin-bottom:12px}.poolc-section-title h2{font-size:14px}.poolc-section-title h2>span{font-size:8px;margin-right:7px}.poolc-section-title>span{display:none}.poolc-water-grid,.poolc-chem-grid,.poolc-mini-grid{gap:10px}.poolc-card{padding:15px 12px;border-radius:11px}.poolc-card-top h3{font-size:11px}.poolc-card-top>svg{width:16px;height:16px}.poolc-big{gap:5px;margin-top:20px}.poolc-big strong{font-size:35px}.poolc-big small{font-size:10px}.poolc-comparison{font-size:8px;gap:5px;min-height:26px;align-content:start}.poolc-comparison>span:last-child:not(:first-child){font-size:7px}.poolc-card-caption{font-size:8px}.poolc-level-inner{gap:5px;margin-top:10px}.poolc-level-inner p,.poolc-level-inner small{font-size:7px;max-width:85px}.poolc-level-vessel{width:23px;height:111px}.poolc-level-inner .poolc-big strong{font-size:31px}.poolc-mini{gap:10px;padding:14px 11px}.poolc-mini>svg{width:20px;height:20px}.poolc-mini h3{font-size:8px}.poolc-mini strong{font-size:18px}.poolc-mini small{display:block;font-size:8px;margin-left:0}.poolc-chem{padding:17px 12px 13px}.poolc-chem .poolc-card-top h3{font-size:11px}.poolc-chem .poolc-card-top p{font-size:8px}.poolc-chem-dot{width:5px;height:5px;flex-shrink:0}.poolc-canister-wrap{margin:5px -4px 0}.poolc-canister{height:201px}.poolc-quantity{font-size:10px;margin-bottom:16px;white-space:nowrap}.poolc-quantity>strong{font-size:22px}.poolc-chem-details{font-size:8px;gap:5px;align-items:baseline;flex-wrap:wrap}.poolc-chem-details strong{font-size:10px}.poolc-last-change{font-size:7px;line-height:1.7;min-height:33px}.poolc-footnote{font-size:8px;line-height:1.8}.poolc-heating,.poolc-pressure{padding:20px 17px}.poolc-pill{font-size:8px;padding:4px 6px}.poolc-heating-line{font-size:10px}.poolc-heating-stats{gap:30px}.poolc-heating-stats strong{font-size:22px}.poolc-switch-buttons button,.poolc-login{padding:11px 8px;font-size:10px}.poolc-command-note{font-size:8px}.poolc-status-list{font-size:8px;display:grid;gap:8px}.poolc-status-list>span{display:flex;justify-content:space-between}.poolc-pressure-metrics{gap:45px}.poolc-pressure-metrics strong{font-size:32px}.poolc-pressure-caption{font-size:8px}.poolc-params{gap:10px}.poolc-params label{font-size:8px}.poolc-energy{padding:15px 14px}.poolc-energy summary{font-size:10px}.poolc-energy summary>span:last-child{font-size:8px;max-width:110px;text-align:right}.poolc-energy-grid{grid-template-columns:1fr 1fr;gap:20px}.poolc-footer{font-size:7px;align-items:start;gap:15px}.poolc-footer>span:last-child{max-width:115px;text-align:right;line-height:1.7;letter-spacing:.3px}.poolc-footer>span:first-child{max-width:170px}.poolc-card-top h3 svg{width:17px;height:17px}}\n@container(max-width:355px){.poolc-shell{padding:17px 10px}.poolc-canister{height:179px}.poolc-big strong{font-size:30px}.poolc-card-top h3{font-size:10px}.poolc-quantity>strong{font-size:19px}.poolc-chem .poolc-card-top h3{font-size:10px}.poolc-level-vessel{width:19px}.poolc-level-inner .poolc-big strong{font-size:25px}.poolc-top-right{gap:5px}.poolc-connection{max-width:80px;font-size:7px}.poolc-pressure-metrics{gap:30px}.poolc-status-list{font-size:7px}}\n@media(prefers-reduced-motion:reduce){.poolc *{animation:none!important;transition:none!important}}\n/* 2.1: technische Illustrationen, bewusst ohne Bildhintergründe */\n.poolc-circulation-grid{display:grid;grid-template-columns:1.5fr 1fr 1.1fr;gap:14px;margin-top:14px}.poolc-flow-device{width:100%;display:block;margin:7px 0}.poolc-flow-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px}.poolc-flow-bottom strong{font-size:26px;font-weight:450}.poolc-flow-bottom small{font-size:12px;color:#7393a5}.poolc-flow-bottom>span{font-size:9px;color:#82b6c0;text-align:right}.poolc-gauge{width:100%;max-height:193px;display:block}.poolc-gauge text{font-family:inherit}.poolc-gauge-legend{display:flex;justify-content:space-between;gap:8px;font-size:9px;color:#a2b8c5}.poolc-gauge-legend i{display:inline-block;height:10px;border-left:2px solid #ff6474;margin-right:4px;vertical-align:middle}.poolc-danger{border-color:#d16369!important}.poolc-danger [data-role=filter-note]{color:#f4a3a4}.poolc-dose-row{display:flex;gap:24px;justify-content:flex-end;padding:12px 3px 0;font-size:10px;color:#7193a7}.poolc-dose-row b{color:#bad2dd;margin-left:8px;font-weight:500}.poolc-power-line{height:4px;background:linear-gradient(90deg,#edcb62,#4b5050);margin:19px 0 8px;border-radius:5px}.poolc-bubbles{animation:poolc-bubbles var(--flow-duration,2s) linear infinite}.poolc[data-flow=stopped] .poolc-bubbles,.poolc[data-flow=stopped] .poolc-route-bubbles,.poolc[data-flow=stopped] .poolc-media-flow{animation-play-state:paused!important}.poolc-level-assembly{position:relative;padding-right:66px;flex-shrink:0}.poolc .poolc-level-vessel{width:35px;height:159px;border-radius:7px}.poolc-level-inner{margin-top:22px;gap:10px}.poolc-level-inner .poolc-big{margin-top:0}.poolc-level-assembly [data-role=level-marks]{position:absolute;inset:0;pointer-events:none}.poolc-level-assembly i{position:absolute;left:0;width:40px;border-top:2px solid var(--mark)}.poolc-level-assembly i span{position:absolute;left:44px;top:-6px;white-space:nowrap;font-style:normal;font-size:9px;color:var(--mark)}.poolc-level-mode{display:block;margin-top:16px;color:#a3d9db;font-size:10px}.poolc-pressure-overview{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:12px;margin-top:8px}.poolc-pressure-overview .poolc-pressure-metrics{display:block;margin:0}.poolc-pressure-overview .poolc-pressure-metrics>div:first-child{display:none}.poolc-pressure-metrics strong{font-size:49px}.poolc-pressure-track{margin-top:4px}.poolc-besgo-card{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;padding:26px 32px}.poolc-besgo-text h3{font-size:28px;font-weight:450;letter-spacing:-.8px;margin:12px 0 22px}.poolc-besgo-text>p:not(.poolc-footnote){font-size:12px;line-height:1.8;color:#aac5d3;margin-top:19px}.poolc-besgo-text>.poolc-footnote{max-width:355px}.poolc-besgo-svg{width:100%;max-height:340px;overflow:visible}.poolc-pipe-base{fill:none;stroke:#304957;stroke-width:16;stroke-linejoin:round}.poolc-water-route{fill:none;stroke:#367b9b;stroke-width:10;stroke-linejoin:round;opacity:.22}.poolc-route-bubbles{fill:none;stroke:#e6faff;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:1 19;opacity:0;animation:poolc-route var(--flow-duration,2s) linear infinite}.poolc[data-mode=filter] :is(.poolc-route-pump,.poolc-route-top,.poolc-route-bottom,.poolc-route-pool),.poolc[data-mode=backwash] :is(.poolc-route-pump,.poolc-route-top,.poolc-route-bottom,.poolc-route-waste){opacity:.8}.poolc[data-mode=backwash] .poolc-route-top,.poolc[data-mode=backwash] .poolc-route-bottom{animation-direction:reverse}.poolc-cylinder{transition:transform 1.1s ease;transform:translateY(0)}.poolc[data-mode=unknown] .poolc-cylinder,.poolc[data-mode=stale] .poolc-cylinder{opacity:.25}.poolc-media-flow{animation:poolc-media 1.6s linear infinite}.poolc[data-mode=backwash] .poolc-media-flow{animation-direction:reverse}.poolc[data-mode=unknown] .poolc-media-flow,.poolc[data-mode=stale] .poolc-media-flow{opacity:0}.poolc-demo-tools{margin-top:23px;padding:15px;background:#0b1b25;border:1px solid #2b4452;border-radius:9px}.poolc-demo-tools>span{font-size:10px;color:#b3ccda}.poolc-demo-tools>div{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.poolc-demo-tools button{border:1px solid #385365;border-radius:5px;background:#17313e;color:#b4d5df;font-size:10px;padding:7px 9px}.poolc-demo-tools button:hover,.poolc-demo-tools button[aria-pressed=true]{background:#28505d;border-color:#7bb4bf}.poolc-demo-tools label{display:flex;align-items:center;gap:12px;font-size:10px;color:#86a5b6}.poolc-demo-tools input{flex:1;min-width:0;accent-color:#79c9cd}.poolc-demo-tools small{display:block;color:#6b879a;font-size:9px;line-height:1.7;margin-top:8px}.poolc-stale .poolc-liquid-wave{animation-play-state:paused}.poolc [hidden]{display:none!important}\n@keyframes poolc-bubbles{to{transform:translateX(96px)}}@keyframes poolc-route{to{stroke-dashoffset:-60}}@keyframes poolc-media{to{stroke-dashoffset:-30}}\n@container(max-width:1100px){.poolc-circulation-grid{grid-template-columns:1.2fr 1fr 1.15fr;gap:12px}.poolc-level-inner .poolc-big strong{font-size:27px}.poolc-level-assembly{padding-right:58px}.poolc-level-assembly i span{font-size:8px}.poolc .poolc-level-vessel{width:28px}.poolc-level-assembly i{width:33px}.poolc-level-assembly i span{left:37px}.poolc-flow-bottom{flex-wrap:wrap}.poolc-gauge-legend{flex-wrap:wrap}}\n@container(max-width:850px){.poolc-circulation-grid{grid-template-columns:1fr 1fr}.poolc-flow-card{grid-column:span 2}.poolc-flow-device{max-height:190px}.poolc-besgo-card{padding:24px;gap:14px}.poolc-besgo-text h3{font-size:23px}.poolc .poolc-level-vessel{height:151px}.poolc-level-inner .poolc-big strong{font-size:32px}.poolc-pressure-overview{grid-template-columns:180px 1fr}.poolc-pressure-metrics strong{font-size:48px}}\n@container(max-width:520px){.poolc-circulation-grid{grid-template-columns:1fr;gap:10px}.poolc-flow-card{grid-column:auto}.poolc-filter-card{padding:19px 23px}.poolc-level-card{padding:20px 24px}.poolc-level-inner{justify-content:space-around;margin-top:15px}.poolc .poolc-level-vessel{height:156px;width:35px}.poolc-level-assembly{padding-right:78px}.poolc-level-assembly i{width:40px}.poolc-level-assembly i span{left:45px;font-size:10px}.poolc-level-inner .poolc-big strong{font-size:41px}.poolc-level-inner p,.poolc-level-inner small{font-size:9px;max-width:135px}.poolc-besgo-card{grid-template-columns:1fr;padding:21px 17px}.poolc-besgo-drawing{grid-row:2}.poolc-besgo-text h3{font-size:26px;margin-bottom:18px}.poolc-besgo-svg{max-height:none}.poolc-dose-row{justify-content:flex-start;flex-wrap:wrap;gap:6px 18px;font-size:9px}.poolc-pressure-overview{grid-template-columns:1fr 1fr}.poolc-pressure-metrics strong{font-size:42px}.poolc-pressure-metrics span{font-size:9px}.poolc-flow-bottom>span{font-size:9px}.poolc-gauge-legend{font-size:10px}}\n@media(prefers-reduced-motion:reduce){.poolc *{animation:none!important;transition:none!important}}\n.poolc-pump-svg{width:100%;display:block;max-height:120px;margin:5px 0 -4px}.poolc-pump-reading{display:flex;align-items:baseline;justify-content:space-between;gap:7px}.poolc-pump-reading strong{font-size:26px;font-weight:450}.poolc-pump-reading b{font-weight:450}.poolc-pump-reading small{font-size:11px;color:#7491a3}.poolc-pump-reading>span{font-size:17px;color:#85cdd1}.poolc-pump-card>p[data-role=pump-stage]{font-size:10px;color:#a1bdce;margin-top:4px}.poolc-impeller{transform-origin:167px 110px;animation:poolc-spin var(--pump-duration,2s) linear infinite}.poolc[data-pump=stopped] .poolc-impeller{animation-play-state:paused}.poolc-filter-performance{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;margin-top:15px;padding:23px 26px}.poolc-volume-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:21px;font-size:11px;color:#9bb7c6}.poolc-volume-row strong{justify-self:end;font-size:17px;color:#bfe5e7;font-weight:450}.poolc-volume-row strong b{font-weight:450}.poolc-volume-row small{font-size:10px;color:#7293a6}.poolc-volume-track{height:7px;background:#233d4a;border-radius:7px;grid-column:span 2;overflow:hidden}.poolc-volume-track i{display:block;height:100%;background:#79cbc7;border-radius:7px;transition:width .6s}.poolc-volume-yesterday .poolc-volume-track i{background:#527b9f}.poolc-volume-yesterday strong{color:#92b1cb}.poolc-turnover{display:flex;align-items:center;gap:12px;border-left:1px solid #2a404c;padding-left:24px}.poolc-turnover svg{width:130px;flex-shrink:0}.poolc-turnover h3{font-size:12px;font-weight:450}.poolc-turnover p{font-size:18px;color:#9bddd4;margin-top:9px}.poolc-turnover small{font-size:9px;line-height:1.7;color:#7593a6;display:block;margin-top:10px}.poolc-turnover svg text{font-family:inherit}.poolc-turnover circle{transition:stroke-dasharray .7s}\n@keyframes poolc-spin{to{transform:rotate(360deg)}}\n@container(max-width:1100px){.poolc-filter-performance{gap:20px}.poolc-turnover{padding-left:15px;gap:8px}.poolc-turnover svg{width:108px}.poolc-filter-performance .poolc-tiny{display:none}}\n@container(max-width:850px){.poolc-pump-svg{max-height:124px}.poolc-filter-performance{grid-template-columns:1fr}.poolc-turnover{border-left:0;border-top:1px solid #2a404c;padding:14px 0 0;gap:20px}.poolc-turnover svg{width:130px}.poolc-turnover small{max-width:235px}}\n@container(max-width:520px){.poolc-pump-svg{margin:15px 0 9px}.poolc-pump-reading strong{font-size:24px}.poolc-pump-reading>span{font-size:15px}.poolc-filter-performance{padding:20px 17px}.poolc-turnover{gap:10px}.poolc-turnover svg{width:105px}.poolc-turnover p{font-size:17px}.poolc-turnover h3{font-size:11px}.poolc-turnover small{font-size:8px}}\n@media(prefers-reduced-motion:reduce){.poolc *{animation:none!important;transition:none!important}}\n.poolc-alert-banner{display:flex;align-items:center;gap:14px;margin-top:18px;border:1px solid #bf4f5d;border-radius:9px;background:linear-gradient(90deg,#721f35,#461d2c);padding:11px 13px;color:#ffe4e8}.poolc-alert-label{font-size:10px;font-weight:650;letter-spacing:1px;white-space:nowrap}.poolc-alert-window{overflow:hidden;flex:1;min-width:0}.poolc-alert-marquee{display:flex;width:max-content;animation:poolc-alert-scroll var(--alert-duration,25s) linear infinite;font-size:11px;font-weight:500}.poolc-alert-marquee>span{white-space:nowrap;padding-right:60px}.poolc-alert-banner button{flex-shrink:0;border:1px solid #d1858e;background:#6b2d3d;color:#ffe9eb;border-radius:5px;width:26px;height:26px;font-size:12px}.poolc-alert-banner:hover .poolc-alert-marquee,.poolc-alert-banner:focus-within .poolc-alert-marquee,.poolc-alert-paused .poolc-alert-marquee{animation-play-state:paused}.poolc-alert-paused .poolc-alert-marquee{transform:none!important;animation:none;width:auto}.poolc-alert-paused [data-role=alert-scroll]{white-space:normal;padding:0}.poolc-alert-paused [data-role=alert-copy]{display:none}.poolc-sr-only{position:absolute!important;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}\n@keyframes poolc-alert-scroll{to{transform:translateX(-50%)}}\n@container(max-width:520px){.poolc-alert-banner{gap:8px;padding:10px 8px}.poolc-alert-label{font-size:8px;letter-spacing:.5px}.poolc-alert-marquee{font-size:10px}}\n@media(prefers-reduced-motion:reduce){.poolc-alert-marquee{animation:none;width:auto}.poolc-alert-marquee>span{white-space:normal;padding:0}.poolc-alert-marquee [data-role=alert-copy]{display:none}.poolc-alert-banner button{display:none}}\n\n@media(prefers-reduced-motion:reduce){}\n/* 2.2: gemeinsame Anlage, Anschlüsse nach BESGO A/B/C/D/E. */\n.poolc-temperature-summary{max-width:100%}.poolc-temperature-summary>.poolc-card{display:grid;grid-template-columns:1fr auto 1fr;gap:8px 30px;align-items:center}.poolc-temperature-summary .poolc-big{margin:0;grid-column:2;grid-row:1 / span 2}.poolc-temperature-summary .poolc-comparison{grid-column:3;margin:0;justify-content:flex-end}.poolc-temperature-summary .poolc-temperature-line{grid-column:1;margin:0}.poolc-temperature-summary .poolc-card-caption{grid-column:3;text-align:right;margin:0!important}.poolc-besgo-card{display:block;padding:24px 28px}.poolc-besgo-text{display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:center}.poolc-besgo-text h3{font-size:21px;letter-spacing:1px;margin:0}.poolc-besgo-text>.poolc-pill{justify-self:end}.poolc-besgo-text>p:not(.poolc-footnote){margin:0;font-size:11px}.poolc-besgo-text>.poolc-footnote{max-width:380px;margin:0!important;text-align:right}.poolc-besgo-svg{width:100%;height:auto;max-height:none;display:block;margin:20px auto 0;overflow:visible}.poolc-besgo-svg .poolc-inline-pump{width:378px;height:189px;max-height:none;margin:0;display:inline}.poolc-besgo-svg text{font-family:inherit}.poolc-besgo-card .poolc-demo-tools{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px 25px}.poolc-besgo-card .poolc-demo-tools>div{grid-column:1 / -1;grid-row:2;margin:0}.poolc-besgo-card .poolc-demo-tools label{grid-column:2;grid-row:1}.poolc-besgo-card .poolc-demo-tools>small{grid-column:1 / -1;margin:0}.poolc[data-mode=filter] .poolc-route-suction,.poolc[data-mode=backwash] .poolc-route-suction{opacity:.8}.poolc[data-flow=stopped] .poolc-bubbles{visibility:hidden}.poolc[data-flow=stopped] .poolc-route-bubbles,.poolc[data-flow=stopped] .poolc-media-flow{opacity:0!important}.poolc-refill-base{fill:none;stroke:#38515f;stroke-width:11;stroke-linejoin:round}.poolc-refill-flow{fill:none;stroke:#80d2e4;stroke-width:2.5;stroke-dasharray:4 15;stroke-linecap:round;opacity:0;animation:poolc-route .9s linear infinite}.poolc-solenoid{fill:#4c5d68;stroke:#93b4bc;stroke-width:1.5}.poolc-pool-boost{fill:none;stroke:#68d8e5;stroke-width:3;stroke-dasharray:4 15;opacity:0;animation:poolc-route .65s linear infinite}.poolc[data-refill=on] .poolc-refill-flow,.poolc[data-refill=on] .poolc-pool-boost{opacity:.95}.poolc[data-refill=on] .poolc-solenoid{fill:#268888;stroke:#a6f7e8}.poolc[data-refill=on] .poolc-route-pool{animation-duration:calc(var(--flow-duration,2s) / 2)}.poolc-care-grid .poolc-card{min-height:179px}.poolc-care-grid .poolc-big{flex-wrap:wrap}.poolc-care-grid .poolc-big small{font-size:10px}.poolc-turnover [data-role=turnover-graphic]{width:150px;flex-shrink:0}.poolc-turnover [data-role=turnover-graphic] svg{width:100%}.poolc-turnover circle{transition:none}.poolc-care-grid{grid-template-columns:repeat(4,minmax(0,1fr))}\n@container(max-width:850px){.poolc-besgo-card{padding:22px 16px}.poolc-besgo-text{grid-template-columns:1fr auto;gap:10px}.poolc-besgo-text>p{grid-column:1 / -1}.poolc-besgo-text>.poolc-footnote{text-align:left;max-width:none}.poolc-care-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poolc-turnover [data-role=turnover-graphic]{width:140px}}\n@container(max-width:520px){.poolc-temperature-summary>.poolc-card{grid-template-columns:1fr auto;gap:8px 15px}.poolc-temperature-summary .poolc-big{grid-column:2;grid-row:1 / span 2}.poolc-temperature-summary .poolc-comparison{grid-column:1;justify-content:flex-start;min-height:0}.poolc-temperature-summary .poolc-temperature-line{grid-column:1 / -1;grid-row:3}.poolc-temperature-summary .poolc-card-caption{grid-column:1 / -1;text-align:left}.poolc-besgo-text h3{font-size:17px;letter-spacing:.5px}.poolc-besgo-card{padding:18px 11px}.poolc-besgo-card .poolc-demo-tools{display:block;padding:12px 9px}.poolc-besgo-card .poolc-demo-tools>div{margin:9px 0}.poolc-besgo-card .poolc-demo-tools>small{margin-top:7px}.poolc-besgo-drawing{overflow-x:auto;scrollbar-color:#49737e #122731}.poolc-besgo-svg{min-width:630px;margin-top:14px}.poolc-besgo-drawing::after{content:'↔ Schema seitlich verschieben';display:block;color:#7198ab;font-size:9px;margin-top:9px}.poolc-turnover [data-role=turnover-graphic]{width:135px}.poolc-care-grid .poolc-card{min-height:162px}}\n@media(prefers-reduced-motion:reduce){.poolc *{animation:none!important;transition:none!important}}\n\n.poolc[data-mode=filter] .poolc-route-poolleg{opacity:.8}\n\n/* 2.3: Ventilteller und innere Strömungsräume nach Herstellerfilm. */\n.poolc-valve-fluid{opacity:0;pointer-events:none}\n.poolc[data-mode=filter] .poolc-valve-filter,.poolc[data-mode=backwash] .poolc-valve-backwash{opacity:1}\n.poolc-valve-particles{fill:none;stroke:#edfdff;stroke-width:2.3;stroke-dasharray:1 12;stroke-linecap:round;stroke-linejoin:round;animation:poolc-valve-flow var(--flow-duration,2s) linear infinite}\n.poolc[data-flow=stopped] .poolc-valve-particles{opacity:0;animation-play-state:paused}\n.poolc[data-valve-moving=true] .poolc-valve-fluid{opacity:0}\n.poolc-cylinder{transition:transform 1.1s ease;transform:translateY(0)}\n.poolc[data-mode=backwash] .poolc-cylinder{transform:translateY(65px)}\n.poolc-spring{transform-origin:396px 120px;transform:scaleY(1);transition:transform 1.1s ease}\n.poolc[data-mode=backwash] .poolc-spring{transform:scaleY(.16)}\n.poolc-actuator-air{height:9px;transition:height 1.1s ease}\n.poolc[data-mode=backwash] .poolc-actuator-air{height:74px}\n.poolc-actuator-solenoid{fill:#486574;stroke:#8ca3ae}\n.poolc[data-mode=backwash] .poolc-actuator-solenoid{fill:#a9793f;stroke:#e5c484}\n.poolc[data-mode=unknown] .poolc-spring,.poolc[data-mode=stale] .poolc-spring{opacity:.25}\n@keyframes poolc-valve-flow{to{stroke-dashoffset:-52}}\n@media(prefers-reduced-motion:reduce){.poolc *{animation:none!important;transition:none!important}}\n\n/* 2.5: Dünne seitliche Nachfüllleitung am abgerundeten Formstück. */\n.poolc-refill-base{stroke-width:6;stroke:#617d8e;stroke-linecap:butt}.poolc-refill-flow{stroke-width:1.5;stroke-dasharray:2 13}\n\n/* 2.6: zusätzliche Zustände, Brennerdaten und flächige BESGO-Strömung. */\n.poolc-control-mode{min-height:14px;color:#8bd5cc!important;font-size:9px!important;font-weight:650;letter-spacing:.7px}.poolc-flow-state{display:grid;justify-items:end;gap:3px;text-align:right}.poolc-flow-state b{font-size:10px;color:#8bd5cc;font-weight:550}.poolc-flow-state small{font-size:9px;color:#82b6c0}.poolc-error{color:#ff858b!important}.poolc-besgo-status{display:grid;justify-items:end;gap:6px}.poolc-last-backwash{font-size:8px;background:#142731;color:#8faebe}.poolc-regulator-readout rect{fill:#172b35;stroke:#4d7180;stroke-width:1}.poolc-regulator-readout text{fill:#8eb2c0;font-size:11px}.poolc-regulator-readout tspan{fill:#9de1d7;font-weight:650}.poolc-regulator-readout.poolc-regulator-low rect{fill:#4b2429;stroke:#dc6e76}.poolc-regulator-readout.poolc-regulator-low text,.poolc-regulator-readout.poolc-regulator-low tspan{fill:#ff969d}.poolc-heating-details{display:grid;gap:8px;border:1px solid #263d49;background:#0d1d26;border-radius:8px;padding:11px 13px;margin:0 0 16px}.poolc-heating-details>span{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#7898aa;font-size:9px}.poolc-heating-details b{color:#bdd5df;font-size:11px;font-weight:550;text-align:right}.poolc-heating-details small{color:#7898aa;font-size:9px}.poolc-level-card [data-role=level-offset]{color:#7596a9}.poolc-valve-bubble-field{opacity:1}.poolc-valve-particles{stroke-width:3.2;stroke-dasharray:1 13}.poolc-valve-lane-1{animation-delay:-.32s}.poolc-valve-lane-2{animation-delay:-.64s}.poolc-valve-lane-3{animation-delay:-.96s}.poolc-valve-lane-4{animation-delay:-1.28s}.poolc-valve-lane-5{animation-delay:-1.60s}.poolc[data-flow=stopped] .poolc-valve-particles{opacity:0!important}\n@container(max-width:850px){.poolc-besgo-status{justify-items:end}.poolc-heating-details>span{font-size:9px}}\n@container(max-width:520px){.poolc-besgo-status{grid-column:1 / -1;justify-items:start}.poolc-flow-state{max-width:125px}.poolc-heating-details{padding:10px}.poolc-heating-details>span{align-items:flex-start}.poolc-heating-details b{max-width:48%}}\n/* 2.9: retain compact card spacing and dark inputs against theme overrides. */\n.poolc article.poolc-card{padding:18px 16px!important}\n.poolc .poolc-params input[type=\"text\"]{appearance:none!important;background:transparent!important;background-image:none!important;color:#cfdee7!important;-webkit-text-fill-color:#cfdee7!important;border:0!important;box-shadow:none!important;padding:5px 4px!important;margin:0!important;height:auto!important;min-height:0!important;line-height:1.4!important;box-sizing:border-box!important}\n.poolc .poolc-params label>div{padding:6px 10px!important;gap:6px}\n.poolc .poolc-params input[aria-invalid=true]{color:#f2b091!important;-webkit-text-fill-color:#f2b091!important}\n.poolc .poolc-level-vessel{background:linear-gradient(to top,#286c9a80 0 16%,#0a1a24 16% 100%)}\n.poolc .poolc-level-assembly{padding-right:90px}\n@container(max-width:520px){.poolc article.poolc-card{padding:16px 12px!important}}\n/* 2.10: estimated pressure endurance alongside remaining operations. */\n.poolc .poolc-pressure-overview{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}\n.poolc .poolc-pressure-overview .poolc-pressure-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}\n.poolc .poolc-pressure-metrics strong{font-size:clamp(24px,3.2cqw,42px);white-space:nowrap;letter-spacing:-1px}\n.poolc .poolc-pressure-metrics small{font-size:10px;color:#83a5b8}\n.poolc .poolc-pressure .poolc-params{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}\n.poolc .poolc-pressure .poolc-params label>div>span{white-space:nowrap}\n@container(max-width:520px){.poolc .poolc-pressure-overview{grid-template-columns:1fr}.poolc .poolc-pressure-overview>[data-role=air-gauge]{max-width:210px;justify-self:center}.poolc .poolc-pressure-metrics{margin:4px 0 14px!important}.poolc .poolc-pressure-metrics strong{font-size:32px}}\n\n/* Rücklauf: FlowSonic und Wärmetauscher */\n.poolc-hx-water,.poolc-hx-outlet{fill:none;stroke:#467c96;stroke-width:14}\n.poolc-hx-coil,.poolc-hx-hot,.poolc-hx-cold{fill:none;stroke:#617d8e;stroke-width:7;stroke-linejoin:round}\n.poolc-hx-coil{stroke-width:5}\n.poolc-hx-heating-motion,.poolc-hx-pool-motion,.poolc-hx-outlet-motion{fill:none;stroke:#e5f9ff;stroke-width:1.8;stroke-dasharray:2 13;stroke-linecap:round;opacity:0;animation:poolc-route var(--flow-duration,2s) linear infinite}\n.poolc[data-heating=on] .poolc-hx-hot,.poolc[data-heating=on] .poolc-hx-outlet{stroke:#e47770}\n.poolc[data-heating=on] .poolc-hx-cold{stroke:#549bd7}\n.poolc[data-heating=on] .poolc-hx-coil{stroke:url(#pool-hx-heat)}\n.poolc[data-heating=on] .poolc-hx-heating-motion{opacity:.9;animation-duration:2s}\n.poolc[data-flow=running][data-mode=filter] .poolc-hx-pool-motion,.poolc[data-flow=running][data-mode=filter] .poolc-hx-outlet-motion,.poolc[data-refill=on] .poolc-hx-pool-motion,.poolc[data-refill=on] .poolc-hx-outlet-motion{opacity:.9}\n.poolc[data-refill=on] .poolc-hx-pool-motion,.poolc[data-refill=on] .poolc-hx-outlet-motion{animation-duration:.65s}\n.poolc:not([data-mode=filter]) .poolc-inline-flow .poolc-bubbles{opacity:0}\n@media(prefers-reduced-motion:reduce){.poolc-hx-heating-motion,.poolc-hx-pool-motion,.poolc-hx-outlet-motion{animation:none}}\n\n/* Transparente Rohrwand und gerippte Anschlussverschraubungen */\n\n.poolc-glass-edge{fill:none;stroke:#d1eaf5;stroke-width:15;stroke-opacity:.28;stroke-linejoin:round;pointer-events:none}\n.poolc-glass-shine{fill:none;stroke:#183c50;stroke-width:11;stroke-opacity:.40;stroke-linejoin:round;pointer-events:none}\n.poolc-glass-edge.poolc-glass-small{stroke-width:7}\n.poolc-glass-shine.poolc-glass-small{stroke-width:4}\n\n.poolc-pipe-lane-0{animation-delay:-.43s;stroke-dasharray:1 19;stroke-width:2.3}.poolc-pipe-lane-1{animation-delay:-.91s;stroke-dasharray:1 23;stroke-width:2.6}\n\n/* Inline-FlowSonic nutzt ausschließlich die durchgehende Rohranimation. */\n.poolc-inline-flow .poolc-bubbles{display:none}\n\n.poolc-regulator-readout .poolc-pressure-low,.poolc-regulator-readout .poolc-pressure-low tspan{fill:#ff858b}.poolc-diagram-fault{box-sizing:border-box;height:100%;overflow:auto;border:1px solid #dc6e76;border-radius:7px;background:#46242c;color:#ffb0b5;padding:10px 12px;font:11px/1.4 Arial,sans-serif;overflow-wrap:anywhere}.poolc-diagram-fault strong{display:block;color:#ff858b;margin-bottom:4px}\n\n.poolc[data-meter-flow=stopped] .poolc-flow-device .poolc-bubbles{visibility:hidden}\n\n.poolc .poolc-status-heating{color:#ff858b;font-weight:650}\n\n.poolc .poolc-besgo-text{grid-template-columns:1fr;gap:12px}\n.poolc .poolc-besgo-status{grid-column:1;justify-items:start}\n.poolc [data-role=besgo-mode]{font-size:14px;line-height:1.45;padding:9px 14px;white-space:normal}\n.poolc .poolc-status-fault{color:#fff;border-color:#f2757d;background:#8d2934;font-weight:700;letter-spacing:.5px;animation:poolc-status-warning 1.6s ease-in-out infinite}\n@keyframes poolc-status-warning{0%,100%{background:#74232d;box-shadow:0 0 0 0 #ee5d6800}50%{background:#ba3543;box-shadow:0 0 12px 1px #ee5d6844}}\n@media(prefers-reduced-motion:reduce){.poolc .poolc-status-fault{animation:none;background:#9b2e39}}\n\n/* Keep heading and operating status in separate, left-aligned rows. */\n.poolc .poolc-besgo-card > .poolc-tech-heading{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;width:100%;grid-column:1 / -1}\n.poolc .poolc-tech-heading > h3{margin:0;text-align:left}\n.poolc .poolc-tech-heading > .poolc-besgo-status{display:block;align-self:flex-start;max-width:100%;margin:0;text-align:left}\n\n/* Water surface moves only from the measured level to the adjacent mark. */\n.poolc[data-level-motion=fill] [data-role=level-fill],.poolc[data-level-motion=backwash] [data-role=level-fill]{animation:poolc-level-column 6s linear infinite;transition:none}\n@keyframes poolc-level-column{0%,10%{height:var(--level-from)}90%,100%{height:var(--level-to)}}\n@media(prefers-reduced-motion:reduce){.poolc [data-role=level-fill]{animation:none!important;transition:none}}\n\n.poolc .poolc-top-right,.poolc .poolc-intro-state [data-role=\"updated\"],.poolc .poolc-footer{display:none!important}\n.poolc.poolc-canisters-only{margin:0 auto}.poolc-canisters-only .poolc-shell{padding:16px}.poolc-canisters-only .poolc-section{margin-top:0}.poolc-canisters-only .poolc-chem-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poolc-canisters-only .poolc-chem-details{flex-wrap:wrap}.poolc-canisters-only [data-days]{overflow-wrap:anywhere}";
+const PoolCockpitLovelaceCore=(function(global){
+'use strict';
+const finite=v=>v===null||v===undefined||String(v).trim()===''||!['number','string'].includes(typeof v)||!Number.isFinite(Number(v))?null:Number(v);
+const fmt=(v,d=1)=>finite(v)===null?'–':new Intl.NumberFormat('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}).format(Number(v));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const text=v=>v===null||v===undefined||['unknown','unavailable',''].includes(String(v))?'Nicht verfügbar':String(v);
+const numeric=(d,k)=>finite(d[k]);
+const isOn=v=>String(v??'').toLowerCase()==='on';
+function formatDateTime(value){
+ const raw=String(value??'').trim();if(!raw||['unknown','unavailable'].includes(raw))return 'Nicht verfügbar';
+ const german=raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})[ ,]+(\d{1,2}):(\d{2})(?:\s*Uhr)?$/);
+ if(german)return `${german[1].padStart(2,'0')}.${german[2].padStart(2,'0')}.${german[3]} · ${german[4].padStart(2,'0')}:${german[5]} Uhr`;
+ const date=new Date(raw);return isNaN(date)?raw:date.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}).replace(',', ' ·')+' Uhr';
+}
+function regulatedPressure(value){const p=finite(value);return p===null?{value:null,low:false}:{value:p>3.5?3.5:p,low:p<3.5};}
+const CHEMS=[['chlor','Chlor','Desinfektion','#edcb62','Cl'],['ph_minus','pH-Minus','pH-Regulierung','#70b9ec','pH−'],['algizid','Algizid','Algenprävention','#8bcc9b','Al'],['flock','Flockungsmittel','Wasserklärung','#d8b48a','Fl']];
+const ICONS={drop:'<path d="M12 3S5 11 5 16a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/>',wave:'<path d="M2 7q3-3 6 0t6 0t6 0M2 12q3-3 6 0t6 0t6 0M2 17q3-3 6 0t6 0t6 0"/>',thermo:'<path d="M9 14V5a3 3 0 0 1 6 0v9a5 5 0 1 1-6 0Z"/><path d="M12 8v9"/>',flow:'<path d="M3 7h12q6 0 3-4M3 12h18m-4-3 4 3-4 3M3 17h11q6 0 3 4"/>',pressure:'<path d="M4 19a10 10 0 1 1 16 0M12 13l5-6"/><circle cx="12" cy="13" r="1.5"/>',heat:'<path d="M6 17c5-5-4-7 0-12m6 12c5-5-4-7 0-12m6 12c5-5-4-7 0-12M3 21h18"/>',check:'<path d="m5 12 4 4L19 6"/>',refresh:'<path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/>',shield:'<path d="m12 2 8 4v7c0 4-8 9-8 9s-8-5-8-9V6Z"/><path d="m8 12 3 3 5-6"/>',power:'<path d="M12 2v9m-6-6a9 9 0 1 0 12 0"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/>',battery:'<rect x="2" y="6" width="18" height="12" rx="2"/><path d="M22 10v4M6 9v6m4-6v6m4-6v6"/>',home:'<path d="m2 11 10-9 10 9M5 9v12h14V9M9 21v-7h6v7"/>',bolt:'<path d="m14 2-9 12h7l-2 8 9-12h-7Z"/>'};
+const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]||ICONS.drop}</svg>`;
+function reserve(p,loss,min){
+  const vals=[p,loss,min].map(v=>String(v??'').trim().replace(',','.'));
+  if(vals.some(v=>!/^\d{1,6}(?:\.\d{0,6})?$/.test(v)))return null;
+  const u=vals.map(v=>{const[a,b='']=v.split('.');return BigInt(a)*1000000n+BigInt(b.padEnd(6,'0'));});
+  if(u[1]<=0n)return null;
+  const available=u[0]>u[2]?u[0]-u[2]:0n;
+  return {cycles:Number(available/u[1]),reserve:Number(available)/1e6,after:Number(u[0]-(available/u[1])*u[1])/1e6};
+}
+function reserveDays(p,loss,min,leak,monthly){
+  const r=reserve(p,loss,min);
+  const parse=v=>finite(typeof v==='string'?v.trim().replace(',','.'):v);
+  const l=parse(leak),m=parse(monthly),s=parse(loss);
+  if(!r||l===null||m===null||l<0||m<0)return null;
+  const daily=l+s*m/30;
+  return {days:r.reserve===0?0:daily>0?r.reserve/daily:null,daily};
+}
+function scheduledCycles(interval,extra){
+ const d=finite(interval),e=finite(typeof extra==='string'?extra.trim().replace(',','.'):extra);
+ return d===null||d<=0||e===null||e<0?null:30/d+e;
+}
+function learnedCycles(interval,history){
+ const baseline=scheduledCycles(interval,0),h=history||{};
+ const ready=h.ready===true&&finite(h.monthly)!==null&&h.monthly>=0&&finite(h.observed_days)>=7&&finite(h.coverage)>=.9;
+ return {monthly:ready?(baseline===null?h.monthly:Math.max(baseline,h.monthly)):baseline,learned:ready};
+}
+function dailyLitres(value,unit){
+  const n=finite(value);if(n===null||n<=0)return null;
+  const u=String(unit??'').toLowerCase().replace(/\s/g,'');
+  if(['l','l/d','l/day','l/tag','l/24h','l/dag'].includes(u))return n;
+  if(['ml','ml/d','ml/day','ml/tag','ml/24h'].includes(u))return n/1000;
+  return null;
+}
+function canister(prefix,pct,color){
+  const n=finite(pct),valid=n!==null&&n>=0&&n<=100;
+  const level=valid?218-154*n/100:218;
+  const id='pool-can-'+prefix;
+  const shape='M48 57L64 40H96L112 57H134Q149 57 149 75V211Q149 228 132 228H28Q11 228 11 211V75Q11 57 28 57Z';
+  return `<svg class="poolc-canister" viewBox="0 0 176 243" role="img" aria-label="${valid?fmt(n,0)+' Prozent Füllstand':'Füllstand nicht verfügbar'}"><defs><linearGradient id="${id}-body" x1="0" x2="1"><stop stop-color="#34444d"/><stop offset=".25" stop-color="#1c2d38"/><stop offset=".78" stop-color="#1b2b36"/><stop offset="1" stop-color="#32424b"/></linearGradient><linearGradient id="${id}-liquid" x1="0" x2="0" y1="0" y2="1"><stop stop-color="${color}" stop-opacity=".88"/><stop offset="1" stop-color="${color}" stop-opacity=".30"/></linearGradient><clipPath id="${id}-clip"><path d="${shape}"/></clipPath></defs><ellipse cx="82" cy="235" rx="65" ry="5" fill="#000" opacity=".17"/><rect x="56" y="20" width="45" height="24" rx="5" fill="#526570"/><path d="M61 22v16m7-16v16m7-16v16m7-16v16m7-16v16m7-16v16" stroke="#74828a" stroke-width="1"/><path d="${shape}" fill="url(#${id}-body)" stroke="#667a87" stroke-opacity=".8" stroke-width="1.4"/><g clip-path="url(#${id}-clip)">${valid&&n>0?`<rect x="10" y="${level}" width="142" height="${230-level}" fill="url(#${id}-liquid)"/><g class="poolc-liquid-wave" style="--wave:${color}"><path d="M-150 ${level}q25-5 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0V245H-150Z" fill="${color}" opacity=".16"/><path d="M-150 ${level}q25-5 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0" fill="none" stroke="${color}" stroke-width="1.5"/></g>`:''}<path d="M22 82v117q0 11 9 11" stroke="#fff" stroke-width="3" opacity=".12" fill="none"/><path d="M139 80v127" stroke="#fff" opacity=".1" stroke-width="2"/>${[25,50,75,100].map(p=>`<path d="M118 ${218-p*1.54}h16" stroke="#dceaf2" opacity=".40"/><text x="115" y="${221-p*1.54}" text-anchor="end" fill="#c6d4dd" font-size="6" opacity=".6">${p}</text>`).join('')}</g><rect x="33" y="112" width="64" height="56" rx="7" fill="#0b1824" fill-opacity=".50" stroke="${color}" stroke-opacity=".35"/><text x="65" y="146" text-anchor="middle" fill="#eff7fc" font-size="23" font-family="sans-serif">${valid?fmt(n,0)+'%':'–'}</text><path d="M28 218h104" stroke="#c7d8e2" opacity=".15"/></svg>`;
+}
+
+function flowMotion(value){const n=finite(value);return {running:n!==null&&n>0,duration:n!==null&&n>0?Math.max(.35,8/n):0};}
+function levelModel(d){
+ const offset=finite(d.pegel_offset_cm),level=finite(d.pegel_cm);
+ const corrected=k=>offset===null||finite(d[k])===null?null:Math.round(Number(d[k])+offset);
+ const high=corrected('pegel_high_cm'),low=offset,refill=corrected('pegel_refill_on_cm');
+ const normal=high!==null&&refill!==null?(high+refill)/2:null;
+ const min=offset??0,max=high!==null?high+1:150;
+ const valid=offset!==null&&refill!==null&&high!==null&&offset<refill&&refill<high;
+ // Fixed visual sections: blue foot, linear lower range, enlarged operating range.
+ const percent=v=>{
+   if(v===null||!valid)return 0;
+   const knots=[[offset-1,0],[offset,16],[refill,40],[normal,60],[high,80],[max,100]];
+   if(v<=knots[0][0])return 0;
+   for(let i=1;i<knots.length;i++){const [x,y]=knots[i],[px,py]=knots[i-1];if(v<=x)return py+(v-px)/(x-px)*(y-py);}
+   return 100;
+ };
+ return {level,high,low,normal,refill,offset,min,max,valid,percent};
+}
+// Animate only the occupied section; the numeric reading remains measured.
+function levelAnimation(data,fresh=true){
+ const m=levelModel(data),from=m.percent(m.level);
+ const filling=data.nachfuellen==='on',back=data.rueckspuelen==='on';
+ const still={from,to:from,mode:'none'};
+ if(!fresh||!m.valid||m.level===null||filling===back)return still;
+ const marks=[m.offset,m.refill,m.normal,m.high,m.max];
+ const target=filling?marks.find(v=>v>m.level):marks.slice().reverse().find(v=>v<m.level);
+ if(target===undefined||(filling&&m.level>=m.normal)||m.level<m.offset)return still;
+ return {from,to:m.percent(target),mode:filling?'fill':'backwash'};
+}
+const point=(value,max,r=83)=>{const a=(150+240*Math.max(0,Math.min(1,value/max)))*Math.PI/180;return [120+r*Math.cos(a),107+r*Math.sin(a)];};
+function arc(from,to,max,r=83){const a=point(from,max,r),b=point(to,max,r);return `M${a.join(' ')} A${r} ${r} 0 ${240*(to-from)/max>180?1:0} 1 ${b.join(' ')}`;}
+function gauge(value,max,marker,kind){
+ const n=finite(value),m=finite(marker),filter=kind==='filter',threshold=filter?.9:0;
+ const ticks=Array.from({length:13},(_,i)=>{const v=i*max/12,a=point(v,max,76),b=point(v,max,i%3===0?66:71);return `<path d="M${a.join(' ')}L${b.join(' ')}" stroke="#698797" stroke-width="${i%3===0?2:1}"/>`;}).join('');
+ const a=n===null?null:point(n,max,61),ma=m===null||m<0||m>max?null:point(m,max,94),mb=ma?point(m,max,73):null;
+ return `<svg class="poolc-gauge" viewBox="0 0 240 181" role="img" aria-label="${filter?'Filterdruck':'Speicherdruck'} ${fmt(n,2)} bar${filter?', roter Bereich ab 0,90 bar':''}"><path d="${arc(0,max,max)}" fill="none" stroke="#283d49" stroke-width="12" stroke-linecap="round"/><path d="${arc(0,filter?threshold:max,max)}" fill="none" stroke="#72c9c8" stroke-width="5" opacity=".55"/>${filter?`<path data-danger-start="0.9" d="${arc(.9,max,max)}" stroke="#ee676f" stroke-width="12" fill="none"/>`:''}${ticks}${ma?`<path data-gauge-marker="${m}" d="M${ma.join(' ')}L${mb.join(' ')}" stroke="${filter?'#ff6474':'#edcb62'}" stroke-width="3"/>`:''}${a?`<path d="M120 107L${a.join(' ')}" stroke="#e4f9ff" stroke-width="2.5" stroke-linecap="round"/><circle cx="120" cy="107" r="5" fill="#70cbc7"/>`:''}<text x="120" y="145" text-anchor="middle" fill="#e6f2f9" font-size="29">${fmt(n,2)}<tspan font-size="11" fill="#83a5b8"> bar</tspan></text><text x="25" y="168" fill="#7a98ac" font-size="10">0</text><text x="213" y="168" text-anchor="end" fill="#7a98ac" font-size="10">${fmt(max,1)}</text></svg>`;
+}
+function flowGraphic(){
+ const union=x=>`<g class="poolc-flow-union"><rect x="${x}" y="50" width="34" height="128" rx="10" fill="url(#pool-flow-black)" stroke="#53606a" stroke-width="1.2"/><path d="M${x+4} 59V168" stroke="#8c9596" opacity=".32"/>${Array.from({length:14},(_,i)=>`<path d="M${x+7} ${60+i*8}H${x+29}" stroke="#738087" stroke-width="1.5" opacity="${i<7?.45:.25}"/><path d="M${x+7} ${62+i*8}H${x+29}" stroke="#070e13" stroke-width="2"/>`).join('')}</g>`;
+ return `<svg class="poolc-flow-device" viewBox="0 0 520 215" role="img" aria-label="BADU FlowSonic Plus mit transparentem Zu- und Ablauf, Durchfluss und Gerätetemperatur"><defs>
+ <linearGradient id="pool-flow-glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d8ecf4" stop-opacity=".52"/><stop offset=".14" stop-color="#9cbfcf" stop-opacity=".18"/><stop offset=".45" stop-color="#4c9bbb" stop-opacity=".13"/><stop offset=".69" stop-color="#aed7e7" stop-opacity=".19"/><stop offset=".85" stop-color="#e4f7ff" stop-opacity=".52"/><stop offset="1" stop-color="#6b9cb2" stop-opacity=".24"/></linearGradient>
+ <linearGradient id="pool-flow-water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6aa5c7" stop-opacity=".12"/><stop offset=".6" stop-color="#3279a0" stop-opacity=".26"/><stop offset="1" stop-color="#58a1c6" stop-opacity=".12"/></linearGradient>
+ <linearGradient id="pool-flow-black" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#131b21"/><stop offset=".32" stop-color="#323b40"/><stop offset=".8" stop-color="#10171d"/><stop offset="1" stop-color="#070e14"/></linearGradient>
+ <linearGradient id="pool-flow-adapter" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8c9696"/><stop offset=".45" stop-color="#5c6d73"/><stop offset=".75" stop-color="#839192"/><stop offset="1" stop-color="#46575f"/></linearGradient>
+ <linearGradient id="pool-flow-case" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#465670"/><stop offset=".5" stop-color="#2d3c58"/><stop offset="1" stop-color="#26334d"/></linearGradient>
+ <linearGradient id="pool-flow-lcd" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e44"/><stop offset="1" stop-color="#050d20"/></linearGradient>
+ <clipPath id="pool-flow-clip"><rect x="4" y="79" width="512" height="72" rx="3"/></clipPath>
+ </defs><ellipse cx="260" cy="189" rx="175" ry="7" fill="#051019" opacity=".65"/>
+ <rect x="4" y="78" width="512" height="74" rx="4" fill="url(#pool-flow-water)"/>
+ <g clip-path="url(#pool-flow-clip)"><g class="poolc-bubbles">${Array.from({length:25},(_,i)=>`<circle cx="${i*32-90}" cy="${96+(i%4)*12}" r="${1.15+(i%3)*.6}" fill="#f4fdff" opacity="${.47+(i%3)*.18}"/>`).join('')}</g></g>
+ <rect x="4" y="78" width="512" height="74" rx="4" fill="url(#pool-flow-glass)" stroke="#adcbd8" stroke-opacity=".43"/>
+ <path d="M8 81H512M8 140H512" stroke="#e2f6ff" opacity=".26" stroke-width="2"/>
+ <path d="M8 86H512" stroke="#f2fcff" opacity=".12" stroke-width="5"/>
+ ${[103,384].map(x=>`<rect x="${x}" y="73" width="33" height="83" rx="4" fill="url(#pool-flow-adapter)" stroke="#82949d" stroke-opacity=".5"/>`).join('')}
+ <rect x="163" y="59" width="194" height="111" rx="13" fill="#8b9899" stroke="#b4c3c7"/><path d="M171 65V164M349 65V164" stroke="#d9e2df" opacity=".5" stroke-width="3"/>
+ ${union(132)}${union(354)}
+ <rect x="251" y="18" width="21" height="29" rx="4" fill="#859398" stroke="#b1bab7"/><path d="M251 24l7-5h8l6 5v12l-6 5h-8l-7-5Z" fill="#8e9a9d" stroke="#b7c1c0"/><rect x="250" y="8" width="23" height="14" rx="5" fill="#18252f"/><path d="M261 8V3" stroke="#263844" stroke-width="6"/>
+ <path d="M182 45Q182 33 196 36Q227 45 261 45Q296 45 327 36Q342 33 342 48V178Q342 194 326 189Q291 181 261 181Q224 181 196 188Q181 192 181 175Z" fill="#152338" opacity=".55" transform="translate(0 3)"/>
+ <path d="M182 42Q182 30 196 33Q227 42 261 42Q296 42 327 33Q342 30 342 45V175Q342 191 326 186Q291 178 261 178Q224 178 196 185Q181 189 181 172Z" fill="url(#pool-flow-case)" stroke="#75849c" stroke-opacity=".67" stroke-width="1.2"/>
+ <path d="M184 139H204M325 133H339" stroke="#121e32" stroke-width="4"/><path d="M184 141H204M325 135H339" stroke="#7e8da6" opacity=".55"/><circle cx="195" cy="139" r="5" fill="#283a52" stroke="#5c718a"/>
+ <rect x="201" y="57" width="122" height="111" rx="3" fill="#03080c" stroke="#53657a" stroke-width="1.1"/>
+ <g transform="translate(241 69)" fill="#dbe9ea">${Array.from({length:8},(_,i)=>`<path d="M0 0Q-7-9 0-8Q-3-4 0 0" transform="rotate(${i*45})"/>`).join('')}</g><text x="268" y="74" text-anchor="middle" fill="#eaf3f0" font-family="Arial,sans-serif" font-size="11" font-weight="700">BADU</text>
+ <rect x="225" y="80" width="88" height="79" rx="1" fill="url(#pool-flow-lcd)"/>
+ <path d="M225 80V159M225 87H313" stroke="#3765ec" stroke-width="3" opacity=".35"/><path d="M225 80V159M225 87H313" stroke="#6187ff" stroke-width=".8"/>
+ <g stroke="#73a2ed" stroke-width=".85" fill="none" opacity=".8"><circle cx="214" cy="101" r="6"/><path d="M210 102v-3h2v5h2v-5h2v4h2"/><circle cx="214" cy="124" r="6"/><circle cx="214" cy="148" r="6"/><path d="M210 148q2-4 4 0t4 0"/></g><text x="214" y="126" text-anchor="middle" fill="#93baf1" font-size="5.5">E1</text>
+ <text x="309" y="109" text-anchor="end" fill="#def7ff" font-family="Arial,sans-serif" font-size="23" font-weight="700" data-role="flow-screen">–</text>
+ <text x="309" y="119" text-anchor="end" fill="#b5dff5" font-size="8">m³/h</text><path d="M227 123H313" stroke="#d6f9ff" stroke-width="1.2"/>
+ <text text-anchor="end" fill="#e0f7ff" font-family="Arial,sans-serif" font-size="23" font-weight="700" data-role="flow-temperature"><tspan x="309" y="146" data-role="flow-temperature-value">–</tspan><tspan x="309" y="157" font-size="8"> °C</tspan></text>
+ </svg>`;
+}
+function turnoverGraphic(value){
+ const v=finite(value),n=v===null?1:Math.max(1,Math.min(8,Math.ceil(v/100))),step=n<=4?12:46/n;
+ const colors=['#8adbd1','#70bbd2','#75a4d2','#8c9ac8','#aa99c4','#b8a1b5','#bdb1ac','#c6c5b9'];
+ return `<svg viewBox="0 0 150 150" role="img" aria-label="${v===null?'Umwälzung nicht verfügbar':fmt(v,0)+' Prozent Umwälzung; jeder Ring entspricht einem Poolvolumen, von außen nach innen'}">${Array.from({length:n},(_,i)=>{const fill=v===null?0:Math.max(0,Math.min(100,v-i*100)),r=65-i*step;return `<circle cx="75" cy="75" r="${r}" fill="none" stroke="#243b49" stroke-width="${Math.min(8,step-2)}"/><circle data-turnover-lap="${i+1}" cx="75" cy="75" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="${Math.min(8,step-2)}" pathLength="100" stroke-dasharray="${fill} ${100-fill}" transform="rotate(-90 75 75)"><title>${i+1}. Umlauf (${i*100}–${(i+1)*100} %): ${fmt(fill,0)} % gefüllt</title></circle>`;}).join('')}<text x="75" y="80" text-anchor="middle" fill="#d9f4f3" font-size="${n>4?12:17}">${v===null?'–':fmt(v,0)+' %'}</text></svg>`;
+}
+const BESGO_STATES={
+ filter:{shift:0,seals:[175,320],links:[['C','A'],['B','E']],closed:'D'},
+ backwash:{shift:65,seals:[240,385],links:[['C','B'],['A','D']],closed:'E'}
+};
+function valveInterior(){
+ const bubbleField=(key,top,bottom,direction)=>`<g data-valve-channel="${key}" class="poolc-valve-bubble-field">${[383,388,393,399,404,409].map((x,i)=>`<path d="M${x} ${direction==='up'?bottom:top}V${direction==='up'?top:bottom}" class="poolc-valve-particles poolc-valve-lane-${i}"/>`).join('')}</g>`;
+ return `<defs><linearGradient id="pool-valve-water"><stop stop-color="#3f91b0" stop-opacity=".30"/><stop offset=".55" stop-color="#72c7da" stop-opacity=".55"/><stop offset="1" stop-color="#356880" stop-opacity=".3"/></linearGradient></defs>
+ <g class="poolc-valve-fluid poolc-valve-filter" aria-label="Filtern: C nach A, B nach E; D geschlossen"><rect x="380" y="181" width="32" height="133" fill="url(#pool-valve-water)"/><rect x="380" y="326" width="32" height="109" fill="url(#pool-valve-water)"/>${bubbleField('C-A',185,310,'up')}${bubbleField('B-E',330,431,'down')}</g>
+ <g class="poolc-valve-fluid poolc-valve-backwash" aria-label="Rückspülen: C nach B, A nach D; E geschlossen"><rect x="380" y="125" width="32" height="109" fill="url(#pool-valve-water)"/><rect x="380" y="246" width="32" height="133" fill="url(#pool-valve-water)"/>${bubbleField('C-B',250,375,'down')}${bubbleField('A-D',129,230,'up')}</g>
+ <path d="M396 126V433" stroke="#b6d0dc" opacity=".08" stroke-width="24"/>
+ <rect x="370" y="18" width="52" height="105" rx="6" fill="url(#pool-filter-body)" stroke="#8da6b5"/><rect x="374" y="23" width="44" height="9" class="poolc-actuator-air" fill="#dfb370" opacity=".32"/>
+ <rect x="373" y="4" width="45" height="12" rx="4" class="poolc-actuator-solenoid"/>
+ <path class="poolc-spring" d="M383 46l26 6-26 6 26 6-26 6 26 6-26 6 26 6-26 6 26 6-26 6 26 6-26 6" fill="none" stroke="#ddbc8c" stroke-width="2"/>
+ <g class="poolc-cylinder"><rect x="375" y="32" width="42" height="10" rx="2" fill="#b0d3de"/><path d="M396 42V320" stroke="#c5cbd1" stroke-width="3"/><rect data-valve-seal="upper" x="380" y="169" width="32" height="12" rx="4" fill="#c7ac8b" stroke="#e6dac7"/><path d="M381 175H411" stroke="#4c5459" stroke-width="2"/><rect data-valve-seal="lower" x="380" y="314" width="32" height="12" rx="4" fill="#c7ac8b" stroke="#e6dac7"/><path d="M381 320H411" stroke="#4c5459" stroke-width="2"/></g>`;
+}
+
+function refillCorner(){return `<g class="poolc-refill-corner" aria-label="Abgerundeter Pool-Rücklaufbogen mit dünner seitlicher Nachfüllleitung"><defs><linearGradient id="pool-corner-pvc" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#657580"/><stop offset=".35" stop-color="#3a4c59"/><stop offset=".7" stop-color="#506470"/><stop offset="1" stop-color="#2a3c49"/></linearGradient></defs><path d="M396 466V481Q396 505 420 505H445" fill="none" stroke="#253845" stroke-width="30" stroke-linecap="butt"/><path d="M396 466V481Q396 505 420 505H445" fill="none" stroke="url(#pool-corner-pvc)" stroke-width="27"/><path d="M387 468V482Q387 514 420 514H443" fill="none" stroke="#a2b6c2" stroke-width="1.2" opacity=".35"/><rect x="381" y="465" width="30" height="8" rx="2" fill="#526672" stroke="#8396a1" stroke-opacity=".5"/><rect x="438" y="490" width="8" height="30" rx="2" fill="#526672" stroke="#8396a1" stroke-opacity=".5"/></g>`;}
+
+function pipeUnion(x,y,angle=0,scale=1){
+ return `<g class="poolc-pipe-union" transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})"><rect x="-10" y="-10" width="20" height="20" rx="2" fill="#758b95" stroke="#a3b7c0" stroke-width=".6"/><rect x="-6" y="-14" width="12" height="28" rx="3" fill="url(#pool-union-metal)" stroke="#7e929a" stroke-width=".8"/>${Array.from({length:8},(_,i)=>`<path d="M-4 ${-10+i*3}h8" stroke="#82949b" stroke-width=".7"/><path d="M-4 ${-9+i*3}h8" stroke="#08131b" stroke-width=".9"/>`).join('')}<path d="M-4-11v22" stroke="#c5d6dc" stroke-width=".6" opacity=".35"/></g>`;
+}
+function pipeGlass(path,small=false){return `<path d="${path}" class="poolc-glass-edge${small?' poolc-glass-small':''}"/><path d="${path}" class="poolc-glass-shine${small?' poolc-glass-small':''}"/>`;}
+
+function returnEquipment(){
+ const meter=flowGraphic().replace('class="poolc-flow-device"','class="poolc-inline-flow" x="472" y="470.7" width="156" height="64.5"').replaceAll('pool-flow-','pool-return-flow-').replace('data-role="flow-screen"','data-number="flow_m3h" data-digits="2"').replace('data-role="flow-temperature-value"','data-number="flow_temperature_c" data-digits="1"');
+ const coil='M846 458V492'+Array.from({length:6},(_,i)=>` C${842-i*20} 487 ${824-i*20} 487 ${824-i*20} 503 C${824-i*20} 523 ${842-i*20} 523 ${826-i*20} 508`).join('')+'L714 492V458';
+ return `${meter}<text x="494" y="555" text-anchor="start" fill="#9cbacb" font-size="12">BADU FlowSonic Plus</text>
+ <g class="poolc-regulator-readout" transform="translate(494 566)"><rect width="178" height="54" rx="7"/>
+ <text x="12" y="20">Durchfluss: <tspan data-number="flow_m3h" data-digits="2">–</tspan><tspan> m³/h</tspan></text>
+ <text x="12" y="41">Temperatur: <tspan data-number="flow_temperature_c">–</tspan><tspan> °C</tspan></text></g>
+ <defs><clipPath id="pool-hx-opening"><rect x="692" y="484" width="172" height="42" rx="14"/></clipPath><linearGradient id="pool-hx-shell" x2="0" y2="1"><stop stop-color="#a0acb3"/><stop offset=".35" stop-color="#586873"/><stop offset="1" stop-color="#89969e"/></linearGradient><linearGradient id="pool-hx-heat"><stop stop-color="#549bd7"/><stop offset="1" stop-color="#ec7670"/></linearGradient></defs>
+ <g aria-label="Wärmetauscher mit sichtbarer Heizwendel"><rect x="679" y="478" width="198" height="55" rx="24" fill="url(#pool-hx-shell)" stroke="#b3c0c7"/><rect x="692" y="484" width="172" height="42" rx="14" fill="#18333f" stroke="#afbdc5"/><path d="M694 505H862" class="poolc-hx-water"/><path d="${coil}" class="poolc-hx-coil" clip-path="url(#pool-hx-opening)"/><path d="M846 458V485" class="poolc-hx-hot"/><path d="M714 485V458" class="poolc-hx-cold"/><path d="${coil}" class="poolc-hx-heating-motion" clip-path="url(#pool-hx-opening)"/><path d="M700 491H856 M700 519H856" class="poolc-hx-pool-motion"/><path d="M897 505H935" class="poolc-hx-outlet"/><path d="M897 502H935 M897 508H935" class="poolc-hx-outlet-motion"/><text x="735" y="555" text-anchor="start" fill="#9cbacb" font-size="13">Wärmetauscher</text>
+ <g class="poolc-regulator-readout" transform="translate(735 566)"><rect width="178" height="96" rx="7"/>
+ <text x="12" y="20">Freigabe: <tspan data-role="hx-permission">–</tspan></text>
+ <text x="12" y="41">Heizung: <tspan data-role="hx-heating">–</tspan></text>
+ <text x="12" y="62">Solltemperatur: <tspan data-number="heizung_temp_soll_c">–</tspan><tspan> °C</tspan></text>
+ <text x="12" y="83">Wärmeleistung: <tspan data-role="hx-power">–</tspan><tspan> kW</tspan></text></g></g>`;
+}
+
+function pressureStorageGraphic(){return `<g aria-label="10-Liter-Druckspeicher mit Druckluftleitung zum BESGO-Zylinder">
+ <defs><linearGradient id="pool-air-tank" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6c808b"/><stop offset=".22" stop-color="#c0cdd2"/><stop offset=".42" stop-color="#879ba5"/><stop offset=".62" stop-color="#405866"/><stop offset="1" stop-color="#7e929d"/></linearGradient></defs>
+ <path d="M418 10H816" fill="none" stroke="#48616f" stroke-width="4" stroke-linejoin="round"/><path d="M418 9H816" fill="none" stroke="#a1bdc8" stroke-width="1" opacity=".65"/>
+ <g transform="translate(0 -33)"><text x="899" y="13" text-anchor="middle" fill="#c2dbe5" font-size="15">Druckspeicher</text>
+ <ellipse cx="900" cy="79" rx="83" ry="5" fill="#06141d" opacity=".6"/>
+ <path d="M845 61v14h13V61m83 0v14h13V61" fill="#415965" stroke="#829aa6"/>
+ <rect x="811" y="37" width="17" height="12" rx="2" fill="#879ba5" stroke="#b1c5cc"/>
+ <rect x="821" y="24" width="157" height="43" rx="19" fill="url(#pool-air-tank)" stroke="#a3b9c4"/>
+ <path d="M840 27Q830 45 840 64M959 27Q969 45 959 64" fill="none" stroke="#d0dde1" opacity=".45"/>
+ <path d="M844 31H955" stroke="#e0eef1" stroke-width="2" opacity=".4"/>
+ <rect x="978" y="38" width="7" height="10" rx="2" fill="#8195a0" stroke="#b1c5cc"/>
+ <text x="899" y="51" text-anchor="middle" fill="#e3eef1" font-size="10" letter-spacing="1.5">10 LITER</text>
+ <g class="poolc-regulator-readout" transform="translate(810 88)"><rect width="178" height="69" rx="7"/>
+ <text data-role="storage-pressure-line" x="11" y="19">Speicherdruck: <tspan data-number="druckluft_bar" data-digits="2">–</tspan><tspan> bar</tspan></text>
+ <path d="M11 28H167" stroke="#405965" stroke-width=".6"/>
+ <text x="11" y="42" style="font-size:8px">Restschaltungen</text><text x="101" y="42" style="font-size:8px">Reichweite · Tage</text>
+ <text x="11" y="59"><tspan data-role="storage-cycles" style="font-size:16px">–</tspan></text><text x="101" y="59"><tspan data-role="storage-days" style="font-size:16px">–</tspan></text></g>
+ </g></g>`;}
+
+function besgoGraphic(){
+ const paths={pump:'M761.65 297.3V260H414',top:'M378 205H173V150',bottom:'M173 405V350H378',poolleg:'M396 435V481Q396 505 420 505',pool:'M420 505H935',waste:'M414 145H531',suction:'M524 383.4H592.6'};
+ const pipe=(id,path)=>{
+ const outer=id==='top'?'M378 205H279':id==='bottom'?'M279 350H378':path;
+ return `<path d="${path}" class="poolc-pipe-base"/><path d="${path}" class="poolc-water-route poolc-route-${id}"/>${pipeGlass(outer)}<path data-pipe="${id}" d="${path}" class="poolc-route-bubbles poolc-route-${id}"/><mask id="pool-lanes-${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="570"><path d="${outer}" fill="none" stroke="white" stroke-width="10"/></mask><g mask="url(#pool-lanes-${id})">${[-3,3].map((n,i)=>`<path d="${outer}" transform="translate(${n} ${n})" class="poolc-route-bubbles poolc-route-${id} poolc-pipe-lane-${i}"/>`).join('')}</g>`;
+ };
+ const pump=pumpGraphic().replace('class="poolc-pump-svg"','class="poolc-pump-svg poolc-inline-pump" x="580" y="270" width="378" height="189"');
+ return `<svg class="poolc-besgo-svg" viewBox="0 -40 1000 712" role="img" aria-label="BESGO und Pumpe: Pumpenauslass oben an Port C rechts, Filter seitlich an A und B, E zum Pool mit Nachfüllung">
+ <defs><linearGradient id="pool-union-metal"><stop stop-color="#0b141a"/><stop offset=".4" stop-color="#37434b"/><stop offset="1" stop-color="#101920"/></linearGradient><linearGradient id="pool-filter-body"><stop stop-color="#263e4b"/><stop offset=".4" stop-color="#1b303e"/><stop offset="1" stop-color="#3c5765"/></linearGradient><clipPath id="pool-filter-cut"><path d="M67 174Q67 108 173 108Q279 108 279 174V355Q279 429 173 429Q67 429 67 355Z"/></clipPath></defs>
+ <ellipse cx="173" cy="446" rx="107" ry="9" fill="#06141d"/><path d="M100 418v25h146v-25" fill="#20303c" stroke="#4c6878"/>
+ <path d="M67 174Q67 108 173 108Q279 108 279 174V355Q279 429 173 429Q67 429 67 355Z" fill="url(#pool-filter-body)" stroke="#88a2ad" stroke-width="2"/>
+ <g clip-path="url(#pool-filter-cut)"><path d="M68 237Q118 225 169 237T280 237V430H67Z" fill="#85a298" opacity=".25"/><path d="M68 376H279V432H68Z" fill="#abbf9c" opacity=".19"/>${Array.from({length:11},(_,i)=>`<path d="M79 ${246+i*12}h189" stroke="#b2c3aa" stroke-width="2" stroke-dasharray="2 10" opacity=".38"/>`).join('')}<path class="poolc-media-flow" d="M110 168V390 M138 168V390 M210 168V390 M238 168V390" stroke="#e7fbff" stroke-width="2.5" stroke-dasharray="2 18" stroke-linecap="round" opacity=".8"/></g>
+ <rect x="130" y="96" width="86" height="14" rx="4" fill="#677d87" stroke="#a4b6bd"/><path d="M145 94v-8m21 8v-8m21 8v-8m21 8v-8" stroke="#98acb5" stroke-width="3"/>
+ <text x="173" y="10" text-anchor="middle" fill="#c2dbe5" font-size="18">Filter</text><g class="poolc-regulator-readout poolc-filter-pressure-readout" transform="translate(85 21)"><rect width="176" height="48" rx="7"/><text x="10" y="19">Filterdruck: <tspan data-role="filter-pressure-label">– bar</tspan></text><text x="10" y="37">Filterdruck max.: <tspan data-number="filter_max_bar" data-digits="2">–</tspan><tspan> bar</tspan></text></g>
+ ${refillCorner()}${Object.entries(paths).map(([k,p])=>pipe(k,p)).join('')}
+ <path d="M148 148l25-12 25 12Z" fill="#5e8698" stroke="#b3d0db"/><path d="M123 405h100" stroke="#739b9c" stroke-width="13" stroke-linecap="round"/><path d="M124 400v10m14-10v10m14-10v10m14-10v10m14-10v10m14-10v10m14-10v10m14-10v10" stroke="#c9dbcc" stroke-width="2"/>
+ <text x="173" y="469" text-anchor="middle" fill="#7797a8" font-size="12">Filterbett &amp; Bodensammler</text>
+ <rect x="378" y="120" width="36" height="315" rx="10" fill="#142631" stroke="#8da6b2" stroke-width="2"/>${valveInterior()}
+ <text x="448" y="43" fill="#9cbacb" font-size="13">Druckluftzylinder</text><g data-role="regulated-pressure-box" class="poolc-regulator-readout" transform="translate(448 53)"><rect width="148" height="31" rx="7"/><text x="10" y="20">Arbeitsdruck: <tspan data-role="regulated-pressure">– bar</tspan></text></g>
+ ${[['A',361,191],['B',361,337],['C',430,247],['D',430,132],['E',371,458]].map(([l,x,y])=>`<text x="${x}" y="${y}" fill="#cbd9de" font-size="16" font-weight="600">${l}</text>`).join('')}
+ <text x="548" y="150" fill="#c9aa8e" font-size="14">Kanal</text><text x="531" y="410" fill="#6f96ac" font-size="11">vom Pool</text><text x="944" y="511" fill="#9cdbe3" font-size="14">Pool</text>
+ <g class="poolc-regulator-readout" transform="translate(548 162)"><rect width="205" height="48" rx="7"/><text x="12" y="18">Letzte Rückspülung:</text><text x="12" y="36"><tspan data-role="last-backwash">–</tspan></text></g>
+ <g aria-label="Temperaturfühler mit Anbohrschelle im Rohr zwischen Pumpe und BESGO" transform="translate(460 260)">
+ <defs><linearGradient id="pool-probe-body"><stop stop-color="#17232c"/><stop offset=".45" stop-color="#43545f"/><stop offset="1" stop-color="#111d25"/></linearGradient></defs>
+ <path d="M0-34V-39Q0-44 5-47" fill="none" stroke="#9dabb5" stroke-width="3"/>
+ <rect x="-6" y="-35" width="12" height="15" rx="3" fill="url(#pool-probe-body)" stroke="#718995"/>
+ <path d="M-4-33v10m4-10v10m4-10v10" stroke="#14212b"/>
+ <path d="M-7-20H7L8-15H-8Z" fill="#7c929d" stroke="#a1b2ba"/>
+ <rect x="-8" y="-14" width="16" height="11" rx="2" fill="url(#pool-probe-body)" stroke="#637c8b"/>
+ <rect x="-16" y="-9" width="32" height="19" rx="5" fill="url(#pool-probe-body)" stroke="#7d949f"/>
+ <path d="M-16 1H16M-12-6V7M12-6V7" stroke="#8ca2ad" stroke-width="1"/>
+ <rect x="-20" y="-3" width="7" height="6" rx="1" fill="#81949d"/><rect x="13" y="-3" width="7" height="6" rx="1" fill="#81949d"/>
+ </g>
+ <g class="poolc-regulator-readout" data-role="temperature-readout" transform="translate(442 285)"><rect width="145" height="54" rx="7"/><text x="12" y="20">Wassertemp.: <tspan data-number="wasser_temp_c">–</tspan><tspan> °C</tspan></text><text x="12" y="41">Außentemp.: <tspan data-number="luft_temp_c">–</tspan><tspan> °C</tspan></text></g>
+ ${pressureStorageGraphic()}${pump}<text x="810" y="184" text-anchor="start" fill="#c2dbe5" font-size="18">Poolpumpe</text><g class="poolc-regulator-readout" transform="translate(810 195)"><rect width="178" height="88" rx="7"/><text x="12" y="23">Modus: <tspan data-role="pump-stage">–</tspan></text><text x="12" y="46">Leistung: <tspan data-role="pump-percent">– %</tspan></text><text x="12" y="69">Verbrauch: <tspan data-role="pool-power">–</tspan><tspan> Watt</tspan></text></g>
+ <path d="M275 505H392" class="poolc-refill-base"/><path d="M275 505H392" class="poolc-refill-flow"/><rect x="305" y="497" width="23" height="16" rx="3" class="poolc-solenoid"/><rect x="312" y="486" width="10" height="11" rx="2" fill="#4a6378"/><path d="M309 501l15 8m-15 0 15-8" fill="none" stroke="#aed4d9" stroke-width=".8"/><text x="269" y="536" fill="#9cbacb" font-size="13">Nachfüllventil</text><g class="poolc-regulator-readout" transform="translate(269 544)"><rect width="128" height="25" rx="7"/><text x="10" y="17">Nachfüllung: <tspan data-role="refill-label">unbekannt</tspan></text></g><path d="M420 505H935" class="poolc-pool-boost"/>
+ <foreignObject x="12" y="594" width="410" height="70" data-role="diagram-fault-box" style="display:none"><div xmlns="http://www.w3.org/1999/xhtml" class="poolc-diagram-fault" role="status"><strong>Störung</strong><div data-role="diagram-fault-text"></div></div></foreignObject>
+ ${returnEquipment()}${pipeGlass('M897 505H935')}
+ ${[[289,205],[289,350],[367,205],[367,350],[425,145],[425,260],[396,446,90],[669,505],[887,505]].map(a=>pipeUnion(...a)).join('')}</svg>`;
+}
+
+function pumpStage(status){
+ const s=String(status??'').trim().toLowerCase();
+ if(/rücksp|ruecksp/.test(s))return {percent:80,label:'Rückspülen'};
+ if(/hochlauf|startup/.test(s))return {percent:80,label:'Hochlauf'};
+ if(/normalbetrieb/.test(s))return {percent:32,label:'Normalbetrieb'};
+ if(/standby|stand-by/.test(s))return {percent:14,label:'Standby'};
+ if(/^(?:(?:pumpe|system)\s+)?(aus|off|ausgeschaltet|stillstand)(\s|$)/.test(s))return {percent:0,label:'Aus'};
+ // Percent-only states are accepted only for configured stages. 80% alone cannot identify backwash versus startup.
+ const match=s.match(/(?:^|\s)(0|14|32|80)\s*%/);
+ return match?{percent:Number(match[1]),label:({'0':'Aus','14':'Standby','32':'Normalbetrieb','80':'Rückspülen / Hochlauf'})[match[1]]}:{percent:null,label:'Betriebsstufe unbekannt'};
+}
+function pumpMotion(data){
+ const power=finite(data.pool_power),unit=String(data.pool_power_unit??'').trim().toLowerCase();
+ const watts=power===null||!['w','kw'].includes(unit)?null:power*(unit==='kw'?1000:1);
+ const flow=finite(data.flow_m3h),back=data.rueckspuelen==='on',relayKnown=['on','off'].includes(data.rueckspuelen);
+ let stage=pumpStage(data.betriebsstatus);
+ // Match the HA template's measured thresholds independently of the filling relay.
+ if(watts!==null&&watts<=50)return {percent:0,label:watts<=1?'System AUS':'Pumpe AUS',running:false,backFlow:false};
+ if(watts!==null&&flow!==null){
+   if(watts>=500&&flow>=2)stage={percent:80,label:'Hochlauf'};
+   else if(watts>=220&&watts<=350&&flow>=5.5)stage={percent:32,label:'Normalbetrieb'};
+   else if(watts>=90&&watts<=160&&flow>=3.5)stage={percent:14,label:'Standby'};
+ }
+ const running=watts!==null?watts>50:stage.percent!==null?stage.percent>0:flow!==null&&flow>0;
+ if(running&&back)stage={...stage,label:'Rückspülen'};
+ else if(running&&stage.percent===80)stage={...stage,label:relayKnown?'Hochlauf':'80-%-Betrieb'};
+ else if(running&&stage.percent===null)stage={...stage,label:'In Betrieb'};
+ return {...stage,running,backFlow:running&&back};
+}
+function equipmentStatus(data,stage=pumpMotion(data)){
+ const back=data.rueckspuelen==='on',fill=data.nachfuellen==='on';
+ const winter=data.frostschutz_automatik==='on';
+ const heating=/Heizung:\s*aktiv(?:\s|$|[·,;])/i.test(data.poolheizung_statuszeile||'');
+ if(stage.label==='System AUS')return 'System AUS';
+ const parts=[];
+ if(winter)parts.push('Wintermodus');
+ else if(!back){
+   if(stage.running){
+     parts.push(stage.label);
+     if(!fill&&['Standby','Normalbetrieb'].includes(stage.label))parts.push('Filtermodus');
+   }else if(!fill)parts.push(stage.percent===0?'Pumpe AUS':'Pumpenstatus unbekannt');
+ }
+ if(back)parts.push('Rückspülen');
+ if(fill)parts.push('Nachfüllen');
+ if(heating)parts.push(winter?'Zuheizen':'Heizen');
+ return parts.join(' – ');
+}
+function equipmentStatusMarkup(status){
+ return String(status).split(' – ').map(part=>['Heizen','Zuheizen'].includes(part)?'<span class="poolc-status-heating">'+esc(part)+'</span>':esc(part)).join(' – ');
+}
+function pumpGraphic(){return `<svg class="poolc-pump-svg" viewBox="0 0 360 180" role="img" aria-label="Blaue Poolpumpe mit schwarzem Motor, gelblichem transparentem Vorfilterdeckel und Gehäuseausschnitt unter dem Druckauslass. Laufradbewegung nach Betriebsstufe, keine gemessene Drehzahl.">
+<defs>
+<linearGradient id="pool-pump-blue" x1="0" x2="1"><stop stop-color="#0063ad"/><stop offset=".32" stop-color="#139ff1"/><stop offset=".7" stop-color="#0082da"/><stop offset="1" stop-color="#004581"/></linearGradient>
+<linearGradient id="pool-pump-motor" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#60717a"/><stop offset=".18" stop-color="#202c34"/><stop offset=".65" stop-color="#0a151e"/><stop offset="1" stop-color="#354552"/></linearGradient>
+<linearGradient id="pool-pump-cap"><stop stop-color="#0a1721"/><stop offset=".45" stop-color="#50606a"/><stop offset="1" stop-color="#0b1821"/></linearGradient>
+<radialGradient id="pool-pump-window"><stop stop-color="#176c8e"/><stop offset=".7" stop-color="#062c41"/><stop offset="1" stop-color="#00151e"/></radialGradient>
+<radialGradient id="pool-pump-lid"><stop stop-color="#eee2a0" stop-opacity=".7"/><stop offset=".65" stop-color="#c4b257" stop-opacity=".9"/><stop offset="1" stop-color="#475149"/></radialGradient>
+</defs>
+<ellipse cx="184" cy="169" rx="163" ry="7" fill="#000b14" opacity=".6"/>
+<path d="M186 147h20v22h-28v-8m84-15h38v15h-38" fill="#15232d" stroke="#435360"/>
+<rect x="198" y="71" width="135" height="85" rx="25" fill="url(#pool-pump-motor)" stroke="#627079"/>
+<path d="M309 73Q347 75 346 111Q348 151 316 155L306 151V78Z" fill="url(#pool-pump-cap)" stroke="#42515a"/>
+${[85,96,107,118,129,140].map(y=>`<path d="M215 ${y}h94" stroke="#73818b" stroke-width="3"/><path d="M215 ${y+2}h94" stroke="#071119" stroke-width="2"/>`).join('')}
+<path d="M219 69v12m69-13v12" stroke="#10191e" stroke-width="8"/>
+<g class="poolc-pump-controller" transform="translate(73 22.5) scale(.7)">
+<g transform="translate(210 5)">
+<rect width="99" height="84" rx="8" fill="#343b3d" stroke="#819095" stroke-width="1.4"/>
+<rect x="3" y="3" width="93" height="78" rx="6" fill="#171e21" stroke="#0a1013"/>
+<text x="49" y="12" text-anchor="middle" fill="#e7e9df" font-size="8" font-family="Arial" letter-spacing=".8">BADU GREEN</text>
+<rect x="10" y="17" width="79" height="23" rx="4" fill="#101a2a" stroke="#c3cfce" stroke-width="1.4"/>
+<g data-pump-display role="img" aria-label="Pumpenleistung unbekannt">
+${[0,1,2,3].map(i=>`<g transform="translate(${18+i*16} 20) skewX(-5)" data-pump-digit="${i}">${['2,0 10,0 12,2 10,3 2,3 0,2','10,3 12,2 12,8 10,9 9,8','10,10 12,9 12,15 10,17 9,15','2,15 10,15 11,17 9,18 1,18 0,17','0,10 2,10 3,11 2,15 0,17','0,2 2,3 3,4 2,8 0,9','2,8 10,8 11,9 9,11 2,11 1,9'].map((pts,j)=>`<polygon data-segment="${j}" points="${pts}" fill="#27364b"/>`).join('')}</g>`).join('')}
+</g>
+<text data-pump-percent-unit x="86" y="37" fill="#a6b8c8" font-size="4">%</text>
+${[[24,'#ffe12c','1'],[49,'#50c2d4','2'],[74,'#ffb348','3']].map(([x,c,t])=>`<circle cx="${x}" cy="59" r="6" fill="${c}" stroke="#d9e2db"/><path d="M${x-5.6} 59h11.2a5.6 5.6 0 0 1-11.2 0" fill="#008cc9"/><text x="${x}" y="58" text-anchor="middle" font-size="4" fill="#14292a">${t}</text><circle data-pump-led="${t}" cx="${x}" cy="48" r="2" fill="#293633"/>`).join('')}
+<text x="24" y="63" text-anchor="middle" font-size="4" fill="white">▼</text><text x="49" y="63" text-anchor="middle" font-size="4" fill="white">OK</text><text x="74" y="63" text-anchor="middle" font-size="4" fill="white">▲</text>
+<text x="25" y="76" fill="#ced8d8" font-size="5">POWER</text><circle cx="53" cy="74" r="2.7" data-pump-power fill="#293633"/>
+<circle cx="4" cy="37" r="1.7" fill="#aab4b3"/><circle cx="95" cy="37" r="1.7" fill="#aab4b3"/>
+</g>
+</g>
+<path d="M132 56Q158 47 185 61L205 82V144Q198 163 171 165L133 153 108 145V85Z" fill="url(#pool-pump-blue)" stroke="#409bc1"/>
+<path d="M192 63q14 41 4 97l12-4q10-54-5-87Z" fill="#324552" stroke="#7d8e96"/>
+${[74,104,140,157].map(y=>`<circle cx="203" cy="${y}" r="3.1" fill="#b0bfc6" stroke="#425965"/>`).join('')}
+<path d="M51 78Q63 62 90 63Q119 61 136 77V145Q122 164 87 165Q50 163 50 144Z" fill="url(#pool-pump-blue)" stroke="#419bc1"/>
+${[87,100,113,126,139,152].map(y=>`<path d="M111 ${y}Q130 ${y+3} 148 ${y-8}v5q-13 11-37 7" fill="#38a2ce" stroke="#126493" stroke-width="1"/>`).join('')}
+<path d="M61 137q20 9 44 0M60 148q23 9 43 0" fill="none" stroke="#4cabcb" opacity=".6"/>
+<g transform="translate(76 135) scale(.82 1) rotate(-90)" fill="#60bcec" opacity=".8">
+<g transform="translate(4 0) scale(.65)">${Array.from({length:8},(_,i)=>`<path d="M0-2Q-9-12-8-3Q-6-7-1 2Z" transform="rotate(${i*45})"/>`).join('')}</g>
+
+<text x="14" y="3" font-size="10" letter-spacing="1.1" font-family="Arial">BADU</text>
+</g>
+<rect x="0" y="99" width="36" height="18" rx="2" fill="url(#pool-pump-cap)" stroke="#70818a"/>
+<rect x="37" y="98" width="15" height="20" rx="3" fill="url(#pool-pump-cap)"/>
+<rect x="28" y="90" width="23" height="36" rx="4" fill="url(#pool-pump-cap)" stroke="#83919b"/>
+${[32,37,42,47].map(x=>`<path d="M${x} 94v28" stroke="#99a3a5" stroke-width="1.2"/>`).join('')}
+<path d="M48 60Q88 39 133 60V77Q90 99 48 77Z" fill="url(#pool-pump-cap)" stroke="#82929c"/>
+${[52,62,73,85,98,111,123,131].map((x,i)=>`<path d="M${x} ${66+Math.sin(i/7*Math.PI)*9}v14" stroke="#75848a" stroke-width="3" stroke-linecap="round"/>`).join('')}
+<ellipse cx="90" cy="61" rx="43" ry="17" fill="#192832" stroke="#879ca4"/>
+<ellipse cx="90" cy="60" rx="33" ry="12" fill="url(#pool-pump-lid)" stroke="#adc4bd"/>
+<ellipse cx="90" cy="59" rx="22" ry="8" fill="none" stroke="#e8e4a4" opacity=".8"/><ellipse cx="90" cy="58" rx="9" ry="4" fill="#d6c768" stroke="#f2edbe"/>
+<path d="M66 52q25-8 42 1" fill="none" stroke="#efffff" stroke-width="2" opacity=".65"/>
+<rect x="163" y="8" width="20" height="38" rx="2" fill="url(#pool-pump-cap)" stroke="#748991"/>
+<path d="M161 49h24v12l7 6h-38l7-6Z" fill="url(#pool-pump-cap)" stroke="#50636d"/>
+<rect x="157" y="39" width="32" height="18" rx="4" fill="url(#pool-pump-cap)" stroke="#95a7ae"/>
+${[161,165,169,173,177,181,185].map(x=>`<path d="M${x} 42v12" stroke="#8a979c" stroke-width="1.2"/>`).join('')}
+<path d="M154 75Q174 66 192 84L194 124Q181 142 158 130Q141 105 154 75Z" fill="url(#pool-pump-window)" stroke="#7ac6df" stroke-width="2"/>
+<path d="M155 75l4 6m-8 3 6 5m-10 4 7 5m-7 5 7 4m-5 6 6 4m-3 5 7 4" stroke="#d0dfd7" stroke-width="1.2"/>
+<circle cx="173" cy="108" r="20" fill="#174458" stroke="#45788a"/>
+<g class="poolc-impeller" style="transform-origin:173px 108px"><circle cx="173" cy="108" r="17" fill="#33454b" stroke="#a3bbc1"/>
+${Array.from({length:8},(_,i)=>`<path d="M173 102Q158 88 158 105Q162 99 170 110Z" fill="#8eaaae" stroke="#d4e3e4" stroke-width=".6" transform="rotate(${i*45} 173 108)"/>`).join('')}
+<circle cx="173" cy="108" r="5" fill="#d8e6e2" stroke="#78969e"/><circle cx="173" cy="108" r="2" fill="#314652"/></g>
+<path d="M154 83q15-13 32-3" fill="none" stroke="#d4f7ff" opacity=".3" stroke-width="3"/>
+</svg>`;}
+
+function updatePumpDisplay(root,percent,mode){
+ root.dataset.pumpDisplayMode=mode;
+ root.querySelectorAll("[data-pump-percent-unit]").forEach(el=>el.style.visibility=mode==='running'?'visible':'hidden');
+ const masks={0:'1111110',1:'0110000',2:'1101101',3:'1111001',4:'0110011',5:'1011011',6:'1011111',7:'1110000',8:'1111111',9:'1111011',O:'1111110',F:'1000111','-':'0000001',' ':'0000000'};
+ const text=mode==='system-off'?'    ':mode==='pump-off'?' OFF':percent===null?'  --':String(Math.round(percent)).padStart(4,' ');
+ root.querySelectorAll('[data-pump-display]').forEach(display=>{
+ display.setAttribute('aria-label',mode==='system-off'?'System aus':mode==='pump-off'?'Pumpe aus':percent===null?'Pumpenleistung unbekannt':`Pumpenleistung ${percent} Prozent`);
+ display.querySelectorAll('[data-pump-digit]').forEach(digit=>{const mask=masks[text[Number(digit.dataset.pumpDigit)]]||masks['-'];digit.querySelectorAll('[data-segment]').forEach(seg=>{const on=mask[Number(seg.dataset.segment)]==='1';seg.setAttribute('fill',on?'#7beaff':mode==='system-off'?'#121b27':'#27364b');seg.style.filter=on?'drop-shadow(0 0 1px #058cff)':'none';});});
+ });
+ root.querySelectorAll('[data-pump-led]').forEach(led=>led.setAttribute('fill',mode==='running'&&percent===({1:14,2:32,3:80})[led.dataset.pumpLed]?'#59ff6c':'#293633'));
+ root.querySelectorAll('[data-pump-power]').forEach(led=>led.setAttribute('fill',['running','pump-off'].includes(mode)?'#59ff6c':'#293633'));
+}
+
+function systemAlerts(data,minimum){
+ const messages=[],status=String(data.fehlerstatus??'').trim();
+ const clear=/^(0|ok|normal|off|none|no errors?|no faults?|keine? (fehler|störung(?:en)?|stoerung(?:en)?)|fehlerfrei|störungsfrei|stoerungsfrei)$/i;
+ const absent=/^(unknown|unavailable|undefined|null|nicht verfügbar)$/i;
+ if(status&&!clear.test(status)&&!absent.test(status))messages.push('Anlage: '+status);
+  const code=finite(data.fehlercode);
+  if(code!==null&&code>0)messages.push('ASIN AQUA: Fehlercode '+code);
+  if(isOn(data.flow_system_error))messages.push('BADU FlowSonic Plus: Systemfehler');
+ const pressure=finite(data.filter_bar),max=finite(data.filter_max_bar);
+ if(pressure!==null&&pressure>=.9)messages.push('Filterdruck '+fmt(pressure,2)+' bar · Notabschaltgrenze erreicht');
+ else if(pressure!==null&&max!==null&&pressure>max)messages.push('Filterdruck über Maximalmarkierung: '+fmt(pressure,2)+' / '+fmt(max,2)+' bar');
+ const level=levelModel(data);
+ if(level.level!==null&&level.low!==null&&level.level<level.low)messages.push('Wasserstand unter Minimum: '+fmt(level.level,0)+' cm');
+ if(level.level!==null&&level.high!==null&&level.level>level.high)messages.push('Wasserstand über Maximum: '+fmt(level.level,0)+' cm');
+ const air=finite(data.druckluft_bar),min=finite(String(minimum??'').replace(',','.'));
+ if(air!==null&&min!==null&&air<min)messages.push('Druckluft unter Mindestdruck: '+fmt(air,2)+' bar');
+ CHEMS.forEach(([key,name])=>{if(finite(data[key+'_prozent'])===0)messages.push(name+': Kanister leer gemeldet');});
+ return messages;
+}
+function start(root){
+  const config=JSON.parse(root.dataset.poolConfig||'{}');
+  const lovelace=config.lovelace===true;
+  const controlHeaders=()=>config.canControl&&config.nonce?{[config.controlHeader||'X-POOL-Control-Nonce']:config.nonce}:{};
+  let data={},control=null,networkError=false,refreshing=false,commandSending=false,knownCommand=null;
+  let alertSignature='',alertPaused=false,valveMode=null,valveTimer=null;
+  let params={loss:'0,08',minimum:'4,00',leak:'0,065'};
+  try{const old=JSON.parse(localStorage.getItem('pool-pool-reserve'));if(old&&reserve(6,old.loss,old.minimum)){for(const key of Object.keys(params))if(Object.hasOwn(old,key))params[key]=old[key];}}catch{}
+  root.innerHTML=`<div class="poolc-shell"><header class="poolc-top"><div class="poolc-brand"><span class="poolc-mark">${icon('wave')}</span><span>POOL<span class="poolc-brand-small">COCKPIT</span></span></div><div class="poolc-top-right"><span class="poolc-connection" data-role="connection">Verbindung wird geprüft</span><button class="poolc-icon-button" type="button" data-action="refresh" aria-label="Messwerte aktualisieren">${icon('refresh')}</button></div></header><div class="poolc-alert-banner" data-role="alerts" hidden><span class="poolc-alert-label">! STÖRUNG</span><div class="poolc-alert-window"><div class="poolc-alert-marquee" aria-hidden="true"><span data-role="alert-scroll"></span><span data-role="alert-copy"></span></div></div><span class="poolc-sr-only" data-role="alert-announcement" role="status" aria-live="polite" aria-atomic="true"></span><button type="button" data-action="pause-alert" aria-label="Störungsband anhalten" aria-pressed="false">Ⅱ</button></div><div class="poolc-intro"><div><div class="poolc-eyebrow">ASIN AQUA HOME <span>/</span> DEIN POOL</div><h1>Dein Pool.<br><span>Alles im Blick.</span></h1><p>Wasserqualität, Vorräte und Technik an einem Ort.</p></div><div class="poolc-intro-state"><span class="poolc-tiny">POOLSTEUERUNG</span><strong data-value="betriebsstatus">–</strong><small class="poolc-control-mode" data-role="control-mode"></small><small data-role="updated">Noch keine Messwerte</small></div></div><div class="poolc-notice" data-role="notice" hidden></div>
+  <section class="poolc-section"><div class="poolc-section-title"><h2>Wasser & Kreislauf</h2><span>MESSWERTE & SOLLWERTE</span></div><div class="poolc-temperature-summary"><article class="poolc-card poolc-value-card" style="--accent:#63d8d1"><div class="poolc-card-top"><h3>Wassertemperatur</h3>${icon('thermo')}</div><div class="poolc-big"><strong data-number="wasser_temp_c">–</strong><small>°C</small></div><div class="poolc-comparison"><span>Heizungsziel <b data-number="heizung_temp_soll_c">–</b> °C</span></div><div class="poolc-temperature-line"><i data-role="temperature-track"></i></div><p class="poolc-card-caption">Außenluft <b data-number="luft_temp_c">–</b> °C</p></article></div>
+  <article class="poolc-card poolc-besgo-card"><div class="poolc-besgo-text poolc-tech-heading"><h3>Technikübersicht</h3><div class="poolc-besgo-status"><span class="poolc-pill" data-role="besgo-mode">Zustand unbekannt</span></div></div><div class="poolc-besgo-drawing">${besgoGraphic()}</div><div class="poolc-demo-tools" ${config.demo?'':'hidden'}><span>Simulation · nur Vorschau</span><div><button type="button" data-demo="filter">Filtration</button><button type="button" data-demo="backwash">Rückspülen</button><button type="button" data-demo="fill">Nachfüllen</button><button type="button" data-demo="stop">Stillstand</button><button type="button" data-demo="fill-stop">Nachfüllen · Pumpe aus</button><button type="button" data-demo="heat">Heizung EIN</button><button type="button" data-demo="fault">Störung testen</button></div><label>Durchfluss <input type="range" min="0" max="8" step=".1" value="4.44" data-demo-flow aria-label="Simulierter Durchfluss"></label><small>Grenzwerte und Relaiszustände sind Beispielwerte.</small></div></article>
+  <div class="poolc-circulation-grid"><article class="poolc-card poolc-flow-card"><div class="poolc-card-top"><h3>${icon('flow')} Durchfluss</h3><span class="poolc-tiny">BADU FLOWSONIC PLUS</span></div>${flowGraphic()}<div class="poolc-flow-bottom"><strong><span data-number="flow_m3h" data-digits="2">–</span> <small>m³/h</small></strong><span class="poolc-flow-state"><b data-role="flow-system">Status: unbekannt</b><small data-role="flow-note">Wartet auf Messwert</small></span></div></article><article class="poolc-card poolc-filter-card"><div class="poolc-card-top"><h3>Filterdruck</h3>${icon('pressure')}</div><div data-role="filter-gauge"></div><div class="poolc-gauge-legend"><span><i></i> Max. <b data-number="filter_max_bar" data-digits="2">–</b> bar</span><span>Rot ab 0,90 bar</span></div><p class="poolc-footnote" data-role="filter-note">Notabschaltgrenze · Anzeige, keine Abschaltfunktion</p></article><article class="poolc-card poolc-level-card"><div class="poolc-card-top"><h3>Wasserstand</h3>${icon('wave')}</div><div class="poolc-level-inner"><div><div class="poolc-big"><strong data-number="pegel_cm" data-digits="0">–</strong><small>cm</small></div><p data-role="level-note">Grenzwerte fehlen</p><small data-role="level-offset">Offset –</small><small data-role="level-scale">Skala 0–150 cm</small><span class="poolc-level-mode" data-role="level-mode">–</span></div><div class="poolc-level-assembly"><div class="poolc-level-vessel" role="img" aria-label="Wasserstand"><div data-role="level-fill"></div></div><div data-role="level-marks"></div></div></div></article></div><article class="poolc-card poolc-filter-performance"><div class="poolc-filter-volume"><div class="poolc-card-top"><h3>${icon('flow')} Filterleistung</h3><span class="poolc-tiny">GEFILTERTES WASSERVOLUMEN</span></div><div class="poolc-volume-row"><span>Heute</span><strong><b data-number="filter_volume_today" data-digits="2">–</b> <small>m³</small></strong><div class="poolc-volume-track"><i data-role="volume-today"></i></div></div><div class="poolc-volume-row poolc-volume-yesterday"><span>Vortag</span><strong><b data-number="filter_volume_yesterday" data-digits="2">–</b> <small>m³</small></strong><div class="poolc-volume-track"><i data-role="volume-yesterday"></i></div></div><p class="poolc-footnote">Heute bisher · Vortag vollständig</p></div><div class="poolc-turnover"><div data-role="turnover-graphic"></div><div><h3>Umwälzung · Vortag</h3><p data-role="turnover-count">Noch kein Messwert</p><small>Außen 100 %, nächster Ring 200 %, danach 300 % … Jeder Ring steht für ein Poolvolumen.</small></div></div></article></section>
+<section class="poolc-section"><div class="poolc-section-title"><h2>Poolchemie &amp; Pflege</h2><span>WASSERWERTE & DOSIERUNG</span></div><div class="poolc-water-grid poolc-care-grid"><article class="poolc-card poolc-value-card" style="--accent:#edcb62"><div class="poolc-card-top"><h3>Chlor</h3>${icon('drop')}</div><div class="poolc-big"><strong data-number="chlor_ist" data-digits="2">–</strong><small>mg/l</small></div><div class="poolc-comparison"><span>Soll <b data-number="chlor_soll" data-digits="2">–</b> mg/l</span><span data-role="chlor-diff">–</span></div><div class="poolc-value-track"><i data-role="chlor-track"></i></div><p class="poolc-card-caption">Desinfektion</p></article><article class="poolc-card poolc-value-card" style="--accent:#70b9ec"><div class="poolc-card-top"><h3>pH-Wert</h3>${icon('drop')}</div><div class="poolc-big"><strong data-number="ph_ist" data-digits="2">–</strong><small>pH</small></div><div class="poolc-comparison"><span>Soll <b data-number="ph_soll" data-digits="2">–</b></span><span data-role="ph-diff">–</span></div><div class="poolc-value-track"><i data-role="ph-track"></i></div><p class="poolc-card-caption">Säure-Basen-Wert</p></article>${[['algizid_dosierung','Algizid','#8bcc9b','ml/m³ · Tag','Algenprävention'],['floc_dosierung','Flockungsmittel','#d8b48a','ml/m³ · Std.','Wasserklärung']].map(([key,title,color,unit,caption])=>`<article class="poolc-card poolc-value-card" style="--accent:${color}"><div class="poolc-card-top"><h3>${title}</h3>${icon('drop')}</div><div class="poolc-big"><strong data-number="${key}" data-digits="0">–</strong><small>${unit}</small></div><p class="poolc-card-caption">${caption} · Dosierung</p></article>`).join('')}</div></section>  <section class="poolc-section"><div class="poolc-section-title"><h2>Deine Vorräte</h2><span>FÜLLSTAND & REICHWEITE</span></div><div class="poolc-chem-grid">${CHEMS.map(([key,name,sub,color])=>`<article class="poolc-card poolc-chem" style="--accent:${color}" data-chem="${key}"><div class="poolc-card-top"><div><h3>${name}</h3><p>${sub}</p></div><i class="poolc-chem-dot"></i></div><div class="poolc-canister-wrap" data-canister="${key}"></div><div class="poolc-quantity"><strong data-number="${key}_rest_liter">–</strong><span> / <span data-number="${key}_kanister_liter">–</span> l</span></div><div class="poolc-chem-details"><span>Geschätzte Reichweite</span><strong data-days="${key}">– Tage</strong></div><div class="poolc-chem-details"><span>Tagesverbrauch</span><span data-daily="${key}">Nicht verfügbar</span></div><p class="poolc-last-change" data-replaced="${key}">Kanisterwechsel: nicht übertragen</p></article>`).join('')}</div></section>
+  <section class="poolc-section"><div class="poolc-section-title"><h2>Technik & Steuerung</h2><span>HEIZFREIGABE & DRUCKRESERVE</span></div><div class="poolc-tech-grid"><article class="poolc-card poolc-heating"><div class="poolc-card-top"><h3>${icon('heat')} Poolheizung</h3><span class="poolc-pill" data-role="heat-state">Status unbekannt</span></div><p class="poolc-heating-line" data-value="poolheizung_statuszeile">Noch keine Rückmeldung</p><div class="poolc-heating-stats"><span>Wasser <strong><b data-number="wasser_temp_c">–</b> °C</strong></span><span class="poolc-arrow">→</span><span>Heizungsziel <strong><b data-number="heizung_temp_soll_c">–</b> °C</strong></span></div><div class="poolc-heating-details"><span>Betriebsphase Brenner <b data-value="burner_phase">–</b></span><span>Wärmeleistung aktuell <b><span data-number="heating_power_current" data-digits="2">–</span> <small data-role="heating-power-unit">–</small></b></span><span>Wärmemenge Vortag · Heizbetrieb <b><span data-number="heating_energy_yesterday" data-digits="2">–</span> <small data-role="heating-energy-unit">–</small></b></span></div><div class="poolc-control-area" data-role="controls"></div><div class="poolc-command-note" data-role="command" role="status" aria-live="polite">Die Freigabe erlaubt deiner bestehenden HA-Regelung zu heizen.</div><div class="poolc-status-list"><span>Frostschutz-Automatik <b data-role="frost">–</b></span><span>Anlagenmeldung <b data-value="fehlerstatus">–</b></span></div></article><article class="poolc-card poolc-pressure"><div class="poolc-card-top"><h3>${icon('pressure')} BESGO-Druckreserve</h3><span class="poolc-tiny">10-LITER-SPEICHER</span></div><div class="poolc-pressure-overview"><div data-role="air-gauge"></div><div class="poolc-pressure-metrics"><div><span>Aktueller Druck</span><strong><b data-number="druckluft_bar" data-digits="2">–</b><small>bar</small></strong></div><div><span>Restschaltungen</span><strong class="poolc-accent" data-role="cycles">–</strong></div><div class="poolc-days"><span>Reichweite · geschätzt</span><strong class="poolc-accent" data-role="reserve-days">–</strong><small>Tage</small></div></div></div><div class="poolc-pressure-track"><i data-role="pressure-track"></i><span data-role="minimum-mark"></span></div><div class="poolc-pressure-caption"><span data-role="reserve">Reserve noch unbekannt</span><span data-role="pressure-scale">0–10 bar</span></div><div class="poolc-params"><label>Verlust je Schaltung<div><input type="text" inputmode="decimal" data-param="loss" value="${esc(params.loss)}" aria-label="Druckverlust je Schaltung"><span>bar</span></div></label><label>Mindestdruck<div><input type="text" inputmode="decimal" data-param="minimum" value="${esc(params.minimum)}" aria-label="Mindestdruck"><span>bar</span></div></label><label>Schleichender Verlust<div><input type="text" inputmode="decimal" data-param="leak" value="${esc(params.leak)}" aria-label="Schleichender Druckverlust pro Tag"><span>bar/Tag</span></div></label></div><p class="poolc-footnote">Rückspülintervall: <b data-role="backwash-interval">–</b> · Uhrzeit: <b data-role="backwash-start">–</b></p><p class="poolc-footnote" data-role="backwash-learning"></p><p class="poolc-footnote" data-role="reserve-assumptions"></p><p class="poolc-footnote">Verlust grob aus Diagramm geschätzt. Schalthäufigkeit lernt über 30 Tage; keine laufende Temperaturkorrektur.</p></article></div></section><footer class="poolc-footer"><span>${icon('shield')} Messdaten aus Home Assistant</span><span>Pool Cockpit 2.36</span></footer></div><dialog class="poolc-dialog"><form method="dialog"><span class="poolc-eyebrow">HEIZFREIGABE</span><h2 data-role="confirm-title">Freigabe ändern?</h2><p>Home Assistant setzt die Heizfreigabe. Die vorhandene Heizungsregelung entscheidet weiterhin über den tatsächlichen Heizbetrieb.</p><div class="poolc-dialog-actions"><button value="cancel" type="submit">Abbrechen</button><button value="confirm" type="submit" class="poolc-primary">Befehl senden</button></div></form></dialog>`;
+  const q=s=>root.querySelector(s);
+  const htmlCache=new WeakMap();
+  const writeText=(el,value)=>{const next=String(value??'');if(el&&el.textContent!==next)el.textContent=next;};
+  const writeHtml=(el,value)=>{if(el&&htmlCache.get(el)!==value){el.innerHTML=value;htmlCache.set(el,value);}};
+  const forecastLabels={
+    active:'Aktiv',aktiv:'Aktiv',
+    provisional:'Vorläufige Prognose','vorläufige prognose':'Vorläufige Prognose',
+    paused:'Dosierung pausiert','dosierung pausiert':'Dosierung pausiert',
+    learning:'Lernphase',lernphase:'Lernphase',
+    calibration_missing:'Kalibrierung fehlt','kalibrierung fehlt':'Kalibrierung fehlt',
+    no_consumption:'Kein Verbrauch im Auswertungszeitraum','kein verbrauch im auswertungszeitraum':'Kein Verbrauch im Auswertungszeitraum',
+    insufficient_data:'Datengrundlage lückenhaft','datengrundlage lückenhaft':'Datengrundlage lückenhaft',
+    device_data_missing:'Gerätedaten fehlen','gerätedaten fehlen':'Gerätedaten fehlen'
+  };
+  const forecastText=(data,key,fallback)=>{
+    const days=finite(data[key+'_remaining_days']);
+    const raw=String(data[key+'_forecast_status']??'').trim().toLowerCase();
+    const label=forecastLabels[raw]||(raw?String(data[key+'_forecast_status']):'');
+    if(days!==null)return '≈ '+Math.max(0,Math.floor(days))+' Tage'+(raw==='provisional'||raw==='vorläufige prognose'?' · vorläufig':'');
+    if(raw==='learning'||raw==='lernphase'){
+      const samples=finite(data[key+'_forecast_sample_days']);
+      return samples===null?'Lernphase':'Lernphase · '+Math.max(0,Math.floor(samples))+'/3 Tage';
+    }
+    if(label)return label;
+    return fallback;
+  };
+  const set=(role,value)=>root.querySelectorAll(`[data-role="${role}"]`).forEach(el=>writeText(el,value));
+  function fill(d){
+    data=d||{};
+    root.querySelectorAll('[data-number]').forEach(el=>writeText(el,fmt(data[el.dataset.number],Number(el.dataset.digits??1))));
+    root.querySelectorAll('[data-value]').forEach(el=>writeText(el,text(data[el.dataset.value])));
+    const temperatureBox=q('[data-role="temperature-readout"]');
+    if(temperatureBox){
+      const widths=Array.from(temperatureBox.querySelectorAll('text'),el=>typeof el.getComputedTextLength==='function'?el.getComputedTextLength():0);
+      const contentWidth=Math.max(0,...widths);
+      if(contentWidth>0)temperatureBox.querySelector('rect').setAttribute('width',Math.ceil(contentWidth)+24);
+    }
+    for(const key of ['chlor','ph']){
+      const val=numeric(data,key+'_ist'),target=numeric(data,key+'_soll');
+      set(key+'-diff',val===null||target===null?'':`${fmt(Math.abs(val-target),2)} ${val<target?'unter':val>target?'über':'Abstand zum'} Soll`);
+      const ratio=val===null?0:key==='chlor'?Math.min(1,val/Math.max(target||.4,val,.8)):Math.max(0,Math.min(1,(val-6)/3));
+      q(`[data-role="${key}-track"]`).style.width=(ratio*100)+'%';
+    }
+    const wt=numeric(data,'wasser_temp_c');q('[data-role="temperature-track"]').style.width=wt===null?'0%':Math.max(0,Math.min(100,wt/40*100))+'%';
+    CHEMS.forEach(([key,name,sub,color])=>{
+      const pct=numeric(data,key+'_prozent');
+      writeHtml(q(`[data-canister="${key}"]`),canister(key,pct,color));
+      const daily=dailyLitres(data[key+'_tagesverbrauch'],data[key+'_tagesverbrauch_einheit']);
+      const remaining=numeric(data,key+'_rest_liter');
+      const fallbackDays=daily===null||remaining===null?'– Tage':Math.floor(remaining/daily)+' Tage';
+      writeText(q(`[data-days="${key}"]`),forecastText(data,key,fallbackDays));
+      writeText(q(`[data-daily="${key}"]`),finite(data[key+'_tagesverbrauch'])===null?'Nicht verfügbar':`${fmt(data[key+'_tagesverbrauch'],2)} ${text(data[key+'_tagesverbrauch_einheit'])}`);
+      const replacement=data[key+'_letzter_wechsel'];const date=replacement?new Date(replacement):null;
+      writeText(q(`[data-replaced="${key}"]`),date&&!isNaN(date)?'Letzter Wechsel: '+date.toLocaleDateString('de-DE',{timeZone:'Europe/Berlin'}):'Kanisterwechsel: nicht übertragen');
+      q(`[data-chem="${key}"]`).classList.toggle('poolc-low',pct!==null&&pct<=15);
+    });
+    const level=levelModel(data);
+    q('[data-role="level-fill"]').style.height=level.percent(level.level)+'%';
+    q('.poolc-level-vessel').setAttribute('aria-label',`Wasserstand ${fmt(level.level,0)} cm`);
+    set('level-scale',`Skala ${fmt(level.min,0)}–${fmt(level.max,0)} cm`);
+    set('level-offset',level.offset===null?'Offset nicht verfügbar':`Offset ${level.offset>=0?'+':''}${fmt(level.offset,0)} cm`);
+    set('level-note',!level.valid?'Grenzwerte / Offset fehlen oder widersprüchlich':level.level===null?'Kein Messwert':level.level<level.offset?'Unter Offset':level.level<level.refill?'Unter Nachfüllgrenze':level.level>level.high?'Über Hoch':'Im Pegelbereich');
+    writeHtml(q('[data-role="level-marks"]'),level.valid?[['high','Hoch','#ed8386'],['normal','Normal','#8dccaa'],['refill','Nachfüllen','#77bfe1'],['offset','Offset','#77bfe1']].map(([k,label,color])=>`<i style="bottom:${level.percent(level[k])}%;--mark:${color}" title="${label}: ${fmt(level[k],Number.isInteger(level[k])?0:1)} cm"><span>${label} ${fmt(level[k],Number.isInteger(level[k])?0:1)}</span></i>`).join(''):'');
+    const today=finite(data.filter_volume_today),yesterday=finite(data.filter_volume_yesterday),scale=Math.max(today??0,yesterday??0,1);
+    q('[data-role=volume-today]').style.width=(today===null?0:today/scale*100)+'%';
+    q('[data-role=volume-yesterday]').style.width=(yesterday===null?0:yesterday/scale*100)+'%';
+    const turnover=finite(data.turnover_percent);
+    writeHtml(q('[data-role=turnover-graphic]'),turnoverGraphic(turnover));
+    set('turnover-count',turnover===null?'Noch kein Messwert':fmt(turnover/100,2)+' × Poolvolumen');
+    const power=finite(data.pool_power),unit=String(data.pool_power_unit??'').toLowerCase();
+    set('pool-power',power===null||!['w','kw'].includes(unit)?'–':fmt(power*(unit==='kw'?1000:1),0));
+    writeHtml(q('[data-role="filter-gauge"]'),gauge(data.filter_bar,Math.max(1.2,Math.ceil((finite(data.filter_bar)??0)*10)/10,Math.ceil((finite(data.filter_max_bar)??0)*10)/10),data.filter_max_bar,'filter'));
+    set('filter-pressure-label',finite(data.filter_bar)===null?'– bar':fmt(data.filter_bar,2)+' bar');
+    set('filter-note',finite(data.filter_bar)!==null&&data.filter_bar>=.9?'Notabschaltgrenze erreicht! Tatsächliche Abschaltung in HA prüfen.':'Notabschaltgrenze · Anzeige, keine Abschaltfunktion');
+    q('.poolc-filter-card').classList.toggle('poolc-danger',finite(data.filter_bar)!==null&&data.filter_bar>=.9);
+    const frost=data.frostschutz_automatik??data.frostschutz_aktiv;
+    set('frost',frost==='on'?'Eingeschaltet':frost==='off'?'Ausgeschaltet':'Unbekannt');
+    set('last-backwash',formatDateTime(data.last_backwash));
+    set('heating-power-unit',text(data.heating_power_current_unit));
+    set('heating-energy-unit',text(data.heating_energy_yesterday_unit));
+    const state=control?.connected?control.state:data.heizung_freigabe;
+    set('heat-state',state==='on'?'Freigabe EIN':state==='off'?'Freigabe AUS':'Status unbekannt');
+    set('hx-permission',state==='on'?'aktiv':state==='off'?'inaktiv':'unbekannt');
+    const hxState=String(data.poolheizung_statuszeile??'').match(/Heizung:\s*(inaktiv|aktiv)(?:\s|$|[·,;])/i);
+    set('hx-heating',hxState?hxState[1].toLowerCase():'unbekannt');
+    const heatPower=finite(data.heating_power_current),heatUnit=String(data.heating_power_current_unit??'').trim().toLowerCase();
+    set('hx-power',heatPower===null||!['w','kw'].includes(heatUnit)?'–':fmt(heatPower/(heatUnit==='w'?1000:1),2));
+    renderReserve();renderFreshness();renderControl();
+  }
+  function renderFreshness(){
+    if(lovelace){
+      root.classList.remove('poolc-stale');
+      renderMotion(true);renderAlerts(true);
+      set('connection','Home Assistant verbunden');
+      q('[data-role="connection"]').dataset.good='yes';
+      const date=data.timestamp?new Date(data.timestamp):new Date();
+      set('updated','Stand: '+date.toLocaleString('de-DE',{dateStyle:'short',timeStyle:'medium',timeZone:'Europe/Berlin'}));
+      q('[data-role="notice"]').hidden=true;
+      return;
+    }
+    const received=finite(data.received_epoch),source=finite(data.source_epoch);
+    const stale=data.stale===true||!received||Date.now()/1000-received>180||!source||Date.now()/1000-source>180;
+    root.classList.toggle('poolc-stale',!config.demo&&(stale||networkError));
+    renderMotion(config.demo||!(stale||networkError));
+    renderAlerts(config.demo||!(stale||networkError));
+    set('connection',config.demo?'Vorschau · Beispieldaten':networkError?'Verbindung unterbrochen':stale?'Messwerte nicht aktuell':'Messdaten aktuell');
+    q('[data-role="connection"]').dataset.good=!config.demo&&!stale&&!networkError?'yes':'no';
+    const date=data.timestamp?new Date(data.timestamp):null;
+    set('updated',config.demo?'Beispieldaten · kein Live-Messzeitpunkt':date&&!isNaN(date)?'Stand: '+date.toLocaleString('de-DE',{dateStyle:'short',timeStyle:'medium',timeZone:'Europe/Berlin'}):'Noch keine bestätigte Messzeit');
+    const notice=q('[data-role="notice"]');
+    notice.hidden=!config.demo&&!stale&&!networkError;
+    writeText(notice,config.demo?'Designvorschau mit Beispielwerten. Keine Liveverbindung; Schaltfunktionen sind deaktiviert.':networkError?'Die Verbindung zu WordPress ist unterbrochen. Angezeigte Werte können veraltet sein.':received?'Die Messwerte sind älter als drei Minuten oder ihre Messzeit fehlt.':'Wartet auf die erste Datenübertragung von Home Assistant. Fehlende Werte werden als „–“ angezeigt.');
+  }
+  function renderAlerts(fresh){
+    const messages=systemAlerts(data,params.minimum),banner=q('[data-role=alerts]');
+    const diagramFaults=messages;
+    q('[data-role="diagram-fault-box"]').style.display=diagramFaults.length?'':'none';
+    set('diagram-fault-text',(!fresh?'Letzte Meldung · Daten veraltet: ':'')+diagramFaults.join(' · '));
+    banner.hidden=messages.length===0;
+    const message=messages.length?(!fresh?'Letzte Meldungen · Daten veraltet: ':'')+messages.join('     •     '):'';
+    if(message!==alertSignature){
+      alertSignature=message;
+      set('alert-scroll',message);set('alert-copy',message);set('alert-announcement',message);
+      banner.style.setProperty('--alert-duration',Math.max(18,message.length/7)+'s');
+    }
+  }
+  function renderMotion(fresh){
+    root.dataset.heating=fresh&&/Heizung:\s*aktiv(?:\s|$|[·,;])/i.test(data.poolheizung_statuszeile||'')?'on':'off';
+    const stage=pumpMotion(data);
+    set('pump-percent',stage.percent===null?'– %':stage.percent+' %');
+    set('pump-screen',stage.percent===null?'–':stage.percent+'%');updatePumpDisplay(root,fresh&&data.connected!==false?stage.percent:null,!fresh||data.connected===false?'unknown':stage.label==='System AUS'?'system-off':stage.label==='Pumpe AUS'?'pump-off':stage.running?'running':'unknown');
+    set('pump-stage',stage.percent===0?'Aus':stage.label);
+    set('control-mode',stage.percent===0?'':isOn(data.status_nonstop_24h)?'24 NONSTOP':isOn(data.status_timer)?'Zeitsteuerung':'');
+    root.dataset.pump=fresh&&stage.running?'running':'stopped';
+    root.style.setProperty('--pump-duration',(stage.percent>0?Math.max(.4,32/stage.percent):2)+'s');
+    const flow=flowMotion(data.flow_m3h),known=['on','off'].includes(data.rueckspuelen),back=data.rueckspuelen==='on',filling=data.nachfuellen==='on';
+    const mode=!fresh?'stale':!known?'unknown':back?'backwash':'filter';
+    if(mode!==valveMode){
+      if(valveTimer!==null)clearTimeout(valveTimer);
+      const switching=['filter','backwash'].includes(valveMode)&&['filter','backwash'].includes(mode);
+      root.dataset.valveMoving=switching?'true':'false';
+      if(switching)valveTimer=setTimeout(()=>{root.dataset.valveMoving='false';valveTimer=null;},1200);
+      valveMode=mode;
+    }
+    root.dataset.mode=mode;
+    root.dataset.flow=fresh&&stage.running&&(stage.backFlow||flow.running)?'running':'stopped';
+    root.dataset.meterFlow=fresh&&flow.running&&stage.running?'running':'stopped';
+    root.dataset.refill=fresh&&filling?'on':'off';
+    set('refill-label',!fresh?'veraltet':filling?'AN':data.nachfuellen==='off'?'AUS':'unbekannt');
+    const levelMotion=levelAnimation(data,fresh);
+    root.dataset.levelMotion=levelMotion.mode;
+    const levelFill=q('[data-role="level-fill"]');
+    levelFill.style.setProperty('--level-from',levelMotion.from+'%');
+    levelFill.style.setProperty('--level-to',levelMotion.to+'%');
+    root.style.setProperty('--flow-duration',(stage.backFlow?1.2:flow.duration||2)+'s');
+    set('flow-screen',fmt(data.flow_m3h,3));
+    set('flow-temperature-value',fmt(data.flow_temperature_c,1));
+    const flowFault=data.flow_system_error;
+    set('flow-system',flowFault==='on'?'Status: SYSTEMFEHLER':flowFault==='off'?'Status: OK':'Status: unbekannt');
+    q('[data-role="flow-system"]').classList.toggle('poolc-error',flowFault==='on');
+    set('flow-note',!fresh?'Animation pausiert · Daten veraltet':stage.percent===0?'Pumpe aus · keine Bläschen':!stage.running&&stage.percent===null?'Pumpenstatus unbekannt':finite(data.flow_m3h)===null?'Kein Messwert':flow.running?'Wasser fließt':'Kein Durchfluss');
+    set('level-mode',!fresh?'Animation pausiert':filling?'↑ Nachfüllen':back?'↓ Rückspülen':data.nachfuellen==='off'&&known?'Pegel halten':'Relaiszustand unbekannt');
+    const statusBox=q('[data-role=besgo-mode]'),activeFault=fresh&&systemAlerts(data,params.minimum).length>0;
+    statusBox.classList.toggle('poolc-status-fault',activeFault);
+    writeHtml(statusBox,activeFault?'STÖRUNG !':equipmentStatusMarkup(mode==='stale'?'Daten veraltet':mode==='unknown'?'Ventilzustand unbekannt':equipmentStatus(data,stage)));
+  }
+  function renderReserve(){
+    const p=numeric(data,'druckluft_bar'),r=p===null?null:reserve(p,params.loss,params.minimum);
+    set('cycles',r?new Intl.NumberFormat('de-DE').format(r.cycles):'–');
+    set('storage-cycles',r?new Intl.NumberFormat('de-DE').format(r.cycles):'–');
+    const frequency=learnedCycles(data.backwash_interval_days,data.backwash_history),monthly=frequency.monthly;
+    const estimate=reserveDays(p,params.loss,params.minimum,params.leak,monthly);
+    set('backwash-interval',finite(data.backwash_interval_days)>0?fmt(data.backwash_interval_days,1)+' Tage':'Nicht verfügbar');
+    set('backwash-start',text(data.backwash_start));
+    const history=data.backwash_history;
+    set('backwash-learning',!history?'Erfassung wartet auf Messwerte.':`${fmt(history.count,0)} Vorgänge · ${fmt(history.rain_likely??0,0)} wahrscheinlich Regenablassen · ${fmt(history.drain_ambiguous??0,0)} Pegelabläufe mehrdeutig · ${fmt(history.other??history.count,0)} übrige / offen · ${fmt(history.observed_days,1)} Tage erfasst`);
+    set('reserve-days',!estimate||estimate.days===null?'–':estimate.days===0?'0':estimate.days<1?'< 1':'≈ '+fmt(Math.floor(estimate.days),0));
+    set('storage-days',!estimate||estimate.days===null?'–':estimate.days===0?'0':estimate.days<1?'< 1':'≈ '+fmt(Math.floor(estimate.days),0));
+    set('reserve-assumptions',monthly===null?'Rückspülintervall fehlt; Erfassung noch nicht ausreichend.':!estimate?'Druck oder Verlustwerte fehlen / sind ungültig.':estimate.days===null?'Ohne angenommenen Verbrauch keine Tagesprognose.':`${fmt(finite(String(params.leak).replace(',','.')),3)} bar/Tag + ${fmt(monthly,1)} Vorgänge/30 Tage · ${frequency.learned?'beobachtet, mindestens Intervallbedarf':'Lernphase: nur Intervall, Zusatzvorgänge noch nicht prognostiziert'}`);
+    set('reserve',r?fmt(r.reserve,2)+' bar nutzbare Reserve':p===null?'Drucksensor noch nicht übertragen':'Bitte gültige Parameter eingeben');
+    const max=Math.max(10,p||0,finite(String(params.minimum).replace(',','.'))||0);
+    writeHtml(q('[data-role=air-gauge]'),gauge(p,max,finite(String(params.minimum).replace(',','.')),'air'));
+    q('[data-role="pressure-track"]').style.width=(p===null?0:Math.min(100,p/max*100))+'%';
+    q('[data-role="minimum-mark"]').style.left=(finite(String(params.minimum).replace(',','.'))||0)/max*100+'%';
+    set('pressure-scale','0–'+fmt(max,0)+' bar');
+    const regulated=regulatedPressure(p),box=q('[data-role="regulated-pressure-box"]');
+    set('regulated-pressure',regulated.value===null?'– bar':fmt(regulated.value,1)+' bar');
+    if(box)box.classList.toggle('poolc-regulator-low',regulated.low);
+    q('[data-role="storage-pressure-line"]').classList.toggle('poolc-pressure-low',p!==null&&p<4);
+    root.querySelectorAll('[data-param]').forEach(el=>{const key=el.dataset.param;const valid=key==='rainExtra'?scheduledCycles(1,params.rainExtra)!==null:key==='leak'?reserveDays(6,params.loss,params.minimum,params.leak,0)!==null:reserve(6,params.loss,params.minimum)!==null;el.setAttribute('aria-invalid',String(!valid));});
+  }
+  function renderControl(){
+    const box=q('[data-role="controls"]');
+    if(config.demo){box.innerHTML='<div class="poolc-switch-buttons"><button disabled>Freigabe EIN</button><button class="selected" disabled>Freigabe AUS</button></div>';return;}
+    if(lovelace){
+      const state=data.heizung_freigabe,enabled=config.canControl!==false&&['on','off'].includes(state);
+      let onButton=box.querySelector('[data-set-heat="on"]'),offButton=box.querySelector('[data-set-heat="off"]');
+      if(!onButton||!offButton){
+        box.innerHTML=`<div class="poolc-switch-buttons"><button type="button" data-set-heat="on">${icon('power')} Freigabe EIN</button><button type="button" data-set-heat="off">Freigabe AUS</button></div>`;
+        onButton=box.querySelector('[data-set-heat="on"]');offButton=box.querySelector('[data-set-heat="off"]');
+        [onButton,offButton].forEach(b=>b.addEventListener('click',()=>{b.blur();confirmHeat(b.dataset.setHeat);}));
+      }
+      onButton.disabled=!enabled||state==='on';offButton.disabled=!enabled||state==='off';
+      onButton.classList.toggle('selected',state==='on');offButton.classList.toggle('selected',state==='off');
+      set('command',config.canControl===false?'Heizfreigabe ist in dieser Karte nur lesbar.':enabled?'Direkte Steuerung über Home Assistant.':'Heizungsstatus nicht verfügbar.');
+      return;
+    }
+    if(!config.canControl){box.innerHTML=`<a class="poolc-login" href="${esc(config.loginUrl||'#')}">${icon('shield')} SmartHome-Anmeldung öffnen</a>`;set('command','Zum Schalten ist die SmartHome-Anmeldung erforderlich.');return;}
+    const cmd=control?.command;
+    const pending=cmd&&['queued','claimed'].includes(cmd.status)&&Date.now()/1000<cmd.expires_at;
+    const disabled=!control?.ready||pending||commandSending||networkError;
+    box.innerHTML=`<div class="poolc-switch-buttons"><button type="button" data-set-heat="on" ${disabled||control?.state==='on'?'disabled':''} class="${control?.state==='on'?'selected':''}">${icon('power')} Freigabe EIN</button><button type="button" data-set-heat="off" ${disabled||control?.state==='off'?'disabled':''} class="${control?.state==='off'?'selected':''}">Freigabe AUS</button></div>`;
+    if(commandSending)set('command','Befehl wird übertragen …');
+    else if(cmd&&['queued','claimed'].includes(cmd.status)&&Date.now()/1000>=cmd.expires_at)set('command','Keine rechtzeitige Bestätigung. Aktuellen HA-Zustand prüfen.');
+    else if(cmd)set('command',cmd.message||'Rückmeldung steht aus.');
+    else if(!control?.connected)set('command','Home-Assistant-Rückkanal noch nicht verbunden.');
+    else if(!control?.local_enabled)set('command','„Pool-Websteuerung erlauben“ ist in Home Assistant ausgeschaltet.');
+    else set('command','Bereit. Befehle werden erst nach HA-Rückmeldung als bestätigt angezeigt.');
+    box.querySelectorAll('[data-set-heat]').forEach(b=>b.addEventListener('click',()=>confirmHeat(b.dataset.setHeat)));
+  }
+
+  async function confirmHeat(desired){
+    if(lovelace){
+      const expected=data.heizung_freigabe;
+      if(config.canControl===false||!['on','off'].includes(expected)||desired===expected)return;
+      set('command','Befehl wird an Home Assistant gesendet …');
+      root.dispatchEvent(new CustomEvent('pool-set-heat',{detail:{desired,expected},bubbles:true,composed:true}));
+      return;
+    }
+    if(!control?.ready||commandSending||config.demo)return;
+    const expected=control.state,dialog=q('dialog');
+    set('confirm-title',desired==='on'?'Heizfreigabe einschalten?':'Heizfreigabe ausschalten?');
+    dialog.returnValue='cancel';dialog.showModal();
+    dialog.addEventListener('close',async()=>{
+      if(dialog.returnValue!=='confirm')return;
+      commandSending=true;renderControl();
+      try{
+        const r=await fetch(config.controlUrl,{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json',...controlHeaders()},body:JSON.stringify({desired_state:desired,expected_state:expected}),signal:AbortSignal.timeout(10000)});
+        const json=await r.json();if(!r.ok)throw new Error(json.message||'Befehl nicht angenommen.');
+        if(json.command){knownCommand=json.command.id;control.command=json.command;}
+        commandSending=false;await refresh();
+      }catch(e){commandSending=false;renderControl();set('command','Befehl nicht bestätigt: '+e.message+' Vor erneutem Senden den Zustand aktualisieren.');}
+    },{once:true});
+  }
+  async function refresh(){
+    if(lovelace){root.dispatchEvent(new CustomEvent('pool-refresh',{bubbles:true,composed:true}));return;}
+    if(config.demo||refreshing)return;
+    refreshing=true;q('[data-action="refresh"]').disabled=true;
+    try{
+      const r=await fetch(config.statusUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(10000)});
+      if(!r.ok)throw new Error('Status nicht erreichbar');
+      const json=await r.json();if(!json.success||!json.data)throw new Error('Ungültige Antwort');
+      networkError=false;
+      if(config.canControl){try{const cr=await fetch(config.controlUrl,{headers:controlHeaders(),cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(8000)});if(!cr.ok)throw new Error('Kontrolle nicht erreichbar');control=await cr.json();}catch{control=null;}}
+      fill(json.data);
+    }catch{networkError=true;control=null;renderFreshness();renderControl();}
+    finally{refreshing=false;q('[data-action="refresh"]').disabled=false;}
+  }
+  if(config.demo){
+    root.querySelectorAll('[data-demo]').forEach(button=>button.addEventListener('click',()=>{
+      const mode=button.dataset.demo;
+      fill({...data,poolheizung_statuszeile:mode==='heat'?'Freigabe: aktiv · Heizung: aktiv':'Freigabe: inaktiv · Heizung: inaktiv',fehlerstatus:mode==='fault'?'Beispielstörung · Anlage prüfen':'OK',filter_bar:mode==='fault'?.95:.22,nachfuellen:['fill','fill-stop'].includes(mode)?'on':'off',rueckspuelen:mode==='backwash'?'on':'off',flow_m3h:['stop','fill-stop'].includes(mode)?0:mode==='backwash'?6.2:4.44,betriebsstatus:['stop','fill-stop'].includes(mode)?'Aus 0%':mode==='backwash'?'Rückspülen 80%':'Normalbetrieb 32%'});
+      q('[data-demo-flow]').value=data.flow_m3h;
+      root.querySelectorAll('[data-demo]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+    }));
+    q('[data-demo-flow]').addEventListener('input',event=>fill({...data,flow_m3h:Number(event.target.value)}));
+  }
+  q('[data-action="pause-alert"]').addEventListener('click',event=>{
+    alertPaused=!alertPaused;q('[data-role=alerts]').classList.toggle('poolc-alert-paused',alertPaused);
+    event.currentTarget.setAttribute('aria-pressed',String(alertPaused));
+    event.currentTarget.setAttribute('aria-label',alertPaused?'Störungsband fortsetzen':'Störungsband anhalten');
+    event.currentTarget.textContent=alertPaused?'▶':'Ⅱ';
+  });
+  q('[data-action="refresh"]').addEventListener('click',refresh);
+  root.querySelectorAll('[data-param]').forEach(el=>el.addEventListener('input',()=>{params[el.dataset.param]=el.value;renderReserve();renderFreshness();if(reserve(6,params.loss,params.minimum))try{localStorage.setItem('pool-pool-reserve',JSON.stringify(params));}catch{}}));
+  root.poolFill=fill;
+  root.poolSetCommand=message=>set('command',message);
+  if(config.demo){fill(global.POOL_DEMO_DATA||{});q('[data-action="refresh"]').disabled=true;}
+  else if(lovelace){fill({});}
+  else{fill({});refresh();setInterval(()=>{if(!document.hidden)refresh();},10000);setInterval(()=>{renderFreshness();renderControl();},1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});}
+}
+function startCanisters(root){
+  root.innerHTML=`<div class="poolc-shell"><section class="poolc-section"><div class="poolc-section-title"><h2>Deine Vorräte</h2><span>FÜLLSTAND & REICHWEITE</span></div><div class="poolc-chem-grid">${CHEMS.map(([key,name,sub,color])=>`<article class="poolc-card poolc-chem" style="--accent:${color}" data-chem="${key}"><div class="poolc-card-top"><div><h3>${name}</h3><p>${sub}</p></div><i class="poolc-chem-dot"></i></div><div class="poolc-canister-wrap" data-canister="${key}"></div><div class="poolc-quantity"><strong data-number="${key}_rest_liter">–</strong><span> / <span data-number="${key}_kanister_liter">–</span> l</span></div><div class="poolc-chem-details"><span>Geschätzte Reichweite</span><strong data-days="${key}">– Tage</strong></div><div class="poolc-chem-details"><span>Tagesverbrauch</span><span data-daily="${key}">Nicht verfügbar</span></div><p class="poolc-last-change" data-replaced="${key}">Kanisterwechsel: nicht übertragen</p></article>`).join('')}</div></section></div>`;
+  const q=s=>root.querySelector(s);
+  const htmlCache=new WeakMap();
+  const writeText=(el,value)=>{const next=String(value??'');if(el&&el.textContent!==next)el.textContent=next;};
+  const writeHtml=(el,value)=>{if(el&&htmlCache.get(el)!==value){el.innerHTML=value;htmlCache.set(el,value);}};
+  const forecastLabels={
+    active:'Aktiv',aktiv:'Aktiv',
+    provisional:'Vorläufige Prognose','vorläufige prognose':'Vorläufige Prognose',
+    paused:'Dosierung pausiert','dosierung pausiert':'Dosierung pausiert',
+    learning:'Lernphase',lernphase:'Lernphase',
+    calibration_missing:'Kalibrierung fehlt','kalibrierung fehlt':'Kalibrierung fehlt',
+    no_consumption:'Kein Verbrauch im Auswertungszeitraum','kein verbrauch im auswertungszeitraum':'Kein Verbrauch im Auswertungszeitraum',
+    insufficient_data:'Datengrundlage lückenhaft','datengrundlage lückenhaft':'Datengrundlage lückenhaft',
+    device_data_missing:'Gerätedaten fehlen','gerätedaten fehlen':'Gerätedaten fehlen'
+  };
+  const forecastText=(data,key,fallback)=>{
+    const days=finite(data[key+'_remaining_days']);
+    const raw=String(data[key+'_forecast_status']??'').trim().toLowerCase();
+    const label=forecastLabels[raw]||(raw?String(data[key+'_forecast_status']):'');
+    if(days!==null)return '≈ '+Math.max(0,Math.floor(days))+' Tage'+(raw==='provisional'||raw==='vorläufige prognose'?' · vorläufig':'');
+    if(raw==='learning'||raw==='lernphase'){
+      const samples=finite(data[key+'_forecast_sample_days']);
+      return samples===null?'Lernphase':'Lernphase · '+Math.max(0,Math.floor(samples))+'/3 Tage';
+    }
+    if(label)return label;
+    return fallback;
+  };
+  const set=(role,value)=>root.querySelectorAll(`[data-role="${role}"]`).forEach(el=>writeText(el,value));
+
+  root.poolFill=data=>{
+    root.querySelectorAll('[data-number]').forEach(el=>writeText(el,fmt(data[el.dataset.number],Number(el.dataset.digits??1))));
+    CHEMS.forEach(([key,name,sub,color])=>{
+      const pct=numeric(data,key+'_prozent');
+      writeHtml(q(`[data-canister="${key}"]`),canister(key,pct,color));
+      const daily=dailyLitres(data[key+'_tagesverbrauch'],data[key+'_tagesverbrauch_einheit']);
+      const remaining=numeric(data,key+'_rest_liter');
+      const fallbackDays=daily===null||remaining===null?'– Tage':Math.floor(remaining/daily)+' Tage';
+      writeText(q(`[data-days="${key}"]`),forecastText(data,key,fallbackDays));
+      writeText(q(`[data-daily="${key}"]`),finite(data[key+'_tagesverbrauch'])===null?'Nicht verfügbar':`${fmt(data[key+'_tagesverbrauch'],2)} ${text(data[key+'_tagesverbrauch_einheit'])}`);
+      const replacement=data[key+'_letzter_wechsel'];const date=replacement?new Date(replacement):null;
+      writeText(q(`[data-replaced="${key}"]`),date&&!isNaN(date)?'Letzter Wechsel: '+date.toLocaleDateString('de-DE',{timeZone:'Europe/Berlin'}):'Kanisterwechsel: nicht übertragen');
+      q(`[data-chem="${key}"]`).classList.toggle('poolc-low',pct!==null&&pct<=15);
+    });
+
+  };
+  root.poolFill({});
+}
+const api={returnEquipment,pipeGlass,pipeUnion,icon,startCanisters,finite,reserve,reserveDays,scheduledCycles,learnedCycles,dailyLitres,canister,flowMotion,levelModel,levelAnimation,gauge,pumpStage,pumpMotion,equipmentStatus,equipmentStatusMarkup,systemAlerts,turnoverGraphic,besgoGraphic,formatDateTime,regulatedPressure,BESGO_STATES,start};
+return api;
+})(typeof window!=='undefined'?window:globalThis);
+
+const POOL_DEFAULT_ENTITIES={
+  "backwash_interval_days": [
+    "sensor.asin_aqua_home_backwash_interval_days"
+  ],
+  "flow_temperature_c": [
+    "sensor.speck_badu_flowsonic_plus_wassertemperatur",
+    "sensor.badu_flowsonic_plus_wassertemperatur"
+  ],
+  "fehlercode": [
+    "sensor.asin_aqua_home_error_byte"
+  ],
+  "filter_volume_today": [
+    "sensor.pool_gefiltertes_wasservolumen_heute"
+  ],
+  "filter_volume_yesterday": [
+    "sensor.pool_gefiltertes_wasservolumen_vortag"
+  ],
+  "turnover_percent": [
+    "sensor.pool_umwalzung"
+  ],
+  "pool_power": [
+    "sensor.pool_stromverbrauch"
+  ],
+  "filter_max_bar": [
+    "sensor.poolfilter_druck_max"
+  ],
+  "pegel_offset_cm": [
+    "number.asin_aqua_home_water_level_offset"
+  ],
+  "chlor_ist": [
+    "sensor.asin_aqua_home_chlorine",
+    "sensor.poolsteuerung_chlor_wert_ist"
+  ],
+  "chlor_soll": [
+    "sensor.asin_aqua_home_chlorine_target",
+    "sensor.poolsteuerung_chlor_wert_soll"
+  ],
+  "ph_ist": [
+    "sensor.asin_aqua_home_ph",
+    "sensor.poolsteuerung_ph_wert_ist"
+  ],
+  "ph_soll": [
+    "sensor.asin_aqua_home_ph_target",
+    "sensor.poolsteuerung_ph_wert_soll"
+  ],
+  "algizid_dosierung": [
+    "sensor.asin_aqua_home_algicide_dose",
+    "sensor.poolsteuerung_algezid_dosierung"
+  ],
+  "floc_dosierung": [
+    "sensor.asin_aqua_home_flocculation_dose",
+    "sensor.poolsteuerung_floc_dosierung"
+  ],
+  "flow_m3h": [
+    "sensor.speck_badu_flowsonic_plus_durchfluss",
+    "sensor.badu_flowsonic_plus_durchfluss"
+  ],
+  "filter_bar": [
+    "sensor.ifm_al1350_poolfilter_druck",
+    "sensor.druck_poolfilter_druck"
+  ],
+  "pegel_cm": [
+    "sensor.asin_aqua_home_water_level",
+    "sensor.poolsteuerung_wasserstand_ist"
+  ],
+  "pegel_high_cm": [
+    "sensor.asin_aqua_home_water_level_high"
+  ],
+  "pegel_low_cm": [
+    "sensor.asin_aqua_home_water_level_low"
+  ],
+  "pegel_probe_cm": [
+    "sensor.asin_aqua_home_water_level_probe"
+  ],
+  "pegel_refill_on_cm": [
+    "sensor.asin_aqua_home_refill_on"
+  ],
+  "pegel_refill_off_cm": [
+    "sensor.asin_aqua_home_refill_off"
+  ],
+  "luft_temp_c": [
+    "sensor.asin_aqua_home_air_temperature",
+    "sensor.poolsteuerung_luft_temp_ist"
+  ],
+  "wasser_temp_c": [
+    "sensor.asin_aqua_home_water_temperature",
+    "sensor.poolsteuerung_wasser_temp_ist"
+  ],
+  "heizung_temp_soll_c": [
+    "sensor.asin_aqua_home_water_temperature_target"
+  ],
+  "druckluft_bar": [
+    "sensor.pool_pressure_tank",
+    "sensor.besgo_pressure_tank",
+    "sensor.ifm_al1350_pressure"
+  ],
+  "heating_power_current": [
+    "sensor.brennwertgerat_warmeleistung_vpt"
+  ],
+  "heating_energy_yesterday": [
+    "sensor.brennwertgerat_tageswarmemenge_vortag_heizbetrieb"
+  ],
+  "chlor_prozent": [
+    "sensor.asin_aqua_home_chlorine_remaining_percent",
+    "sensor.pool_chlor_prozent"
+  ],
+  "chlor_rest_liter": [
+    "sensor.asin_aqua_home_chlorine_remaining_liters",
+    "sensor.pool_chlor_rest_liter"
+  ],
+  "chlor_kanister_liter": [
+    "number.asin_aqua_home_chlorine_container_size"
+  ],
+  "chlor_tagesverbrauch": [
+    "sensor.asin_aqua_home_chlorine_daily_consumption"
+  ],
+  "chlor_remaining_days": [
+    "sensor.asin_aqua_home_chlorine_remaining_days"
+  ],
+  "chlor_forecast_status": [
+    "sensor.asin_aqua_home_chlorine_forecast_status"
+  ],
+  "ph_minus_prozent": [
+    "sensor.asin_aqua_home_ph_minus_remaining_percent",
+    "sensor.pool_ph_minus_prozent"
+  ],
+  "ph_minus_rest_liter": [
+    "sensor.asin_aqua_home_ph_minus_remaining_liters",
+    "sensor.pool_ph_minus_rest_liter"
+  ],
+  "ph_minus_kanister_liter": [
+    "number.asin_aqua_home_ph_minus_container_size"
+  ],
+  "ph_minus_tagesverbrauch": [
+    "sensor.asin_aqua_home_ph_minus_daily_consumption"
+  ],
+  "ph_minus_remaining_days": [
+    "sensor.asin_aqua_home_ph_minus_remaining_days"
+  ],
+  "ph_minus_forecast_status": [
+    "sensor.asin_aqua_home_ph_minus_forecast_status"
+  ],
+  "algizid_prozent": [
+    "sensor.asin_aqua_home_algicide_remaining_percent",
+    "sensor.pool_algizid_prozent"
+  ],
+  "algizid_rest_liter": [
+    "sensor.asin_aqua_home_algicide_remaining_liters",
+    "sensor.pool_algizid_rest_liter"
+  ],
+  "algizid_kanister_liter": [
+    "number.asin_aqua_home_algicide_container_size"
+  ],
+  "algizid_tagesverbrauch": [
+    "sensor.asin_aqua_home_algicide_daily_consumption"
+  ],
+  "algizid_remaining_days": [
+    "sensor.asin_aqua_home_algicide_remaining_days"
+  ],
+  "algizid_forecast_status": [
+    "sensor.asin_aqua_home_algicide_forecast_status"
+  ],
+  "flock_prozent": [
+    "sensor.asin_aqua_home_flocculation_remaining_percent",
+    "sensor.pool_flock_prozent"
+  ],
+  "flock_rest_liter": [
+    "sensor.asin_aqua_home_flocculation_remaining_liters",
+    "sensor.pool_flock_rest_liter"
+  ],
+  "flock_kanister_liter": [
+    "number.asin_aqua_home_flocculation_container_size"
+  ],
+  "flock_tagesverbrauch": [
+    "sensor.asin_aqua_home_flocculation_daily_consumption"
+  ],
+  "flock_remaining_days": [
+    "sensor.asin_aqua_home_flocculation_remaining_days"
+  ],
+  "flock_forecast_status": [
+    "sensor.asin_aqua_home_flocculation_forecast_status"
+  ],
+  "backwash_start": [
+    "sensor.asin_aqua_home_backwash_start"
+  ],
+  "betriebsstatus": [
+    "sensor.pool_betriebsstatus"
+  ],
+  "poolheizung_statuszeile": [
+    "sensor.poolheizung_statuszeile"
+  ],
+  "heizung_freigabe": [
+    "switch.schwimmbadheizung_freigabe"
+  ],
+  "heizung_soll_status": [
+    "sensor.schwimmbadheizung_soll_status"
+  ],
+  "frostschutz_automatik": [
+    "automation.pool_aktive_uberwinterung_frost_wasser_temp_sensorabweichung"
+  ],
+  "fehlerstatus": [
+    "sensor.asin_aqua_home_error_status"
+  ],
+  "nachfuellen": [
+    "binary_sensor.asin_aqua_home_relay_filling",
+    "sensor.poolsteuerung_relais_nachfuellung"
+  ],
+  "rueckspuelen": [
+    "binary_sensor.asin_aqua_home_relay_backwash",
+    "sensor.poolsteuerung_relais_rueckspuelung"
+  ],
+  "flow_system_error": [
+    "binary_sensor.speck_badu_flowsonic_plus_systemfehler",
+    "binary_sensor.badu_flowsonic_plus_systemfehler"
+  ],
+  "last_backwash": [
+    "sensor.asin_aqua_home_last_backwash",
+    "sensor.pool_letzte_ruckspulung_anzeige"
+  ],
+  "burner_phase": [
+    "sensor.brennwertgerat_betriebsphase_brenner"
+  ],
+  "status_nonstop_24h": [
+    "binary_sensor.asin_aqua_home_status_nonstop_24h"
+  ],
+  "status_timer": [
+    "binary_sensor.asin_aqua_home_status_timer"
+  ],
+  "chlor_letzter_wechsel": [
+    "sensor.asin_aqua_home_chlorine_last_container_replacement"
+  ],
+  "ph_minus_letzter_wechsel": [
+    "sensor.asin_aqua_home_ph_minus_last_container_replacement"
+  ],
+  "algizid_letzter_wechsel": [
+    "sensor.asin_aqua_home_algicide_last_container_replacement"
+  ],
+  "flock_letzter_wechsel": [
+    "sensor.asin_aqua_home_flocculation_last_container_replacement"
+  ]
+};
+const POOL_NUMERIC_KEYS=new Set(["backwash_interval_days","flow_temperature_c","fehlercode","filter_volume_today","filter_volume_yesterday","turnover_percent","pool_power","filter_max_bar","pegel_offset_cm","chlor_ist","chlor_soll","ph_ist","ph_soll","algizid_dosierung","floc_dosierung","flow_m3h","filter_bar","pegel_cm","pegel_high_cm","pegel_low_cm","pegel_probe_cm","pegel_refill_on_cm","pegel_refill_off_cm","luft_temp_c","wasser_temp_c","heizung_temp_soll_c","druckluft_bar","heating_power_current","heating_energy_yesterday","chlor_prozent","chlor_rest_liter","chlor_kanister_liter","chlor_tagesverbrauch","ph_minus_prozent","ph_minus_rest_liter","ph_minus_kanister_liter","ph_minus_tagesverbrauch","algizid_prozent","algizid_rest_liter","algizid_kanister_liter","algizid_tagesverbrauch","flock_prozent","flock_rest_liter","flock_kanister_liter","flock_tagesverbrauch","chlor_remaining_days","ph_minus_remaining_days","algizid_remaining_days","flock_remaining_days"]);
+const POOL_BOOLEAN_KEYS=new Set(["frostschutz_automatik","nachfuellen","rueckspuelen","flow_system_error","status_nonstop_24h","status_timer","heizung_freigabe"]);
+const POOL_UNIT_KEYS={"pool_power":"pool_power_unit","heating_power_current":"heating_power_current_unit","heating_energy_yesterday":"heating_energy_yesterday_unit","chlor_tagesverbrauch":"chlor_tagesverbrauch_einheit","ph_minus_tagesverbrauch":"ph_minus_tagesverbrauch_einheit","algizid_tagesverbrauch":"algizid_tagesverbrauch_einheit","flock_tagesverbrauch":"flock_tagesverbrauch_einheit"};
+
+const POOL_MOBILE_CSS=".poolc.pool-mobile{--ink:#f2faff;--muted:#91bbd2;--line:#167295;max-width:860px;margin:0 auto;border:0;border-radius:0;background:#00131f;font-family:Arial,Helvetica,sans-serif;box-shadow:none;line-height:1.25}\n.pool-mobile .poolc-shell{padding:8px;max-width:none}\n.pool-mobile .m-layout{display:grid;gap:6px}\n.pool-mobile .poolc-card,.pool-mobile .m-stock{border:1px solid #23c8f5;border-radius:7px;background:radial-gradient(ellipse at 45% 0,#06314966,transparent 65%),linear-gradient(125deg,#00273a,#001623 70%,#003146);box-shadow:inset 0 0 9px #12bfee25,0 0 6px #00bdff20;min-width:0}\n.pool-mobile .m-top,.pool-mobile .m-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}\n.pool-mobile .m-small{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}\n.pool-mobile .m-dial{height:auto;aspect-ratio:1.47;position:relative;isolation:isolate;padding:8px;overflow:hidden;color:var(--accent)}\n.pool-mobile .m-dial .poolc-card-top h3{font-size:clamp(21px,5.7cqw,48px);font-weight:700;color:var(--accent)}\n.pool-mobile .m-dial .poolc-card-top>svg{position:absolute;left:10px;top:28%;width:22px;height:28px}\n.pool-mobile .m-dial .poolc-big{position:absolute;top:50%;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;margin:0;z-index:2}\n.pool-mobile .m-dial .poolc-big strong{font-size:clamp(34px,9cqw,76px);font-weight:750;line-height:1;color:#fff;letter-spacing:-1px;text-shadow:0 2px 4px #001019}\n.pool-mobile .m-dial .poolc-big small{font-size:clamp(12px,2.8cqw,23px);color:#9ce0ee}\n.pool-mobile .m-dial .poolc-comparison{position:absolute;top:10px;right:8px;font-size:clamp(11px,2.8cqw,24px);margin:0;color:var(--accent)}\n.pool-mobile .m-dial .poolc-comparison b{color:inherit}.pool-mobile .m-dial .poolc-comparison>span+span,.pool-mobile .m-dial .poolc-card-caption,.pool-mobile .m-dial .poolc-value-track{display:none}\n.pool-mobile .m-dial-face{position:absolute;left:15%;bottom:-8%;width:70%;height:85%;overflow:visible;fill:none;z-index:-1}\n.pool-mobile .m-ring-shadow{stroke:#020e18;stroke-width:15}.pool-mobile .m-ring-track{stroke:#145474;stroke-width:9}.pool-mobile .m-ring-value{stroke:var(--accent);stroke-width:7;stroke-dasharray:var(--dial-fill,0) 100;filter:drop-shadow(0 0 3px var(--accent));transition:stroke-dasharray .6s}\n.pool-mobile .m-ticks{stroke:#24c8ed;stroke-width:1.2}\n.pool-mobile .m-water{position:absolute;height:29%;width:160%;left:-30%;bottom:-5%;pointer-events:none;background:repeating-radial-gradient(ellipse at 30% 0,transparent 0 9px,#47d9ff99 10px,transparent 12px 25px),repeating-radial-gradient(ellipse at 70% 30%,transparent 0 12px,#12b6ff88 14px,transparent 16px 30px);transform:perspective(70px) rotateX(25deg);filter:drop-shadow(0 0 3px #00aaff);opacity:.65;animation:m-water 8s ease-in-out infinite alternate;z-index:-1}\n@keyframes m-water{to{translate:12px -3px;scale:1.1 1}}\n.pool-mobile .m-small>.poolc-card{padding:7px 4px;aspect-ratio:1.06;position:relative;overflow:hidden;isolation:isolate}\n.pool-mobile .m-small .poolc-card-top{gap:2px;justify-content:center}\n.pool-mobile .m-small .poolc-card-top h3{font-size:clamp(10px,2.65cqw,22px);font-weight:400;gap:3px;color:#e6f5ff;white-space:nowrap}\n.pool-mobile .m-small .poolc-card-top svg{width:15px;height:15px;stroke:#8ce5f8;flex-shrink:0}\n.pool-mobile .m-small .poolc-card-top>svg{display:none}\n.pool-mobile .m-small .poolc-big{display:flex;flex-direction:column;align-items:center;gap:2px;margin:7px 0 0}\n.pool-mobile .m-small .poolc-big strong,.pool-mobile .m-filter-value strong{font-size:clamp(22px,5.9cqw,51px);font-weight:750;letter-spacing:-.6px;line-height:1.1}\n.pool-mobile .m-small .poolc-big small{font-size:clamp(9px,2.3cqw,19px);color:#c3e2ed;white-space:nowrap;margin:0}\n.pool-mobile .m-small .poolc-card-caption,.pool-mobile .poolc-flow-card .poolc-tiny,.pool-mobile .poolc-flow-state,.pool-mobile .poolc-gauge-legend,.pool-mobile .poolc-filter-card .poolc-footnote{display:none}\n.pool-mobile .poolc-flow-card .poolc-flow-device{position:absolute;width:90%;height:46%;left:5%;bottom:0;margin:0}\n.pool-mobile .poolc-flow-bottom{position:absolute;top:29%;left:0;right:0;display:block;text-align:center;margin:0}\n.pool-mobile .poolc-flow-bottom strong{font-size:clamp(14px,4cqw,34px);font-weight:750}.pool-mobile .poolc-flow-bottom small{font-size:clamp(8px,1.8cqw,16px)}\n.pool-mobile .m-filter-value{position:absolute;top:32%;left:0;width:100%;text-align:center}\n.pool-mobile .m-filter-value small{display:block;text-align:left;padding-left:10%;font-size:clamp(10px,2.5cqw,21px);margin-top:2px}\n.pool-mobile [data-role=filter-gauge]{position:absolute;bottom:-6%;right:0;width:53%;height:44%}\n.pool-mobile [data-role=filter-gauge] svg{width:100%;height:100%}.pool-mobile [data-role=filter-gauge] text{display:none}\n.pool-mobile .poolc-level-inner{margin:0;display:block}.pool-mobile .poolc-level-inner>div:first-child{width:72%}\n.pool-mobile .poolc-level-inner p,.pool-mobile .poolc-level-inner small:not(.poolc-big small),.pool-mobile .poolc-level-mode{display:none}\n.pool-mobile .poolc-level-assembly{position:absolute;right:6%;top:23%;bottom:5%;width:12px;height:auto;margin:0}\n.pool-mobile .poolc-level-vessel{width:100%;height:100%;border-radius:8px;border-color:#92d9ed}\n.pool-mobile [data-role=level-marks]{position:absolute;inset:0;width:100%;height:100%}.pool-mobile [data-role=level-marks] i{left:-2px;right:-2px;width:auto;border-top:2px solid var(--mark)}.pool-mobile [data-role=level-marks] span{display:none}\n.pool-mobile .m-symbol{color:#8deaff;font-size:clamp(18px,4cqw,36px);line-height:1}\n.pool-mobile .m-small .m-symbol{display:none}\n.pool-mobile .m-status>.poolc-card{padding:6px;display:flex;gap:7px;align-items:center;min-height:40px}\n.pool-mobile .m-status h3{font-size:clamp(11px,2.9cqw,25px);font-weight:700}\n.pool-mobile .m-status p{font-size:clamp(8px,2.15cqw,18px);color:#c1ddec;margin-top:3px;overflow-wrap:anywhere}\n.pool-mobile[data-pump=running] .m-system{background:linear-gradient(120deg,#043d37,#003628);border-color:#67ddb0}\n.pool-mobile[data-heating=on] .m-heat{border-color:#f29a4d;background:linear-gradient(120deg,#493421,#162934)}\n.pool-mobile .m-tech{margin:0;padding:8px 5px 1px;display:block}\n.pool-mobile .m-tech>.poolc-tech-heading{flex-direction:row;align-items:center;gap:4px;margin-bottom:3px}\n.pool-mobile .m-tech h3{font-size:clamp(17px,4.7cqw,39px);font-weight:700;line-height:1}\n.pool-mobile .m-tech [data-role=besgo-mode]{font-size:clamp(8px,2cqw,17px);border:0;background:transparent;padding:0;color:#3becc1;line-height:1.25}\n.pool-mobile .poolc-besgo-drawing{width:100%;min-width:0;margin:0;overflow:hidden;border:0;background:transparent}\n.pool-mobile .poolc-besgo-svg{width:100%;min-width:0;height:auto;display:block;max-height:none}\n.pool-mobile .poolc-water-route{stroke:#06bbff;filter:drop-shadow(0 0 3px #00b8ff)}\n.pool-mobile .poolc-regulator-readout rect{fill:#00243b;stroke:#209ccb}.pool-mobile .poolc-regulator-readout text{fill:#b7eaff}\n.pool-mobile .m-stock{margin:0;padding:7px}.pool-mobile .m-stock .poolc-section-title{margin-bottom:7px}\n.pool-mobile .m-stock h2{font-size:clamp(17px,4.5cqw,38px);font-weight:700}\n.pool-mobile .poolc-chem-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}\n.pool-mobile .poolc-chem{padding:7px 5px 7px 29%;position:relative;min-height:106px}\n.pool-mobile .poolc-chem .poolc-card-top h3{font-size:clamp(10px,2.5cqw,21px)}\n.pool-mobile .poolc-chem .poolc-card-top p{font-size:clamp(7px,1.7cqw,14px);margin:1px 0 0}\n.pool-mobile .poolc-canister-wrap{position:absolute;left:1%;top:10%;width:28%;height:80%;margin:0}\n.pool-mobile .poolc-canister{width:100%;height:100%}\n.pool-mobile .poolc-quantity{font-size:clamp(8px,1.8cqw,16px);text-align:right;margin:5px 0}\n.pool-mobile .poolc-quantity>strong{font-size:clamp(13px,3cqw,25px)}\n.pool-mobile .poolc-chem-details{display:flex;flex-wrap:wrap;gap:2px;justify-content:space-between;font-size:clamp(7px,1.65cqw,14px);margin-top:3px}\n.pool-mobile .poolc-chem-details strong{font-size:inherit;overflow-wrap:anywhere}\n.pool-mobile .poolc-last-change{font-size:clamp(7px,1.6cqw,13px);margin-top:5px!important;padding-top:4px;overflow-wrap:anywhere}\n.pool-mobile .poolc-low{border-color:#ff895f}\n.pool-mobile .m-details{border:1px solid #1b5b76;border-radius:7px;padding:8px;font-size:12px;color:#a3c4d6}\n.pool-mobile .m-details summary{cursor:pointer;padding:5px}.pool-mobile .m-details .poolc-tech-grid{grid-template-columns:1fr;margin-top:8px}\n.pool-mobile [data-info],.pool-mobile .poolc-besgo-drawing{cursor:pointer;touch-action:pan-y}\n.pool-mobile [data-info]:focus-visible{outline:2px solid #fff;outline-offset:2px}\n.pool-mobile .m-zoom{width:96vw;max-width:1200px;padding:8px;background:#001b2c;color:#fff;border:1px solid #1dcfff;border-radius:10px;max-height:95dvh}\n.pool-mobile .m-zoom::backdrop{background:#000b}.pool-mobile .m-zoom button{background:#084666;color:#fff;border:1px solid #1dcfff;border-radius:6px;padding:10px 18px;margin-bottom:8px}\n.pool-mobile .m-zoom-body{overflow:auto}.pool-mobile .m-zoom-body .poolc-besgo-drawing{min-width:800px}\n@media(min-width:700px){.pool-mobile .m-layout{gap:10px}.pool-mobile .poolc-chem{min-height:180px}}\n@media(prefers-reduced-motion:reduce){.pool-mobile .m-water{animation:none}}\n.pool-mobile:not([data-flow=running]) .m-water{animation-play-state:paused}\n.pool-mobile .m-small .m-temperature .poolc-card-top>svg{display:block;width:14px;height:17px}\n.pool-mobile .m-small .m-temperature .poolc-card-top{flex-direction:row-reverse}\n/* 2.1 \u2013 explicit mobile geometry, insulated from legacy cockpit spacing. */\n.poolc.pool-mobile .m-dial{aspect-ratio:1.30;padding:8px 10px}\n.poolc.pool-mobile .m-dial .poolc-card-top{position:relative;z-index:3;align-items:flex-start}\n.poolc.pool-mobile .m-dial .poolc-card-top h3{font-size:clamp(21px,5.5cqw,47px);line-height:1.1}\n.poolc.pool-mobile .m-dial .poolc-card-top>svg{top:27px;left:0;width:15px;height:21px}\n.poolc.pool-mobile .m-dial .poolc-comparison{top:9px;right:8px;font-size:clamp(9px,2.3cqw,19px)}\n.poolc.pool-mobile .m-dial-face{left:7%;width:86%;top:23%;bottom:auto;height:77%;z-index:0;overflow:visible}\n.poolc.pool-mobile .m-dial .poolc-big{top:52%;z-index:2}\n.poolc.pool-mobile .m-dial .poolc-big strong{font-size:clamp(31px,8.8cqw,74px)}\n.poolc.pool-mobile .m-target-marker{stroke:#f0fcff;stroke-width:2.6;filter:drop-shadow(0 0 2px #c9f9ff)}\n.poolc.pool-mobile .m-current-marker{fill:var(--accent);stroke:#f4ffff;stroke-width:1.4;filter:drop-shadow(0 0 3px var(--accent))}\n.poolc.pool-mobile .m-dial .m-water{z-index:1;opacity:.32}\n.poolc.pool-mobile .m-small>.poolc-card{display:block;aspect-ratio:0.94;min-height:105px;padding:5px;position:relative}\n.poolc.pool-mobile .m-small .poolc-card-top{position:absolute;top:5px;left:3px;right:3px;min-height:16px;display:flex;align-items:center;justify-content:center;margin:0;padding:0;gap:3px}\n.poolc.pool-mobile .m-small .poolc-card-top h3{line-height:1.1;font-size:clamp(10px,2.7cqw,22px);margin:0}\n.poolc.pool-mobile .m-small .poolc-big{position:absolute;top:31%;left:3px;right:3px;margin:0;display:flex;flex-direction:column;align-items:center;gap:3px}\n.poolc.pool-mobile .m-small .poolc-big strong{font-size:clamp(23px,6.2cqw,52px)}\n.poolc.pool-mobile .m-small .poolc-big small{font-size:clamp(8px,2.2cqw,18px)}\n.poolc.pool-mobile .poolc-flow-bottom{top:26%;margin:0}\n.poolc.pool-mobile .poolc-flow-bottom strong{display:flex;align-items:center;flex-direction:column;gap:0;font-size:clamp(19px,5.1cqw,44px);line-height:1.1}\n.poolc.pool-mobile .poolc-flow-bottom small{font-size:clamp(9px,2.2cqw,19px);line-height:1.2}\n.poolc.pool-mobile .poolc-flow-card .poolc-flow-device{bottom:2%;height:38%;left:2%;width:96%}\n.poolc.pool-mobile .m-filter-value{top:28%;line-height:1.05}\n.poolc.pool-mobile .m-filter-value small{font-size:clamp(9px,2.2cqw,19px);padding-left:8%;margin-top:5px}\n.poolc.pool-mobile [data-role=filter-gauge]{bottom:2%;right:0;width:58%;height:40%}\n.poolc.pool-mobile .poolc-level-inner{position:absolute;inset:25px 4px 6px;display:block;margin:0;padding:0}\n.poolc.pool-mobile .poolc-level-inner>div:first-child{position:absolute;left:0;right:20px;top:0;bottom:0;width:auto}\n.poolc.pool-mobile .poolc-level-inner .poolc-big{top:18%;left:0;right:0}\n.poolc.pool-mobile .poolc-level-assembly{position:absolute;left:auto;right:3px;top:0;bottom:0;width:12px;height:auto;padding:0;margin:0;flex:none}\n.poolc.pool-mobile .poolc-level-vessel{position:absolute;inset:0;width:100%;height:100%;min-width:0;padding:0;border-radius:7px}\n.poolc.pool-mobile .poolc-level-assembly [data-role=level-marks]{position:absolute;inset:0;width:100%;height:100%;margin:0}\n.poolc.pool-mobile .poolc-level-assembly i{position:absolute;left:-2px;right:-2px;width:auto;border-top:2px solid var(--mark);margin:0}\n.poolc.pool-mobile .poolc-level-assembly i span{display:none}\n.poolc.pool-mobile .m-status>.poolc-card{padding:8px;min-height:58px}\n.poolc.pool-mobile .m-symbol{display:block;width:23px;height:27px;flex:0 0 23px;color:#8deaff}\n.poolc.pool-mobile .m-symbol svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6}\n.poolc.pool-mobile .m-heat .m-symbol{color:#9fbac9}\n.poolc.pool-mobile[data-heating=on] .m-heat .m-symbol{color:#ff954e;filter:drop-shadow(0 0 3px #ff954e66)}\n.poolc.pool-mobile .m-tech{padding:9px 6px 6px}\n.poolc.pool-mobile .m-tech .poolc-tech-heading{display:flex;align-items:center;flex-direction:row;justify-content:space-between;flex-wrap:wrap;gap:5px;margin:0 0 4px;padding:0}\n.poolc.pool-mobile .m-tech h3,.poolc.pool-mobile .m-stock h2{display:flex;align-items:center;gap:7px;font-size:clamp(17px,4.5cqw,38px);line-height:1.2}\n.poolc.pool-mobile .m-tech h3 svg,.poolc.pool-mobile .m-stock h2 svg{width:1em;height:1em;color:#9eeaff;flex:none}\n.poolc.pool-mobile .poolc-besgo-drawing{padding:0;margin:0;max-width:none}\n.poolc.pool-mobile .poolc-besgo-drawing::after{display:none;content:none}\n.poolc.pool-mobile .m-enlarge{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:34px;margin:3px 0 0;padding:5px 8px;border:1px solid #186b87;background:#022636;color:#add6e5;border-radius:5px;font-size:11px}\n.poolc.pool-mobile .m-enlarge svg{width:14px;height:14px}\n.poolc.pool-mobile .poolc-chem{display:grid;grid-template-columns:minmax(32px,27%) minmax(0,1fr);align-items:center;column-gap:6px;padding:9px 6px;min-height:0;height:auto}\n.poolc.pool-mobile .poolc-canister-wrap{position:static;grid-column:1;grid-row:1;align-self:center;width:100%;height:auto;max-width:none;margin:0;padding:0}\n.poolc.pool-mobile .poolc-canister{width:100%;height:auto;max-height:130px;display:block}\n.poolc.pool-mobile .m-chem-copy{grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;gap:4px}\n.poolc.pool-mobile .poolc-chem .poolc-card-top{display:flex;margin:0;padding:0;align-items:flex-start;gap:3px}\n.poolc.pool-mobile .poolc-chem .poolc-card-top h3{font-size:clamp(10px,2.4cqw,20px);overflow-wrap:anywhere;line-height:1.25}\n.poolc.pool-mobile .poolc-chem .poolc-card-top p{font-size:clamp(8px,1.8cqw,15px);line-height:1.2}\n.poolc.pool-mobile .poolc-chem-dot{width:4px;height:4px;margin-top:3px;flex:none}\n.poolc.pool-mobile .poolc-quantity{margin:1px 0 2px;text-align:left;font-size:clamp(8px,1.9cqw,16px)}\n.poolc.pool-mobile .poolc-quantity>strong{font-size:clamp(13px,3.2cqw,27px)}\n.poolc.pool-mobile .poolc-chem-details{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin:0;font-size:clamp(8px,1.8cqw,15px);line-height:1.25}\n.poolc.pool-mobile .poolc-chem-details strong{font-size:inherit;line-height:1.3}\n.poolc.pool-mobile .poolc-chem-details>span:last-child{text-align:left}\n.poolc.pool-mobile .poolc-last-change{font-size:clamp(8px,1.7cqw,14px);margin-top:2px!important;padding-top:4px;line-height:1.3}\n@container(min-width:650px){.poolc.pool-mobile .poolc-chem-details{flex-direction:row;justify-content:space-between}.poolc.pool-mobile .poolc-canister{max-height:190px}}\n.poolc.pool-mobile .m-small>.poolc-card{width:100%;max-width:100%;min-width:0;aspect-ratio:auto;height:clamp(105px,25cqw,220px);min-height:0;box-sizing:border-box}\n.poolc.pool-mobile .m-stock h2>span{font:inherit;color:inherit;letter-spacing:inherit;margin:0}\n.poolc.pool-mobile .m-tech h3>span{font:inherit;color:inherit;margin:0}\n/* 2.2 \u2013 stock cards with full-width data and enlarged instruments. */\n.poolc.pool-mobile .poolc-chem{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px 9px;height:auto;min-height:0}\n.poolc.pool-mobile .poolc-chem .poolc-card-top{width:100%;min-height:30px}\n.poolc.pool-mobile .poolc-chem .poolc-card-top h3{font-size:clamp(12px,3cqw,22px)}\n.poolc.pool-mobile .poolc-chem .poolc-card-top p{font-size:clamp(9px,2.2cqw,15px)}\n.poolc.pool-mobile .m-chem-main{display:grid;grid-template-columns:49% 1fr;align-items:center;gap:5px;min-height:90px}\n.poolc.pool-mobile .poolc-canister-wrap{position:static;grid-column:auto;grid-row:auto;width:100%;margin:0;height:auto}\n.poolc.pool-mobile .poolc-canister{height:clamp(94px,27cqw,160px);max-height:none;width:100%}\n.poolc.pool-mobile .poolc-quantity{margin:0;text-align:left;font-size:clamp(10px,2.5cqw,17px);line-height:1.4}\n.poolc.pool-mobile .poolc-quantity>strong{font-size:clamp(19px,4.8cqw,32px);display:block;line-height:1.2}\n.poolc.pool-mobile .poolc-chem-details{display:flex;flex-direction:column;gap:2px;align-items:flex-start;width:100%;font-size:clamp(10px,2.45cqw,17px);margin:0;padding-top:5px;border-top:1px solid #18506a}\n.poolc.pool-mobile .poolc-chem-details strong,.poolc.pool-mobile .poolc-chem-details>span:last-child{font-size:clamp(11px,2.7cqw,18px);text-align:left;overflow-wrap:anywhere}\n.poolc.pool-mobile .poolc-last-change{font-size:clamp(9px,2.2cqw,15px);margin-top:auto!important;padding-top:6px;line-height:1.4}\n.poolc.pool-mobile .m-expanded{display:grid;grid-template-columns:1fr;gap:12px;min-width:0}\n.poolc.pool-mobile .m-expanded-card{padding:16px;min-width:0;position:relative;overflow:hidden}\n.poolc.pool-mobile .m-expanded-card .poolc-card-top{position:static;display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:8px}\n.poolc.pool-mobile .m-expanded-card h3{font-size:15px!important;line-height:1.3}\n.poolc.pool-mobile .m-expanded-card .poolc-tiny{font-size:8px;letter-spacing:1px}\n.poolc.pool-mobile .m-expanded-flow .poolc-flow-device{position:static;width:100%;height:auto;margin:0 auto;max-height:200px}\n.poolc.pool-mobile .m-expanded-flow .poolc-flow-bottom{position:static;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;text-align:left;margin-top:10px}\n.poolc.pool-mobile .m-expanded-flow .poolc-flow-bottom strong{display:block;font-size:28px;line-height:1.2;white-space:nowrap}\n.poolc.pool-mobile .m-expanded-flow .poolc-flow-bottom small{font-size:11px}\n.poolc.pool-mobile .m-expanded-flow .poolc-flow-state{display:flex;flex-direction:column;gap:5px;font-size:10px;max-width:48%}\n.poolc.pool-mobile .m-expanded-filter [data-role=filter-gauge]{position:static;width:100%;height:auto;max-width:290px;margin:0 auto}\n.poolc.pool-mobile .m-expanded-filter [data-role=filter-gauge] svg{height:auto;width:100%}\n.poolc.pool-mobile .m-expanded-filter [data-role=filter-gauge] text{display:initial}\n.poolc.pool-mobile .m-expanded-filter .poolc-gauge-legend{display:flex;justify-content:space-between;gap:8px;font-size:10px}\n.poolc.pool-mobile .m-expanded-filter .poolc-footnote{display:block;font-size:10px;line-height:1.5}\n.poolc.pool-mobile .m-expanded-level .poolc-level-inner{position:static;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0;margin:0;min-height:190px}\n.poolc.pool-mobile .m-expanded-level .poolc-level-inner>div:first-child{position:static;width:auto;flex:1;min-width:0}\n.poolc.pool-mobile .m-expanded-level .poolc-big{position:static;display:flex;flex-direction:row;align-items:baseline;gap:6px;margin:0}\n.poolc.pool-mobile .m-expanded-level .poolc-big strong{font-size:40px}\n.poolc.pool-mobile .m-expanded-level .poolc-big small{display:inline;font-size:12px}\n.poolc.pool-mobile .m-expanded-level .poolc-level-inner p{display:block;font-size:10px;margin-top:12px;max-width:none}\n.poolc.pool-mobile .m-expanded-level .poolc-level-inner small:not(.poolc-big small){display:block;font-size:10px;margin-top:6px}\n.poolc.pool-mobile .m-expanded-level .poolc-level-mode{display:block;font-size:11px;margin-top:12px}\n.poolc.pool-mobile .m-expanded-level .poolc-level-assembly{position:relative;inset:auto;width:136px;height:178px;flex:0 0 136px;padding:0;margin:0}\n.poolc.pool-mobile .m-expanded-level .poolc-level-vessel{position:absolute;inset:0 auto 0 0;width:31px;height:100%;border-radius:7px}\n.poolc.pool-mobile .m-expanded-level [data-role=level-marks]{width:100%;height:100%;inset:0}\n.poolc.pool-mobile .m-expanded-level .poolc-level-assembly i{left:0;right:auto;width:36px}\n.poolc.pool-mobile .m-expanded-level .poolc-level-assembly i span{display:block;position:absolute;left:41px;top:-6px;font-size:10px;line-height:1.2}\n.poolc.pool-mobile .m-expanded-card[data-info]{cursor:pointer}\n.poolc.pool-mobile .m-expanded-level .poolc-level-vessel{cursor:default}\n\n@keyframes pool-power-blink{0%,45%{opacity:1}50%,95%{opacity:.12}100%{opacity:1}}\n.poolc[data-pump-display-mode=\"pump-off\"] [data-pump-power]{animation:pool-power-blink 1.2s linear infinite}\n@media(prefers-reduced-motion:reduce){.poolc [data-pump-power]{animation:none!important}}\n";
+function poolDialModel(key,value,target){
+  const finite=PoolCockpitLovelaceCore.finite,n=finite(value),t=finite(target);
+  if(n===null||t===null)return {position:null,target:t,outOfRange:false};
+  // Symmetric deviation scale: target is always precisely 12 o'clock.
+  const span=key==='chlor'?Math.max(Math.abs(t),0.1):1;
+  const raw=50+50*(n-t)/span,position=Math.max(0,Math.min(100,raw));
+  const angle=(150+position*2.4)*Math.PI/180;
+  return {position,target:t,outOfRange:raw<0||raw>100,x:100+85*Math.cos(angle),y:100+85*Math.sin(angle)};
+}
+function poolMobileIcon(name){
+  const paths={gear:'M9 3h6l1 4 3 2 4 1v4l-4 1-3 2-1 4H9l-1-4-3-2-4-1v-4l4-1 3-2Z M16 12a4 4 0 1 1-8 0a4 4 0 1 1 8 0',tool:'M14 3a6 6 0 0 0-7 8L2 17a3 3 0 0 0 5 4l6-7a6 6 0 0 0 8-7l-4 4-4-4Z',stock:'M8 5H5v17h14V5h-3 M9 2h6v5H9Z M8 11h8 M8 15h8 M8 19h5',zoom:'M16 16l6 6 M19 10a9 9 0 1 1-18 0a9 9 0 1 1 18 0 M6 10h8 M10 6v8'};
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${paths[name]||paths.gear}"/></svg>`;
+}
+// Mobile design presentation. Existing nodes retain the established update logic.
+function climateIllustration(kind){
+ if(kind==='air')return `<svg class="m-climate-art m-air-art" viewBox="0 0 120 60" role="img" aria-label="Temperaturillustration"><g class="m-air-mild"><g stroke="#f4cc69" stroke-width="2.5" stroke-linecap="round"><circle cx="43" cy="24" r="12" fill="#edc46133"/><path d="M43 5V1M43 47v-4M24 24h-5M62 24h5M29 10l-3-3M57 38l3 3M29 38l-3 3M57 10l3-3"/></g><path d="M37 49a10 10 0 0 1-1-20 16 16 0 0 1 30-5 12 12 0 0 1 19 10 8 8 0 0 1-1 15Z" fill="#346079" stroke="#a2dbe9" stroke-width="2"/></g><g class="m-air-sun" fill="none" stroke="#f4cc69" stroke-width="3" stroke-linecap="round"><circle cx="60" cy="30" r="15" fill="#edc46133"/><path d="M60 7V2M60 53v5M37 30h-5M83 30h5M44 14l-4-4M76 46l4 4M44 46l-4 4M76 14l4-4"/></g><g class="m-air-cold" fill="none" stroke="#b5edff" stroke-width="2.5" stroke-linecap="round"><path d="M60 5v48M39 17l42 24M39 41l42-24M53 10l7 7 7-7M53 48l7-7 7 7M40 25l10-2-2-10M80 33l-10 2 2 10M48 45l2-10-10-2M72 13l-2 10 10 2"/></g></svg>`;
+ // Reuse the technical diagram geometry and its state-driven animation classes.
+ const source=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ source.innerHTML=PoolCockpitLovelaceCore.returnEquipment();
+ const exchanger=source.querySelector('g[aria-label="Wärmetauscher mit sichtbarer Heizwendel"]');
+ exchanger.querySelectorAll('text,.poolc-regulator-readout').forEach(el=>el.remove());
+ const defs=[...source.querySelectorAll('defs>*')].filter(el=>el.id.startsWith('pool-hx-')).map(el=>el.outerHTML).join('');
+ const metal='<linearGradient id="pool-union-metal"><stop stop-color="#0b141a"/><stop offset=".4" stop-color="#37434b"/><stop offset="1" stop-color="#101920"/></linearGradient>';
+ const graphic=('<defs>'+defs+metal+'</defs><path d="M621 505H692" class="poolc-hx-water"/><path d="M621 502H692 M621 508H692" class="poolc-hx-pool-motion"/>'+exchanger.outerHTML+PoolCockpitLovelaceCore.pipeGlass('M621 505H669')+PoolCockpitLovelaceCore.pipeGlass('M897 505H935')+PoolCockpitLovelaceCore.pipeUnion(669,505)+PoolCockpitLovelaceCore.pipeUnion(887,505)).replaceAll('pool-hx-','pool-mini-hx-').replaceAll('pool-union-metal','pool-mini-union-metal');
+ return `<svg class="m-climate-art m-heater-art" viewBox="620 454 316 84" role="img" aria-label="Heizstatus unbekannt">${graphic}</svg><span class="m-heater-caption">Unbekannt</span>`;
+}
+
+const POOL_V27_CSS="/* Compact filter: measured value, unit and dial share the same centre. */\n.poolc.pool-mobile .m-small .m-filter-value{top:26%;line-height:1.1}\n.poolc.pool-mobile .m-small .m-filter-value strong{font-size:clamp(19px,5.1cqw,44px)}\n.poolc.pool-mobile .m-small .m-filter-value small{padding:0;text-align:center;margin:0;line-height:1.2}\n.poolc.pool-mobile .m-small [data-role=filter-gauge]{left:25%;right:auto;width:50%;bottom:2%;height:38%}\n.poolc.pool-mobile .m-filter-max{position:absolute;right:1%;bottom:10%;width:24%;display:flex;flex-direction:column;align-items:center;gap:1px;color:#91bbd2;font-size:clamp(6px,1.1cqw,12px);line-height:1.25;white-space:nowrap}\n.poolc.pool-mobile .m-filter-max b{font-weight:500}\n\n/* Chlor/pH: shared typographic baseline for title and target value. */\n.poolc.pool-mobile .m-dial .poolc-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:4px}\n.poolc.pool-mobile .m-dial .poolc-card-top h3{display:block;flex:none}\n.poolc.pool-mobile .m-dial .poolc-card-top .poolc-comparison{position:static;display:block;margin:0;line-height:1.1;white-space:nowrap}\n\n.poolc.pool-mobile .m-dial .poolc-card-top .poolc-comparison{font-size:clamp(8px,2.3cqw,19px)}\n\n.poolc.pool-mobile .poolc-besgo-status{display:flex;flex-direction:column;align-items:flex-start;gap:5px}\n.poolc.pool-mobile .poolc-besgo-status [data-role=control-mode]{display:block;font-size:clamp(10px,1.3cqw,14px)!important;line-height:1.4;letter-spacing:0;font-weight:500}\n.poolc.pool-mobile .poolc-besgo-status [data-role=control-mode]:empty{display:none}\n\n.poolc.pool-mobile .m-small .poolc-level-assembly{width:20px;right:4px}\n.poolc.pool-mobile .m-small .poolc-level-inner>div:first-child{right:29px}\n.poolc.pool-mobile .m-climate-art{position:absolute;width:72%;height:34%;bottom:3%;left:14%;overflow:visible}\n.poolc.pool-mobile .m-air-cold{display:none}\n.poolc.pool-mobile [data-climate=cold] .m-air-cold{display:block}\n.poolc.pool-mobile [data-climate=cold] .m-air-mild,.poolc.pool-mobile [data-climate=unknown] .m-air-art{display:none}\n.poolc.pool-mobile .m-heater-art{color:#648899;bottom:10%;height:28%}\n.poolc.pool-mobile .m-heat-waves{opacity:0}\n.poolc.pool-mobile [data-heat-state=on] .m-heater-art{color:#ff786a;filter:drop-shadow(0 0 3px #ff634755)}\n.poolc.pool-mobile [data-heat-state=on] .m-heat-waves{opacity:1}\n.poolc.pool-mobile [data-heat-state=unknown] .m-heater-art{opacity:.4}\n.poolc.pool-mobile .m-heater-caption{position:absolute;bottom:3%;left:0;width:100%;text-align:center;color:#91bbd2;font-size:clamp(7px,1.2cqw,12px);line-height:1.2}\n.poolc.pool-mobile [data-heat-state=on] .m-heater-caption{color:#ff8d7f}\n\n.poolc.pool-mobile .poolc-flow-bottom small{color:#c3e2ed;font-weight:400}\n.poolc.pool-mobile .m-air-art{width:56%;left:22%;height:25%;bottom:2%}\n.poolc.pool-mobile .m-air-sun{display:none}\n.poolc.pool-mobile [data-climate=sun] .m-air-sun{display:block}\n.poolc.pool-mobile [data-climate=sun] .m-air-mild{display:none}\n.poolc.pool-mobile .m-small .poolc-level-inner>div:first-child{left:0;right:0;width:auto}\n.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big{left:0;right:0;align-items:center;text-align:center}\n.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong{font-size:clamp(18px,4.8cqw,48px)}\n.poolc.pool-mobile .m-small .poolc-level-assembly{right:-2px}\n\n.poolc.pool-mobile .m-small .poolc-level-assembly{right:4px}\n@container(max-width:520px){.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong{font-size:clamp(16px,4.1cqw,22px)}}\n@container(max-width:520px){.poolc.pool-mobile .m-small .poolc-level-assembly{width:16px}}\n\n\n/* HA 2.7: compact level labels below the centred measurement, on every screen. */\n.poolc [data-role=level-marks] em{font:inherit;font-style:normal}\n.poolc.pool-mobile .m-small .poolc-level-inner{inset:25px 4px 6px}\n.poolc.pool-mobile .m-small .poolc-level-inner>div:first-child{inset:0}\n.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big{top:0;left:0;right:0;gap:0}\n.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong{font-size:clamp(20px,5.1cqw,44px);line-height:1.05}\n.poolc.pool-mobile .m-small .poolc-level-assembly{top:48%;bottom:0;right:8%;width:78%;max-width:110px;min-height:40px}\n.poolc.pool-mobile .m-small .poolc-level-vessel{inset:0 auto 0 0;width:clamp(16px,2.4cqw,21px)}\n.poolc.pool-mobile .m-small .poolc-level-assembly i{left:-2px;right:auto;width:clamp(20px,2.9cqw,25px);border-top-width:1px}\n.poolc.pool-mobile .m-small .poolc-level-assembly i span{display:block;position:absolute;left:calc(100% + 3px);top:-.55em;color:var(--mark);font-size:clamp(6px,1.4cqw,11px);line-height:1;white-space:nowrap}\n.poolc.pool-mobile .m-small .poolc-level-assembly i span b{font:inherit}\n.poolc.pool-mobile .m-small .poolc-level-assembly i span em{display:none}\n.poolc.pool-mobile .m-small .m-heater-art{bottom:10%;height:24%}\n.poolc.pool-mobile .m-small .m-air-art{bottom:2%;height:24%}\n.poolc.pool-mobile .m-small .m-temperature .poolc-big{top:27%}\n.poolc.pool-mobile .m-small .m-filter-value small{color:#c3e2ed;font-weight:400}\n.poolc.pool-mobile .m-small .m-filter-max{font-size:clamp(6px,1.2cqw,10px)}\n@container(max-width:360px){\n .poolc.pool-mobile .m-small>.poolc-card{height:118px}\n .poolc.pool-mobile .m-small .poolc-level-assembly{right:5%;width:87%}\n}\n";
+function poolMobileLayout(root,card) {
+  root.classList.add('pool-mobile');
+  const q=s=>root.querySelector(s), shell=q('.poolc-shell');
+  const panel=document.createElement('div'); panel.className='m-layout';
+  const top=document.createElement('div');top.className='m-top';
+  const small=document.createElement('div');small.className='m-small';
+  const status=document.createElement('div');status.className='m-status';
+  shell.append(panel);panel.append(top,small,status);
+  const cards=[...q('.poolc-care-grid').children];
+  for(let i=0;i<2;i++){
+    const el=cards[i]; el.classList.add('m-dial');el.dataset.dial=i?'ph':'chlor';
+    el.querySelector('h3').textContent=i?'pH':'Chlor';
+    const heading=el.querySelector('.poolc-card-top');
+    heading.querySelector('svg')?.remove();
+    heading.append(el.querySelector('.poolc-comparison'));
+    const ticks=Array.from({length:41},(_,n)=>{const a=(150+n*6)*Math.PI/180; const r=n%5===0?70:74;return `<path d="M${100+r*Math.cos(a)} ${100+r*Math.sin(a)}L${100+78*Math.cos(a)} ${100+78*Math.sin(a)}"/>`;}).join('');
+    el.insertAdjacentHTML('beforeend',`<svg class="m-dial-face" viewBox="0 0 200 165" aria-hidden="true"><path class="m-ring-shadow" d="M26.39 142.5 A85 85 0 1 1 173.61 142.5"/><path class="m-ring-track" d="M26.39 142.5 A85 85 0 1 1 173.61 142.5"/><path class="m-ring-value" pathLength="100" d="M26.39 142.5 A85 85 0 1 1 173.61 142.5"/><g class="m-ticks">${ticks}</g><path class="m-target-marker" d="M100 3V27"/><circle class="m-current-marker" cx="100" cy="15" r="4.5"/></svg><div class="m-water" aria-hidden="true"></div>`);
+    top.append(el);
+  }
+  cards[3].querySelector('h3').textContent='Floc';
+  small.append(cards[2],cards[3],q('.poolc-flow-card'),q('.poolc-filter-card'),q('.poolc-level-card'));
+  for(const [key,label,icon,unit] of [['luft_temp_c','Luft','thermo','°C'],['wasser_temp_c','Wasser','drop','°C'],['heizung_temp_soll_c','Heizung','heat','°C']]){
+    const el=document.createElement('article');el.className='poolc-card m-temperature';el.dataset.info=key;
+    el.innerHTML=`<div class="poolc-card-top"><h3>${label}</h3>${PoolCockpitLovelaceCore.icon(icon)}</div><div class="poolc-big"><strong data-number="${key}">–</strong><small>${unit}</small></div>${key==='wasser_temp_c'?'<div class="m-water" aria-hidden="true"></div>':climateIllustration(key==='luft_temp_c'?'air':'heat')}`;small.append(el);
+  }
+  const flow=q('.poolc-flow-card');flow.querySelector('h3').lastChild.textContent=' Flow';
+  const illustrations={
+    pegel_cm:'<path d="M24 27v20h72V27M24 29q9-7 18 0t18 0t18 0t18 0M27 40q9-6 18 0t18 0t18 0M37 25V12a5 5 0 0 1 10 0v13M37 17h10M37 23h10"/>', 
+    algizid_dosierung:'<path d="M35 49V23m0 13c-13 0-15-9-13-14 9 0 13 5 13 14m0 8c11 0 16-9 14-14-8 0-14 6-14 14M25 52h22"/><path d="M77 12l17 7v13c0 13-17 21-17 21S60 45 60 32V19Z"/><path d="m69 32 6 6 11-14"/>',
+    floc_dosierung:'<circle cx="17" cy="17" r="2"/><circle cx="29" cy="38" r="2"/><circle cx="40" cy="14" r="2"/><circle cx="48" cy="47" r="2"/><path d="M42 29h18m-5-5 5 5-5 5"/><circle cx="83" cy="29" r="7"/><circle cx="73" cy="22" r="5"/><circle cx="94" cy="23" r="5"/><circle cx="75" cy="38" r="5"/><circle cx="93" cy="37" r="6"/>',
+    wasser_temp_c:'<path d="M15 29v21h69V29M15 30q8-7 16 0t16 0t16 0t16 0M19 40q8-6 16 0t16 0t16 0M26 26V12a5 5 0 0 1 10 0v14M26 17h10M26 23h10"/><g class="m-water-thermometer" transform="translate(0 -15) scale(1 1.3)"><path d="M95 31V10a5 5 0 0 1 10 0v21a10 10 0 1 1-10 0Z"/><path d="M100 13V41" stroke="#183b53" stroke-width="4"/><path data-role="water-temperature-column" d="M100 41V41" stroke-width="4"/><circle data-role="water-temperature-bulb" cx="100" cy="41" r="5" stroke="none" fill="#183b53"/></g>'
+
+  };
+  for(const [key,paths] of Object.entries(illustrations)){
+    const el=small.querySelector(`[data-info="${key}"]`)||small.querySelector(`[data-number="${key}"]`).closest('article');
+    el.insertAdjacentHTML('beforeend',`<svg class="m-extra-art" viewBox="0 0 120 60" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`);
+    if(key==='wasser_temp_c')el.classList.add('m-pool-temperature');
+  }
+  q('.poolc-filter-card h3').textContent='Filter';q('.poolc-level-card h3').textContent='Pegel';
+  q('.poolc-filter-card').insertAdjacentHTML('afterbegin','<div class="m-filter-value"><strong data-number="filter_bar" data-digits="2">–</strong><small>bar</small></div>');
+  const infoKeys=['algizid_dosierung','floc_dosierung','flow_m3h','filter_bar','pegel_cm'];
+  q('.poolc-filter-card').insertAdjacentHTML('beforeend','<div class="m-filter-max"><span>Max.</span><span><b data-number="filter_max_bar" data-digits="2">–</b> bar</span></div>');
+  q('.poolc-besgo-status').append(q('[data-role=control-mode]'));
+  [...small.children].slice(0,5).forEach((el,i)=>el.dataset.info=infoKeys[i]);
+  cards[0].dataset.info='chlor_ist';cards[1].dataset.info='ph_ist';
+  const system=document.createElement('article');system.className='poolc-card m-system';system.dataset.info='betriebsstatus';
+  system.innerHTML=`<span class="m-symbol">${poolMobileIcon('gear')}</span><div><h3>Poolsteuerung</h3><p data-mobile-status>–</p></div>`;
+  const heat=document.createElement('article');heat.className='poolc-card m-heat';heat.dataset.info='heizung_freigabe';
+  heat.innerHTML=`<span class="m-symbol">${PoolCockpitLovelaceCore.icon('heat')}</span><div><h3>Poolheizung</h3><p data-mobile-heat>–</p></div>`;
+  status.append(system,heat);
+  const tech=q('.poolc-besgo-card');tech.classList.add('m-tech');tech.querySelector('h3').innerHTML=poolMobileIcon('tool')+'<span>Technik</span>';
+  const stock=q('.poolc-chem-grid').closest('section');stock.classList.add('m-stock');stock.querySelector('h2').innerHTML=poolMobileIcon('stock')+'<span>Vorräte & Verbrauch</span>';
+  stock.querySelector('.poolc-section-title > span').remove();
+  for(const chem of stock.querySelectorAll('.poolc-chem')){
+    const picture=chem.querySelector('.poolc-canister-wrap'),quantity=chem.querySelector('.poolc-quantity');
+    const main=document.createElement('div');main.className='m-chem-main';main.append(picture,quantity);
+    chem.querySelector('.poolc-card-top').after(main);
+  }
+  const details=document.createElement('details');details.className='m-details';details.innerHTML='<summary>Heizfreigabe, Filterleistung & Druckreserve</summary>';
+  const detailGrid=q('.poolc-tech-grid');
+  const expanded=document.createElement('div');expanded.className='m-expanded';
+  const expandedPairs=[];
+  for(const [kind,title] of [['flow','Durchfluss'],['filter','Filterdruck'],['level','Wasserstand']]){
+    const source=q('.poolc-'+kind+'-card'),clone=source.cloneNode(true);
+    clone.className='poolc-card m-expanded-card m-expanded-'+kind;
+    clone.querySelector('h3').textContent=title;clone.querySelector('.m-filter-value')?.remove();clone.querySelector('.m-filter-max')?.remove();
+    // Each independent SVG keeps its own paint-server IDs.
+    const ids=[...clone.querySelectorAll('[id]')].map(el=>el.id);
+    let html=clone.innerHTML;for(const id of ids)html=html.replaceAll('id="'+id+'"','id="'+id+'-detail"').replaceAll('url(#'+id+')','url(#'+id+'-detail)');clone.innerHTML=html;
+    expanded.append(clone);expandedPairs.push([source,clone]);
+  }
+  detailGrid.insertBefore(expanded,q('.poolc-pressure'));
+  details.append(detailGrid,q('.poolc-filter-performance'));
+  panel.append(top,small,status,tech,stock,details);
+  // Keep only non-presentational update targets hidden, preserving core selectors.
+  const hidden=document.createElement('div');hidden.hidden=true;hidden.className='m-original-targets';
+  for(const child of [...shell.childNodes])if(child!==panel)hidden.append(child);
+  shell.append(panel,hidden);panel.prepend(q('[data-role="alerts"]'));
+  for(const el of panel.querySelectorAll('[data-info]')){
+    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',el.querySelector('h3')?.textContent+(el.dataset.info==='heizung_freigabe'&&card._config.control_heating!==false?' – Freigabe umschalten':' – Details öffnen'));
+    const open=()=>{const key=el.dataset.info;
+      if(key==='heizung_freigabe'&&card._config.control_heating!==false){const current=card._entity(key)?.state;if(['on','off'].includes(current))card._setHeating(current==='on'?'off':'on');return;}
+      const action=card._config.tap_actions?.[key];
+      if(action?.action==='fire-dom-event'&&action.browser_mod){card.dispatchEvent(new CustomEvent('ll-custom',{detail:{browser_mod:action.browser_mod},bubbles:true,composed:true}));return;}
+      const id=card._entity(key)?.entity_id||card._candidates(key).find(id=>card._hass?.states?.[id]);if(id)card.dispatchEvent(new CustomEvent('hass-more-info',{detail:{entityId:id},bubbles:true,composed:true}));};
+    el.addEventListener('click',open);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  }
+  // Tap the diagram for a readable enlarged view without changing SVG IDs.
+  const drawing=tech.querySelector('.poolc-besgo-drawing');drawing.tabIndex=0;drawing.setAttribute('role','button');drawing.setAttribute('aria-label','Technik vergrößern');
+  const zoom=document.createElement('dialog');zoom.className='m-zoom';zoom.innerHTML='<button type="button">Schließen</button><div class="m-zoom-body"></div>';
+  root.append(zoom);const home=drawing.parentNode;const next=drawing.nextSibling;
+  const close=()=>{home.insertBefore(drawing,next);zoom.close();};
+  zoom.querySelector('button').onclick=close;zoom.addEventListener('cancel',e=>{e.preventDefault();close();});
+  const enlarge=()=>{if(zoom.open)return;zoom.querySelector('.m-zoom-body').append(drawing);zoom.showModal();};
+  drawing.addEventListener('click',enlarge);drawing.addEventListener('keydown',e=>{if(e.key==='Enter')enlarge();});
+  const zoomButton=document.createElement('button');zoomButton.type='button';zoomButton.className='m-enlarge';zoomButton.innerHTML=poolMobileIcon('zoom')+'<span>Technik vergrößern</span>';zoomButton.addEventListener('click',enlarge);tech.append(zoomButton);
+  const fill=root.poolFill;
+  root.poolFill=d=>{
+    // Restore numeric labels before core updates and detail cloning; compact labels are shortened afterwards.
+    for(const mark of q('.poolc-level-card').querySelectorAll('[data-role="level-marks"] i')){
+      mark.querySelector('span').textContent=mark.title.replace(':','').replace(/ cm$/,'');
+    }
+    fill(d);
+    for(const [source,clone] of expandedPairs){
+      for(const role of ['filter-gauge','level-marks']){
+        const from=source.querySelector('[data-role="'+role+'"]'),to=clone.querySelector('[data-role="'+role+'"]');
+        if(from&&to&&from.innerHTML!==to.innerHTML)to.innerHTML=from.innerHTML;
+      }
+      const from=source.querySelector('[data-role="level-fill"]'),to=clone.querySelector('[data-role="level-fill"]');
+      if(from&&to)to.style.cssText=from.style.cssText;
+      const vessel=clone.querySelector('.poolc-level-vessel');if(vessel)vessel.setAttribute('aria-label',source.querySelector('.poolc-level-vessel').getAttribute('aria-label'));
+      clone.classList.toggle('poolc-danger',source.classList.contains('poolc-danger'));
+      const flowState=clone.querySelector('[data-role="flow-system"]');if(flowState)flowState.classList.toggle('poolc-error',d.flow_system_error==='on');
+    }
+    for(const key of ['chlor','ph']){
+      const model=poolDialModel(key,d[key+'_ist'],d[key+'_soll']);
+      const dial=q(`[data-dial="${key}"]`),ring=dial.querySelector('.m-ring-value'),pointer=dial.querySelector('.m-current-marker'),target=dial.querySelector('.m-target-marker');
+      dial.style.setProperty('--dial-fill',model.position??0);
+      ring.style.visibility=pointer.style.visibility=model.position===null?'hidden':'visible';
+      target.style.visibility=model.target===null?'hidden':'visible';
+      if(model.position!==null){pointer.setAttribute('cx',model.x);pointer.setAttribute('cy',model.y);}
+      dial.dataset.range=model.outOfRange?'outside':'inside';
+      const title=model.target===null?'Sollwert nicht verfügbar':`Soll ${model.target.toLocaleString('de-DE')} auf 12 Uhr; links darunter, rechts darüber${model.outOfRange?' · Istwert außerhalb der Skala':''}`;
+      dial.title=title;
+      let deviation=dial.querySelector('.m-target-deviation');
+      if(!deviation){deviation=document.createElement('div');deviation.className='m-target-deviation';dial.append(deviation);}
+      const actual=PoolCockpitLovelaceCore.finite(d[key+'_ist']);
+      const expected=PoolCockpitLovelaceCore.finite(d[key+'_soll']);
+      if(d.connected===false||actual===null||expected===null){deviation.textContent='Abweichung nicht verfügbar';}
+      else{
+        const delta=Math.round((actual-expected)*100);
+        deviation.textContent=delta===0?'Im Soll':`${(Math.abs(delta)/100).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})}${key==='chlor'?' mg/l':''} ${delta<0?'unter':'über'} Soll`;
+      }
+
+    }
+    const stage=PoolCockpitLovelaceCore.pumpMotion(d);
+    for(const mark of q('.poolc-level-card').querySelectorAll('[data-role=level-marks] i')){
+      const label=mark.title.split(':')[0];
+      mark.querySelector('span').textContent=({Hoch:'H',Normal:'N',Nachfüllen:'L',Offset:'O'})[label]||label;
+    }
+    // Presentation only: existing HA states, service calls and animation logic remain authoritative.
+    const fresh=d.connected!==false;
+    const air=PoolCockpitLovelaceCore.finite(d.luft_temp_c),airCard=q('[data-info="luft_temp_c"]');
+    airCard.dataset.climate=!fresh||air===null?'unknown':air<0?'cold':air>=22?'sun':'mild';
+    airCard.querySelector('.m-air-art').setAttribute('aria-label','Temperaturillustration, keine gemessene Wetterlage');
+    const water=PoolCockpitLovelaceCore.finite(d.wasser_temp_c);
+    const thermometer=q('.m-water-thermometer');
+    if(thermometer){
+      const valid=fresh&&water!==null, ratio=valid?Math.max(0,Math.min(1,water/26)):0;
+      const stops=[[0,[25,35,211]],[.5,[136,48,142]],[1,[235,64,56]]];
+      let color='#526b7a';
+      if(valid){const hi=stops.findIndex(([at])=>at>=ratio),lo=Math.max(0,hi-1),t=hi===lo?0:(ratio-stops[lo][0])/(stops[hi][0]-stops[lo][0]);color='rgb('+stops[lo][1].map((v,i)=>Math.round(v+(stops[hi][1][i]-v)*t)).join(',')+')';}
+      const column=thermometer.querySelector('[data-role="water-temperature-column"]');
+      column.setAttribute('d',`M100 41V${41-28*ratio}`);column.setAttribute('stroke',color);
+      thermometer.querySelector('[data-role="water-temperature-bulb"]').setAttribute('fill',color);
+      thermometer.style.opacity=valid?'1':'.4';
+    }
+    const heatMatch=String(d.poolheizung_statuszeile||'').match(/Heizung:\s*(aktiv|inaktiv)(?:\s|$|[·,;])/i);
+    const heatState=!fresh||!heatMatch?'unknown':heatMatch[1].toLowerCase()==='aktiv'?'on':'off';
+    const heatCard=q('[data-info="heizung_temp_soll_c"]');heatCard.dataset.heatState=heatState;
+    const caption=heatState==='on'?'Heizung an':heatState==='off'?'Heizung aus':'Unbekannt';
+    heatCard.querySelector('.m-heater-caption').textContent=caption;
+    heatCard.querySelector('.m-heater-art').setAttribute('aria-label',caption);
+    q('[data-role=control-mode]').textContent=!fresh?'':d.status_nonstop_24h==='on'?'24h-Modus':d.status_timer==='on'?'Zeitsteuerung':'';
+    if(d.connected===false){root.dataset.flow='stopped';root.dataset.pump='stopped';root.dataset.refill='off';root.dataset.levelMotion='none';root.dataset.heating='off';root.dataset.mode='stale';}
+    q('[data-mobile-status]').textContent=d.connected===false?'Verbindung unterbrochen':stage.label+(stage.percent===null?'':' '+stage.percent+' %');
+    const heating=/Heizung:\s*aktiv(?:\s|$|[·,;])/i.test(d.poolheizung_statuszeile||'');
+    q('[data-mobile-heat]').textContent=`Freigabe: ${d.heizung_freigabe==='on'?'aktiv':d.heizung_freigabe==='off'?'inaktiv':'unbekannt'} · Heizung: ${d.poolheizung_statuszeile?heating?'aktiv':'inaktiv':'unbekannt'}`;
+  };
+}
+
+const POOL_V27_SPACING_CSS=`
+@container(max-width:520px){
+.poolc.pool-mobile .m-dial .poolc-big{top:46%}
+.poolc.pool-mobile .m-dial .poolc-big strong{font-size:clamp(26px,8cqw,42px)}
+}
+
+.poolc.pool-mobile .m-dial .m-target-deviation{position:absolute;bottom:3%;left:3px;right:3px;text-align:center;font-size:clamp(8px,1.4cqw,12px);line-height:1.2;font-weight:400;color:#93a4ad;z-index:3;white-space:nowrap;pointer-events:none}
+
+.poolc.pool-mobile .m-small .m-heater-art{width:92%;left:4%;overflow:hidden}
+.poolc.pool-mobile[data-heating=on] .m-heater-art .poolc-hx-coil{stroke:url(#pool-mini-hx-heat)}
+.poolc.pool-mobile [data-heat-state=on] .m-heater-art{filter:none}
+
+.poolc.pool-mobile .m-small .m-temperature .poolc-big{top:23%}
+.poolc.pool-mobile .m-small .m-heater-art{height:21%;bottom:9%}
+.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big{top:18%;left:0;right:0}
+.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong{font-size:clamp(16px,4.1cqw,36px)}
+.poolc.pool-mobile .m-small .poolc-level-assembly{top:0;bottom:0;right:clamp(7px,1.25cqw,11px);width:clamp(10px,1.8cqw,16px);min-height:0;max-width:none}
+.poolc.pool-mobile .m-small .poolc-level-vessel{inset:0;width:100%;height:100%}
+.poolc.pool-mobile .m-small .poolc-level-assembly i{left:-1px;width:calc(100% + 2px)}
+.poolc.pool-mobile .m-small .poolc-level-assembly i span{left:calc(100% + 2px);font-size:clamp(6px,1.25cqw,10px)}
+@container(max-width:360px){
+ .poolc.pool-mobile .m-small .poolc-level-assembly{right:4px}
+ .poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong{font-size:14px}
+}
+.poolc.pool-mobile .m-small{--measurement-size:clamp(14px,4.5cqw,44px);--measurement-unit:clamp(8px,2.2cqw,18px)}
+.poolc.pool-mobile .m-small .poolc-big strong,
+.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big strong,
+.poolc.pool-mobile .m-small .m-filter-value strong,
+.poolc.pool-mobile .m-small .poolc-flow-bottom strong{font-size:var(--measurement-size);font-weight:750;line-height:1.1;letter-spacing:-.6px}
+.poolc.pool-mobile .m-small .poolc-big small,
+.poolc.pool-mobile .m-small .m-filter-value small,
+.poolc.pool-mobile .m-small .poolc-flow-bottom small{font-size:var(--measurement-unit);font-weight:400;color:#c3e2ed;line-height:1.2}
+.poolc.pool-mobile .m-small .m-extra-art{position:absolute;left:20%;width:60%;height:26%;bottom:3%;color:#90cbdc}
+.poolc.pool-mobile .m-small [data-info=algizid_dosierung] .m-extra-art{color:#8dccaa}
+.poolc.pool-mobile .m-small [data-info=floc_dosierung] .m-extra-art{color:#d8b48a}
+.poolc.pool-mobile .m-pool-temperature .m-water{opacity:.15}
+/* All small measurements share the Algizid/Floc vertical start. */
+.poolc.pool-mobile .m-small .m-temperature .poolc-big,
+.poolc.pool-mobile .m-small .poolc-level-inner .poolc-big{top:31%}
+.poolc.pool-mobile .m-small .poolc-level-inner{position:absolute;inset:0;margin:0}
+.poolc.pool-mobile .m-small .poolc-level-assembly{top:25px;bottom:6px}
+.poolc.pool-mobile .m-pool-temperature .m-extra-art{overflow:visible;bottom:1%}
+.poolc.pool-mobile .m-water-thermometer [data-role]{transition:stroke .4s,fill .4s}
+
+`;
+function poolFullLayout(root){
+  root.classList.add('pool-full');
+  const intro=root.querySelector('.poolc-intro');
+  const summary=root.querySelector('.poolc-temperature-summary');
+  const waterSection=summary.closest('section');
+  waterSection.querySelector('.poolc-section-title').hidden=true;
+  summary.hidden=true;
+  const temperature=document.createElement('div');
+  temperature.className='poolc-header-temperature';
+  temperature.innerHTML='<span class="poolc-tiny">POOLTEMPERATUR</span><strong><span data-number="wasser_temp_c">–</span> °C</strong>';
+  const metrics=document.createElement('div');metrics.className='poolc-header-metrics';
+  metrics.append(temperature,intro.querySelector('.poolc-intro-state'));intro.append(metrics);
+  const chemistry=root.querySelector('.poolc-care-grid').closest('section');
+  const stocks=root.querySelector('.poolc-chem-grid').closest('section');
+  waterSection.before(chemistry,stocks);
+  const sectionTitle=waterSection.querySelector('.poolc-section-title');
+  sectionTitle.hidden=false;sectionTitle.querySelector('h2').textContent='Technikübersicht';
+  sectionTitle.querySelector('span').hidden=true;
+  root.querySelector('.poolc-tech-heading>h3').hidden=true;
+}
+const POOL_FULL_LAYOUT_CSS=`
+.poolc.pool-full .poolc-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:24px}
+.poolc.pool-full .poolc-header-metrics{justify-self:end;display:grid;gap:24px;padding-top:clamp(50px,12cqw,140px);min-width:140px;text-align:left}
+.poolc.pool-full .poolc-header-temperature{display:grid;gap:5px;text-align:left}
+.poolc.pool-full .poolc-header-temperature strong{font-size:18px;font-weight:450;color:#a0ded0;line-height:1.5}
+.poolc.pool-full .poolc-intro-state{margin:0;padding:0;border:0;text-align:left;justify-items:start;max-width:none}
+@container(max-width:520px){
+.poolc.pool-full .poolc-intro{grid-template-columns:minmax(0,1fr)}
+.poolc.pool-full .poolc-header-metrics{padding-top:0;min-width:120px;gap:18px}
+.poolc.pool-full .poolc-header-temperature strong{font-size:13px}
+}
+`;
+class PoolCockpitCard extends HTMLElement {
+  constructor(){super();this.attachShadow({mode:'open'});this._hass=null;this._config=null;this._root=null;this._lastSignature='';}
+  setConfig(config){
+    if(!config)throw new Error('Konfiguration fehlt.');
+    if(config.view!==undefined&&!['full','canisters','mobile'].includes(config.view))throw new Error('view muss full, canisters oder mobile sein.');
+    this._config={control_heating:true,entities:{},...config,entities:{...(config.entities||{})}};
+    this._lastSignature='';
+    this.shadowRoot.innerHTML=`<style>${POOL_COCKPIT_CSS}${POOL_MOBILE_CSS}${this._config.view==='mobile'?POOL_V27_CSS+POOL_V27_SPACING_CSS:POOL_FULL_LAYOUT_CSS}</style><ha-card><div class="poolc"></div></ha-card>`;
+    this._root=this.shadowRoot.querySelector('.poolc');
+    this._root.dataset.poolConfig=JSON.stringify({lovelace:true,canControl:this._config.control_heating!==false});
+    if(this._config.view==='canisters'){
+      this._root.classList.add('poolc-canisters-only');
+      PoolCockpitLovelaceCore.startCanisters(this._root);
+    }else { PoolCockpitLovelaceCore.start(this._root); if(this._config.view==='mobile')poolMobileLayout(this._root,this);else poolFullLayout(this._root); }
+    this._root.addEventListener('pool-set-heat',(event)=>this._setHeating(event.detail.desired));
+    this._root.addEventListener('pool-refresh',()=>{this._lastSignature='';this._render();});
+    if(this._hass)this._render();
+  }
+  set hass(hass){this._hass=hass;if(this._root)this._render();}
+  getGridOptions(){return {columns:12,min_columns:6};}
+  getCardSize(){return this._config?.view==='canisters'?12:22;}
+  _candidates(key){const value=this._config?.entities?.[key]??POOL_DEFAULT_ENTITIES[key]??[];return Array.isArray(value)?value:[value];}
+  _entity(key){for(const entityId of this._candidates(key)){if(entityId&&this._hass?.states?.[entityId])return this._hass.states[entityId];}return null;}
+  _normaliseBoolean(value){
+    const state=String(value??'').trim().toLowerCase();
+    if(['on','true','1','ein','aktiv','active','yes'].includes(state))return 'on';
+    if(['off','false','0','aus','inaktiv','inactive','no'].includes(state))return 'off';
+    return null;
+  }
+  _data(){
+    const data={};
+    for(const key of Object.keys(POOL_DEFAULT_ENTITIES)){
+      const entity=this._entity(key),state=entity?.state;
+      if(POOL_NUMERIC_KEYS.has(key)){
+        const parsed=state===null||state===undefined||['unknown','unavailable',''].includes(String(state).toLowerCase())?null:Number(String(state).replace(',','.'));
+        data[key]=Number.isFinite(parsed)?parsed:null;
+      }else if(POOL_BOOLEAN_KEYS.has(key)) data[key]=this._normaliseBoolean(state);
+      else data[key]=state===undefined||['unknown','unavailable',''].includes(String(state).toLowerCase())?null:state;
+      if(entity&&POOL_UNIT_KEYS[key])data[POOL_UNIT_KEYS[key]]=entity.attributes?.unit_of_measurement??null;
+      if(entity&&key.endsWith('_remaining_days')){
+        const samples=Number(entity.attributes?.evaluated_active_days);
+        data[key.replace(/_remaining_days$/,'_forecast_sample_days')]=Number.isFinite(samples)?samples:null;
+      }
+    }
+    data.connected=this._hass?.connected!==false;data.timestamp=new Date().toISOString();
+    data.received_epoch=Date.now()/1000;data.source_epoch=data.received_epoch;data.stale=false;
+    if(data.chlor_kanister_liter===null)data.chlor_kanister_liter=20;
+    if(data.ph_minus_kanister_liter===null)data.ph_minus_kanister_liter=20;
+    if(data.algizid_kanister_liter===null)data.algizid_kanister_liter=6;
+    if(data.flock_kanister_liter===null)data.flock_kanister_liter=6;
+    return data;
+  }
+  _render(){
+    if(!this._hass||!this._root?.poolFill)return;
+    const data=this._data(),signature=JSON.stringify(data,(key,value)=>['timestamp','received_epoch','source_epoch'].includes(key)?undefined:value);
+    if(signature===this._lastSignature)return;
+    this._lastSignature=signature;this._root.poolFill(data);
+  }
+  async _setHeating(desired){
+    const entity=this._entity('heizung_freigabe'),entityId=entity?.entity_id||this._candidates('heizung_freigabe').find(id=>this._hass?.states?.[id]);
+    if(!entityId||!['on','off'].includes(desired)){this._root?.poolSetCommand?.('Heizungsentität ist nicht verfügbar.');return;}
+    try{
+      await this._hass.callService('switch',desired==='on'?'turn_on':'turn_off',{entity_id:entityId});
+      this._root?.poolSetCommand?.('Befehl an Home Assistant gesendet. Rückmeldung wird geprüft.');
+    }catch(error){this._root?.poolSetCommand?.('Befehl fehlgeschlagen: '+(error?.message||error));}
+  }
+}
+
+if(!customElements.get('pool-cockpit'))customElements.define('pool-cockpit',PoolCockpitCard);
+window.customCards=window.customCards||[];
+if(!window.customCards.some(card=>card.type==='pool-cockpit'))window.customCards.push({type:'pool-cockpit',name:'Pool Cockpit',description:'Komplette Pool-Cockpit-Oberfläche mit direkten Home-Assistant-Entitäten'});

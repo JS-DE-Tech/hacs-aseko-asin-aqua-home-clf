@@ -54,7 +54,7 @@ and maintenance activity.
   </a>
 </p>
 
-Dashboard reference used for these screenshots: **SAB7 Pool Cockpit v2.7.9**.
+Dashboard reference used for these screenshots: **Pool Cockpit v2.7.9**.\n\nThe matching public dashboard files are available under [`dashboard/`](dashboard/).
 
 The ASEKO integration supplies the controller values used in these examples,
 including water chemistry, ASIN temperatures, water level, relay states, dosing
