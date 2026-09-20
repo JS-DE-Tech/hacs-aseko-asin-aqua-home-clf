@@ -54,6 +54,8 @@ and maintenance activity.
   </a>
 </p>
 
+Dashboard reference used for these screenshots: **SAB7 Pool Cockpit v2.7.9**.
+
 The ASEKO integration supplies the controller values used in these examples,
 including water chemistry, ASIN temperatures, water level, relay states, dosing
 container estimates, and maintenance data. The pump, BESGO pressure reserve,
