@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.10
+
+- Expand the README with desktop and mobile Pool Cockpit screenshots and notes about required additional sensors.
+- Add sanitized Pool Cockpit v2.7.9 source, installation instructions, and standalone previews under `dashboard/`.
+- Add a reference to the local BADU FlowSonic Plus connection through the ifm AL1350/AL1352 integration.
+- No runtime behavior of the ASEKO integration changes in this release.
+
 ## 1.0.6
 
 - Store and display dosing pump flow rates in `ml/min` instead of `l/h`, with
