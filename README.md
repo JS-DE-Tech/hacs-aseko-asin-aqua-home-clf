@@ -304,6 +304,59 @@ survive restarts, reloads, integration updates, option changes, and Home Assista
 updates. To avoid unbounded overcounting after downtime, a single interval between
 valid payloads is only counted when it is no longer than 60 seconds.
 
+## Container remaining-days forecasts
+
+Version `1.0.9` adds two sensors per chemical: `..._remaining_days` and
+`..._forecast_status`, using the existing `asin_aqua_home_<channel>` prefix.
+The channels are `chlorine`, `ph_minus`, `flocculation`, and `algicide`.
+Existing entity IDs (including numeric, custom, and duplicated-prefix IDs), units,
+calibration, accumulated runtime, and container replacement data are preserved.
+The forecast history is separate: `.storage/aseko_asin_aqua_home_forecast`.
+
+The estimate divides the remaining volume by expected daily consumption. It uses
+up to 14 completed active days, giving the last seven usable active days twice the
+weight. A usable day needs at least 90% observed coverage and six hours of enabled
+dosing. At least three usable days are required. The current day is excluded.
+Runtime is normalized to 24 hours of enabled dosing and converted with the same
+configured/calculated pump flow rate used by the existing volume sensors.
+Changing calibration therefore recalculates the estimate, just like the existing
+remaining-volume calculation; it does not erase recorded runtime.
+
+Setting algicide or flocculation dosing to zero **on the ASEKO device** pauses that
+channel's forecast. Paused time is excluded, while ordinary relay-off time with
+dosing enabled is included. Missing packets and intervals over 60 seconds never
+count as observed zero consumption. History survives restarts and container
+replacements and is retained for 180 days, including multi-week dosing pauses.
+After a long pause, a retained estimate is provisional until at least three usable
+days fall within the last seven calendar days. Incomplete recent samples also
+make estimates provisional. History older than 180 days requires learning again.
+
+Status values (translated in the Home Assistant UI):
+
+| State | Meaning |
+| --- | --- |
+| `active` | Sufficient recent observations |
+| `provisional` | Older or incomplete observations; estimate needs confirmation |
+| `paused` | Algicide/flocculation dose is zero |
+| `learning` | Initial collection of observations |
+| `calibration_missing` | No positive pump flow rate available |
+| `no_consumption` | Usable days contain no pump runtime |
+| `insufficient_data` | Too few adequately observed active days |
+| `device_data_missing` | No current valid device data or dose setting |
+
+The remaining-days sensor is unknown when no numeric forecast is justified. It
+never uses zero to mean paused, uncalibrated, or offline. Numeric results round
+down: `0 d` means less than one full day, including an empty container. Attributes
+include `estimated_daily_consumption_ml`, `evaluated_active_days`,
+`last_sample_date`, `last_observation`, `last_calculation`, and `forecast_status`.
+
+Daily consumption resets at Home Assistant's local midnight even without new
+gateway packets. This does not reset the total runtime or discard historical days.
+Store-format errors prevent loading rather than silently replacing stored values.
+This protection applies when running this version; it cannot change how older
+already-released versions behave. Keep a full Home Assistant backup before updates
+or downgrades. Update the integration in place, without deleting/re-adding it.
+
 ## Live Cloud Forwarding switch
 
 The **Cloud Forwarding** switch controls only the optional outbound connection from
@@ -350,3 +403,12 @@ scripts and templates.
 
 Existing entity IDs can be reset or renamed manually from the Home Assistant
 entity settings after updating the integration.
+
+## Development checks
+
+Run `python -m pip install -r requirements-test.txt`, then `python -m pytest -q`
+from the repository root. The suite uses lightweight Home Assistant stubs and
+checks parsing, storage migration, retained entity identities, option preservation,
+forecast behavior, local midnight/DST, and shutdown/reload behavior. GitHub runs
+these tests with Python 3.12 and 3.13. These checks do not replace a smoke test in
+a running Home Assistant instance before deploying to a production pool setup.

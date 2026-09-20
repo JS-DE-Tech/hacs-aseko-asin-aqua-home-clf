@@ -1,7 +1,7 @@
 """Sensors for ASEKO ASIN AQUA Home."""
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -20,6 +20,7 @@ from homeassistant.util import dt as dt_util
 from .const import DEFAULT_DOSING_FLOW_RATE, DEVICE_IDENTIFIER, DOMAIN
 from .const import DOSING_FLOW_RATE_UNIT
 from .dosing_tracker import DOSING_CHANNELS
+from .forecast import FORECAST_STATUSES
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -244,9 +245,39 @@ for channel in DOSING_CHANNELS:
         )
 
 
+FORECAST_DESCRIPTIONS = tuple(
+    description
+    for channel in DOSING_CHANNELS
+    for description in (
+        AsekoSensorDescription(
+            key=f"{channel.key}_remaining_days",
+            translation_key=f"{channel.key}_remaining_days",
+            channel_key=channel.key,
+            metric="remaining_days",
+            icon="mdi:calendar-clock",
+            native_unit_of_measurement=UnitOfTime.DAYS,
+            suggested_display_precision=0,
+        ),
+        AsekoSensorDescription(
+            key=f"{channel.key}_forecast_status",
+            translation_key=f"{channel.key}_forecast_status",
+            channel_key=channel.key,
+            metric="forecast_status",
+            icon="mdi:calendar-question",
+            device_class=SensorDeviceClass.ENUM,
+            options=list(FORECAST_STATUSES),
+        ),
+    )
+)
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(
         AsekoSensor(hass.data[DOMAIN][entry.entry_id], d) for d in DESCRIPTIONS
+    )
+    async_add_entities(
+        AsekoForecastSensor(hass.data[DOMAIN][entry.entry_id], d)
+        for d in FORECAST_DESCRIPTIONS
     )
 
 
@@ -407,3 +438,47 @@ class AsekoSensor(CoordinatorEntity, SensorEntity):
 
     def _daily_consumption_ml(self, flow_rate_ml_min: float) -> float:
         return self._daily_runtime_seconds() * flow_rate_ml_min / 60
+
+
+class AsekoForecastSensor(AsekoSensor):
+    """Additional forecast entities; all existing sensor identities stay intact."""
+
+    @property
+    def available(self):
+        # Keep the explanatory status readable even when the device is offline.
+        return True
+
+    def _forecast(self):
+        flow_rate = self._effective_flow_rate()
+        remaining = max(0.0, self._container_size() - self._consumed_liters(
+            self._runtime_seconds(), flow_rate
+        ))
+        return self.coordinator.forecast.calculate(
+            self.entity_description.channel_key,
+            remaining_liters=remaining,
+            flow_rate_ml_min=flow_rate,
+            sensors=self.coordinator.data.sensors if self.coordinator.data else {},
+            data_available=self.coordinator.data_available,
+        )
+
+    @property
+    def native_value(self):
+        forecast = self._forecast()
+        if self.entity_description.metric == "forecast_status":
+            return forecast.status
+        return forecast.remaining_days
+
+    @property
+    def extra_state_attributes(self):
+        if self.entity_description.metric != "remaining_days":
+            return None
+        forecast = self._forecast()
+        last_frame = self.coordinator.last_valid_frame
+        return {
+            "forecast_status": forecast.status,
+            "estimated_daily_consumption_ml": forecast.daily_consumption_ml,
+            "evaluated_active_days": forecast.sample_days,
+            "last_sample_date": forecast.last_sample_date,
+            "last_observation": last_frame.isoformat() if last_frame else None,
+            "last_calculation": datetime.now(timezone.utc).isoformat(),
+        }

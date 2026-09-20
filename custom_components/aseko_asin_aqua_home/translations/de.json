@@ -254,6 +254,70 @@
       },
       "last_backwash": {
         "name": "Letzte Rückspülung"
+      },
+      "chlorine_remaining_days": {
+        "name": "Chlor Voraussichtliche Resttage"
+      },
+      "chlorine_forecast_status": {
+        "name": "Chlor Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "ph_minus_remaining_days": {
+        "name": "pH-Minus Voraussichtliche Resttage"
+      },
+      "ph_minus_forecast_status": {
+        "name": "pH-Minus Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "flocculation_remaining_days": {
+        "name": "Flockungsmittel Voraussichtliche Resttage"
+      },
+      "flocculation_forecast_status": {
+        "name": "Flockungsmittel Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
+      },
+      "algicide_remaining_days": {
+        "name": "Algizid Voraussichtliche Resttage"
+      },
+      "algicide_forecast_status": {
+        "name": "Algizid Prognosestatus",
+        "state": {
+          "active": "Aktiv",
+          "provisional": "Vorläufige Prognose",
+          "paused": "Dosierung pausiert",
+          "learning": "Lernphase",
+          "calibration_missing": "Kalibrierung fehlt",
+          "no_consumption": "Kein Verbrauch im Auswertungszeitraum",
+          "insufficient_data": "Datengrundlage lückenhaft",
+          "device_data_missing": "Gerätedaten fehlen"
+        }
       }
     },
     "binary_sensor": {

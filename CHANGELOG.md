@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.9
+
+- Add estimated remaining days and a translated forecast status for each of the
+  four dosing containers, with independent persistent daily observation history.
+- Recognize algicide/flocculation pauses when the controller dose is zero. Exclude
+  pauses and unobserved gaps from consumption averages; mark stale estimates as
+  provisional after long pauses.
+- Preserve all existing entity IDs, including legacy duplicated-prefix IDs.
+- Preserve number-entity calibration and container options when the options
+  dialog is saved.
+- Refuse unsupported newer tracker storage instead of overwriting it with defaults.
+- Reset today's consumption at local midnight even when no gateway data arrives,
+  preserving accumulated runtime and container/replacement/calibration state.
+- Run Python regression tests on pushes, pull requests, and published releases.
+
 ## 1.0.8
 
 - Use the persisted calculated pump flow rate as a fallback for consumed volume,

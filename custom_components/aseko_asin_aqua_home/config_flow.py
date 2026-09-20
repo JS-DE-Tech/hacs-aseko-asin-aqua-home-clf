@@ -121,7 +121,11 @@ class OptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            # Number entities store calibration/container settings in options too.
+            # The dialog must only replace fields it actually edits.
+            return self.async_create_entry(
+                title="", data={**self.entry.options, **user_input}
+            )
         return self.async_show_form(
             step_id="init",
             data_schema=schema({**self.entry.data, **self.entry.options}),

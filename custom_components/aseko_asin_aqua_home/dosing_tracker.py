@@ -116,24 +116,27 @@ class DosingTracker:
         self.states = {channel.key: DosingChannelState() for channel in DOSING_CHANNELS}
         self._dirty = False
         self._last_save_timestamp: datetime | None = None
+        self._storage_writable = True
 
     async def async_load(self) -> None:
+        self._storage_writable = False
         data = await self._store.async_load()
         migrated = False
         if not data:
             data = await self._legacy_store.async_load()
             migrated = data is not None
         if not data:
+            self._storage_writable = True
             return
         storage_version = int(data.get("version", 1))
         if storage_version > STORAGE_VERSION:
-            _LOGGER.warning("Ignoring newer dosing tracker storage version")
-            return
+            raise ValueError("Newer dosing tracker storage version; preserving stored data")
         channels = data.get("channels", {})
         for channel in DOSING_CHANNELS:
             self.states[channel.key] = DosingChannelState.from_dict(
                 channels.get(channel.key), storage_version=storage_version
             )
+        self._storage_writable = True
         if migrated or storage_version < STORAGE_VERSION:
             await self.async_save()
 
@@ -193,9 +196,23 @@ class DosingTracker:
         await self.async_save()
 
     async def async_save(self) -> None:
+        if not self._storage_writable:
+            return
         await self._store.async_save(self.as_dict())
         self._dirty = False
         self._last_save_timestamp = datetime.now(timezone.utc)
+
+    def advance_day(self, now: datetime | None = None) -> bool:
+        """Reset only today's counters, even while the gateway is disconnected."""
+        today = _local_date_string(now or datetime.now(timezone.utc))
+        changed = False
+        for state in self.states.values():
+            if state.daily_runtime_date != today:
+                state.daily_runtime_seconds = 0.0
+                state.daily_runtime_date = today
+                changed = True
+        self._dirty |= changed
+        return changed
 
     async def async_store_calculated_flow_rate(
         self, channel_key: str, flow_rate: float

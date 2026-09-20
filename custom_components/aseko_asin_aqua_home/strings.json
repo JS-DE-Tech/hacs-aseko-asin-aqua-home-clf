@@ -254,6 +254,70 @@
       },
       "last_backwash": {
         "name": "Last Backwash"
+      },
+      "chlorine_remaining_days": {
+        "name": "Chlorine Estimated remaining days"
+      },
+      "chlorine_forecast_status": {
+        "name": "Chlorine Forecast status",
+        "state": {
+          "active": "Active",
+          "provisional": "Provisional forecast",
+          "paused": "Dosing paused",
+          "learning": "Learning",
+          "calibration_missing": "Calibration missing",
+          "no_consumption": "No consumption in evaluation period",
+          "insufficient_data": "Insufficient data",
+          "device_data_missing": "Device data missing"
+        }
+      },
+      "ph_minus_remaining_days": {
+        "name": "pH-Minus Estimated remaining days"
+      },
+      "ph_minus_forecast_status": {
+        "name": "pH-Minus Forecast status",
+        "state": {
+          "active": "Active",
+          "provisional": "Provisional forecast",
+          "paused": "Dosing paused",
+          "learning": "Learning",
+          "calibration_missing": "Calibration missing",
+          "no_consumption": "No consumption in evaluation period",
+          "insufficient_data": "Insufficient data",
+          "device_data_missing": "Device data missing"
+        }
+      },
+      "flocculation_remaining_days": {
+        "name": "Flocculation Estimated remaining days"
+      },
+      "flocculation_forecast_status": {
+        "name": "Flocculation Forecast status",
+        "state": {
+          "active": "Active",
+          "provisional": "Provisional forecast",
+          "paused": "Dosing paused",
+          "learning": "Learning",
+          "calibration_missing": "Calibration missing",
+          "no_consumption": "No consumption in evaluation period",
+          "insufficient_data": "Insufficient data",
+          "device_data_missing": "Device data missing"
+        }
+      },
+      "algicide_remaining_days": {
+        "name": "Algicide Estimated remaining days"
+      },
+      "algicide_forecast_status": {
+        "name": "Algicide Forecast status",
+        "state": {
+          "active": "Active",
+          "provisional": "Provisional forecast",
+          "paused": "Dosing paused",
+          "learning": "Learning",
+          "calibration_missing": "Calibration missing",
+          "no_consumption": "No consumption in evaluation period",
+          "insufficient_data": "Insufficient data",
+          "device_data_missing": "Device data missing"
+        }
       }
     },
     "binary_sensor": {

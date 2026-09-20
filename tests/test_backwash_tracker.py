@@ -57,6 +57,17 @@ def _tracker(backwash_module):
     return backwash_module.BackwashTracker(types.SimpleNamespace(), "entry-1")
 
 
+def test_newer_storage_cannot_be_overwritten(backwash_module):
+    key = backwash_module.STABLE_STORAGE_KEY
+    original = {"version": 999, "state": {"last_backwash_timestamp": "2026-09-01T10:00:00+00:00"}}
+    FakeStore.saved_by_key[key] = original
+    tracker = _tracker(backwash_module)
+    with pytest.raises(ValueError, match="preserving"):
+        asyncio.run(tracker.async_load())
+    asyncio.run(tracker.async_save())
+    assert FakeStore.saved_by_key[key] is original
+
+
 def _observe_completed_cycle(tracker, start, duration_seconds):
     assert tracker.observe_relay(True, start) is False
     if duration_seconds > 60:

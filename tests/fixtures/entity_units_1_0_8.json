@@ -1,0 +1,51 @@
+{
+  "sensor": {
+    "ph": null, "chlorine": "ppm", "air_temperature": "°C",
+    "water_temperature": "°C", "water_level": "cm", "water_level_probe": "cm",
+    "last_backwash": null, "chlorine_target": "ppm", "water_temperature_target": "°C",
+    "backwash_interval_days": "d", "filling_time_limit": "min", "pool_volume": "m³",
+    "water_level_low": "cm", "refill_on": "cm", "refill_off": "cm", "water_level_high": "cm",
+    "dosing_delay": "min", "startup_delay": "min", "system_date": null, "system_time": null,
+    "time_deviation": null, "ph_target": null, "flocculation_dose": null,
+    "filter_1_start": null, "filter_1_end": null, "filter_2_start": null, "filter_2_end": null,
+    "backwash_start": null, "algicide_dose": null, "concentration": null, "ph_minus_concentration": null,
+    "max_chlorine_doses": null, "max_ph_doses": null, "error_status": null, "warning_byte": null,
+    "warning_byte_binary": null, "error_byte": null, "error_byte_binary": null,
+    "relay_byte": null, "relay_byte_binary": null, "byte24": null, "byte24_binary": null, "raw_status": null,
+    "chlorine_runtime_since_replacement": "s", "chlorine_consumed_liters": "l",
+    "chlorine_remaining_liters": "l", "chlorine_remaining_percent": "%",
+    "chlorine_daily_consumption": "ml", "chlorine_suggested_flow_rate": "ml/min", "chlorine_last_container_replacement": null,
+    "ph_minus_runtime_since_replacement": "s", "ph_minus_consumed_liters": "l",
+    "ph_minus_remaining_liters": "l", "ph_minus_remaining_percent": "%",
+    "ph_minus_daily_consumption": "ml", "ph_minus_suggested_flow_rate": "ml/min", "ph_minus_last_container_replacement": null,
+    "flocculation_runtime_since_replacement": "s", "flocculation_consumed_liters": "l",
+    "flocculation_remaining_liters": "l", "flocculation_remaining_percent": "%",
+    "flocculation_daily_consumption": "ml", "flocculation_suggested_flow_rate": "ml/min", "flocculation_last_container_replacement": null,
+    "algicide_runtime_since_replacement": "s", "algicide_consumed_liters": "l",
+    "algicide_remaining_liters": "l", "algicide_remaining_percent": "%",
+    "algicide_daily_consumption": "ml", "algicide_suggested_flow_rate": "ml/min", "algicide_last_container_replacement": null
+  },
+  "binary_sensor": {
+    "error_hour_dosing_exceeded": null, "error_time_correction": null, "error_no_probe_flow": null,
+    "error_buffer_tank_empty": null, "error_buffer_tank_overflow": null, "error_low_filling_speed": null,
+    "error_ph_doses_without_change": null, "error_chlorine_doses_without_change": null, "error_rapid_ph_change": null,
+    "relay_backwash": null, "relay_filling": null, "relay_heating": null, "relay_filtration": null,
+    "relay_algicide": null, "relay_flocculation": null, "relay_chlorine": null, "relay_ph_minus": null,
+    "status_filtration": null, "status_standby": null, "status_heating": null, "status_open_menu": null,
+    "status_nonstop_24h": null, "status_timer": null
+  },
+  "number": {
+    "water_level_offset": "cm", "time_correction_threshold_minutes": "min",
+    "chlorine_container_size": "l", "chlorine_flow_rate": "ml/min",
+    "ph_minus_container_size": "l", "ph_minus_flow_rate": "ml/min",
+    "flocculation_container_size": "l", "flocculation_flow_rate": "ml/min",
+    "algicide_container_size": "l", "algicide_flow_rate": "ml/min"
+  },
+  "switch": {"cloud_forwarding": null},
+  "button": {
+    "chlorine_container_replaced": null, "ph_minus_container_replaced": null,
+    "flocculation_container_replaced": null, "algicide_container_replaced": null,
+    "chlorine_calculate_flow_rate": null, "ph_minus_calculate_flow_rate": null,
+    "flocculation_calculate_flow_rate": null, "algicide_calculate_flow_rate": null
+  }
+}
