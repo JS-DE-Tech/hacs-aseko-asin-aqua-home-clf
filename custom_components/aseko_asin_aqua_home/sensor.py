@@ -9,7 +9,6 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_MILLION,
     UnitOfLength,
     UnitOfTemperature,
     UnitOfTime,
@@ -21,6 +20,18 @@ from .const import DEFAULT_DOSING_FLOW_RATE, DEVICE_IDENTIFIER, DOMAIN
 from .const import DOSING_FLOW_RATE_UNIT
 from .dosing_tracker import DOSING_CHANNELS
 from .forecast import FORECAST_STATUSES
+
+try:
+    from homeassistant.const import UnitOfRatio
+except ImportError:
+    # The supported HA minimum (2024.6) predates UnitOfRatio. Keep the same
+    # serialized unit without importing the deprecated concentration constant.
+    from enum import StrEnum
+
+    class UnitOfRatio(StrEnum):
+        """Compatibility subset for Home Assistant without ratio unit enums."""
+
+        PARTS_PER_MILLION = "ppm"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -111,7 +122,7 @@ DESCRIPTIONS = [
     sensor_description("ph"),
     sensor_description(
         "chlorine",
-        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+        native_unit_of_measurement=UnitOfRatio.PARTS_PER_MILLION,
     ),
     sensor_description(
         "air_temperature",
@@ -134,7 +145,7 @@ DESCRIPTIONS = [
     sensor_description("last_backwash"),
     sensor_description(
         "chlorine_target",
-        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+        native_unit_of_measurement=UnitOfRatio.PARTS_PER_MILLION,
     ),
     sensor_description(
         "water_temperature_target",

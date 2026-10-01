@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.13
+
+- Replace the deprecated concentration constant with
+  `UnitOfRatio.PARTS_PER_MILLION` for chlorine and chlorine target sensors.
+  Values and serialized units remain unchanged (`ppm`). Preserve the declared
+  Home Assistant 2024.6 minimum with a compatibility enum when the new API is
+  absent, without importing the deprecated constant.
+- Leave entity identities, storage, calculations and the 1.0.12 shutdown fix
+  unchanged. Test sensor imports with and without the new unit enum.
+
 ## 1.0.12
 
 - Fix delayed Home Assistant shutdown/reload with active TCP gateways: close

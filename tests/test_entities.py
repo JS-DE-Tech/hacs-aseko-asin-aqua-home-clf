@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 import types
 from dataclasses import dataclass
+from enum import StrEnum
 
 import asyncio
 import re
@@ -95,7 +96,10 @@ def install_homeassistant_stubs(monkeypatch):
     const.UnitOfTemperature = types.SimpleNamespace(CELSIUS="°C")
     const.UnitOfTime = types.SimpleNamespace(DAYS="d", MINUTES="min")
     const.UnitOfVolume = types.SimpleNamespace(CUBIC_METERS="m³")
-    const.CONCENTRATION_PARTS_PER_MILLION = "ppm"
+    class UnitOfRatio(StrEnum):
+        PARTS_PER_MILLION = "ppm"
+
+    const.UnitOfRatio = UnitOfRatio
     entity.EntityCategory = EntityCategory
     exceptions.HomeAssistantError = HomeAssistantError
     dt.as_local = lambda value: value.astimezone()
@@ -866,3 +870,34 @@ def test_calculate_flow_rate_button_rejects_implausible_values(integration_modul
         asyncio.run(entity.async_press())
 
     assert entry.options == {}
+
+
+@pytest.mark.parametrize("ratio_enum_available", [True, False])
+def test_ppm_import_compatibility(integration_modules, monkeypatch, ratio_enum_available):
+    """Import with modern/legacy HA APIs without touching deprecated constants."""
+    import json
+
+    ha_const = sys.modules["homeassistant.const"]
+    official_enum = ha_const.UnitOfRatio
+    if not ratio_enum_available:
+        monkeypatch.delattr(ha_const, "UnitOfRatio")
+
+    def missing_attribute(name):
+        if name == "CONCENTRATION_PARTS_PER_MILLION":
+            raise AssertionError("Deprecated constant accessed")
+        raise AttributeError(name)
+
+    monkeypatch.setattr(ha_const, "__getattr__", missing_attribute, raising=False)
+    spec = importlib.util.spec_from_file_location(
+        f"{PACKAGE}.sensor_compat", BASE / "sensor.py"
+    )
+    sensor = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, sensor)
+    spec.loader.exec_module(sensor)
+    if ratio_enum_available:
+        assert sensor.UnitOfRatio is official_enum
+    for key in ("chlorine", "chlorine_target"):
+        description = next(d for d in sensor.DESCRIPTIONS if d.key == key)
+        assert description.native_unit_of_measurement == "ppm"
+        assert json.dumps(description.native_unit_of_measurement) == '"ppm"'
+        assert description.native_unit_of_measurement is sensor.UnitOfRatio.PARTS_PER_MILLION
