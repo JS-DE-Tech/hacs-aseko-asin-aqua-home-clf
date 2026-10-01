@@ -136,7 +136,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
-        await hass.data[DOMAIN].pop(entry.entry_id).async_stop()
+        entries = hass.data[DOMAIN]
+        coordinator = entries.get(entry.entry_id)
+        if coordinator is not None:
+            await coordinator.async_stop()
+            # Retain the coordinator if cancelled, so a later unload can join it.
+            if entries.get(entry.entry_id) is coordinator:
+                entries.pop(entry.entry_id)
     return unload
 
 

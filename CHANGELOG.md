@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.12
+
+- Fix delayed Home Assistant shutdown/reload with active TCP gateways: close
+  the listener, gateway/cloud connections and session tasks before waiting for
+  the server to close (required by Python 3.12+).
+- Bound network cleanup waits and abort stalled transports. Register accepted
+  connections synchronously and reject late arrivals during shutdown.
+- Share cleanup between concurrent stop/unload calls, propagate cancellation to
+  callers, and retain the coordinator until cleanup completes. Preserve the
+  final dosing, backwash and forecast state after session processing stops.
+- Add real local TCP regression tests for idle/connected shutdown, multiple
+  clients, blocked cloud connection/write/close, late accepts, repeated unload,
+  concurrent cleanup, cancellation and persisted state.
+
 ## 1.0.11
 
 - Restore the complete integration runtime and translations from 1.0.9 after
